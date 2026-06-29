@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if page.title %}{{ page.title }} | {% endif %}AgentML</title>
+  <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}Contract language for AI coding agents{% endif %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --bg-secondary: #11141b;
+      --bg-tertiary: #161a23;
+      --text: #e6e8ee;
+      --text-secondary: #9ca3b4;
+      --text-muted: #6b7280;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --border: #1f2933;
+      --code-bg: #0d1017;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --radius: 12px;
+      --max-width: 1100px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      background: rgba(11,13,18,0.8);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    header .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      font-weight: 800;
+      color: white;
+    }
+    nav a {
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      margin-left: 24px;
+      transition: color 0.15s ease;
+    }
+    nav a:hover { color: var(--text); text-decoration: none; }
+    .hero {
+      padding: 96px 0 72px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 18px;
+      line-height: 1.1;
+    }
+    .hero p {
+      color: var(--text-secondary);
+      font-size: 18px;
+      max-width: 640px;
+      margin: 0 auto 32px;
+    }
+    .install {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .install code {
+      font-size: 15px;
+      color: var(--text);
+    }
+    .install-copy {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .install-copy:hover { color: var(--text); border-color: var(--accent); }
+    .quickstart {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 24px;
+    }
+    .quickstart a {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .quickstart a:hover { color: var(--text); border-color: var(--accent); text-decoration: none; }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 28px;
+    }
+    .badges img { height: 20px; }
+    .features {
+      padding: 64px 0;
+    }
+    .features h2 {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 40px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: #374151;
+    }
+    .card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 10px;
+    }
+    .card p {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin: 0;
+    }
+    .docs-index {
+      padding: 64px 0 96px;
+    }
+    .docs-index h2 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 24px;
+    }
+    .doc-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+    }
+    .doc-list a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .doc-list a:hover {
+      border-color: var(--accent);
+      text-decoration: none;
+      background: var(--bg-tertiary);
+    }
+    .doc-list .arrow { color: var(--text-muted); font-size: 13px; }
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .content {
+      padding: 40px 0 96px;
+    }
+    .content h1 { font-size: 32px; font-weight: 700; margin: 0 0 18px; }
+    .content h2 { font-size: 22px; font-weight: 600; margin: 36px 0 14px; }
+    .content h3 { font-size: 18px; font-weight: 600; margin: 28px 0 10px; }
+    .content p { color: var(--text-secondary); margin: 0 0 14px; }
+    .content pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      overflow-x: auto;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .content code {
+      background: var(--bg-tertiary);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .content pre code { background: transparent; padding: 0; }
+    .content ul { padding-left: 22px; color: var(--text-secondary); }
+    .content li { margin-bottom: 8px; }
+    .content a { color: var(--accent); }
+    @media (max-width: 640px) {
+      .hero { padding: 64px 0 56px; }
+      .install { flex-direction: column; align-items: stretch; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <div class="logo-mark">A</div>
+        <span>AgentML</span>
+      </div>
+      <nav>
+        <a href="/docs/">Docs</a>
+        <a href="https://github.com/Nom-nom-hub/agentml">GitHub</a>
+        <a href="https://crates.io/crates/agentml">crates.io</a>
+      </nav>
+    </div>
+  </header>
+
+  {{ content }}
+
+  <footer>
+    <div class="container">
+      <p>AgentML is open source under the MIT license. Built in Rust.</p>
+      <p style="margin-top: 6px;"><a href="https://github.com/Nom-nom-hub/agentml">GitHub</a> · <a href="https://crates.io/crates/agentml">crates.io</a> · <a href="https://github.com/Nom-nom-hub/agentml/issues">Feedback</a></p>
+    </div>
+  </footer>
+</body>
+</html>
