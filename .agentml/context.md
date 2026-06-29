@@ -1,6 +1,6 @@
 meta:
   name: agentml
-  version: 0.1.0
+  version: 0.1.1
   description: null
 purpose:
   human_goal: |
