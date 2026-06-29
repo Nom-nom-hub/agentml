@@ -1,0 +1,52 @@
+meta:
+  name: python-package-example
+  version: "1.0.0"
+
+purpose: >
+  AI agent for developing and maintaining a Python package.
+
+context:
+  project_type: python-package
+  languages: [python]
+  frameworks: [pytest, ruff]
+
+permissions:
+  read:
+    - "**/*.py"
+    - "**/pyproject.toml"
+    - "**/*.md"
+  write:
+    - "src/**/*.py"
+    - "tests/**/*.py"
+    - "pyproject.toml"
+  execute:
+    - "python"
+    - "pytest"
+    - "ruff"
+
+tools: [python, pip, git, bash]
+
+safety:
+  forbidden_paths:
+    - ".venv/**"
+    - "dist/**"
+    - "*.egg-info"
+  forbidden_actions:
+    - "rm -rf src"
+    - "git push --force"
+  require_confirmation:
+    - "git push"
+    - "twine upload"
+
+validation:
+  - name: Lint
+    command: "ruff check ."
+  - name: Test
+    command: "pytest"
+
+output:
+  format: markdown
+  required_sections:
+    - "changes"
+    - "tests"
+    - "risks"

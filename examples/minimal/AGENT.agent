@@ -1,0 +1,29 @@
+meta:
+  name: minimal-example
+  version: "1.0.0"
+
+purpose: >
+  Minimal AgentML example for any project type.
+
+permissions:
+  read:
+    - "**/*"
+  write:
+    - "src/**/*"
+  execute:
+    - "npm run"
+
+safety:
+  forbidden_paths:
+    - ".env*"
+  forbidden_actions:
+    - "rm -rf"
+
+validation:
+  - name: lint
+    command: "npm run lint"
+
+output:
+  format: markdown
+  required_sections:
+    - "summary"

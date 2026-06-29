@@ -1,0 +1,41 @@
+meta:
+  name: demo-sensitive-change
+  version: "1.0.0"
+
+purpose: >
+  Demo showing how AgentML protects sensitive files from AI agents.
+
+context:
+  project_type: demo
+  languages: [rust]
+  frameworks: []
+
+permissions:
+  read:
+    - "**/*.rs"
+    - "**/*.md"
+    - "AGENT.agent"
+  write:
+    - "src/main.rs"
+
+safety:
+  forbidden_paths:
+    - "config/**"
+    - "migrations/**"
+  forbidden_actions:
+    - "rm -rf"
+    - "git push --force"
+  require_confirmation:
+    - "cargo publish"
+
+validation:
+  - name: cargo check
+    command: "cargo check"
+  - name: cargo test
+    command: "cargo test"
+
+output:
+  format: markdown
+  required_sections:
+    - "changes"
+    - "risks"

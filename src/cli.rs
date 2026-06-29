@@ -17,6 +17,8 @@ pub enum Commands {
         path: PathBuf,
         #[arg(short, long)]
         template: Option<String>,
+        #[arg(long)]
+        force: bool,
     },
     #[command(alias = "check")]
     Validate {
@@ -42,6 +44,8 @@ pub enum Commands {
         skill: SkillCommands,
     },
     SelfCheck {},
+    Diff {},
+    Doctor {},
 }
 
 #[derive(Subcommand, Debug)]

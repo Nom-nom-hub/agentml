@@ -5,7 +5,14 @@ use clap::Parser;
 fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
-        agentml::cli::Commands::Initialize { path, template } => {
+        agentml::cli::Commands::Initialize {
+            path,
+            template,
+            force,
+        } => {
+            if force {
+                unsafe { std::env::set_var("AGENTML_FORCE_INIT", "1") };
+            }
             agentml::commands::init::run(path, template)
         }
         agentml::cli::Commands::Validate { file, strict } => {
@@ -25,5 +32,7 @@ fn main() -> Result<()> {
             }
         },
         agentml::cli::Commands::SelfCheck {} => agentml::commands::self_check::run(),
+        agentml::cli::Commands::Diff {} => agentml::commands::diff::run(),
+        agentml::cli::Commands::Doctor {} => agentml::commands::doctor::run(),
     }
 }

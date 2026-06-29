@@ -1,177 +1,141 @@
 # AgentML
 
-**AI-native markup language and CLI for defining how AI agents understand, modify, validate, and report on software projects.**
+**AgentML is a contract language for AI coding agents.**
 
-AgentML is not Markdown. It is not plain YAML. Markdown is for humans. YAML is for configuration. AgentML is for **AI execution contracts**.
+AgentML defines how AI agents understand, modify, validate, and report on software projects. It is not Markdown, not YAML config — it is an executable contract that sits between humans and AI agents.
 
-Every project can include an `AGENT.agent` file. This file defines:
+---
 
-- **Purpose** — what the agent is allowed to do
-- **Context** — project type, languages, frameworks
-- **Permissions** — read/write/execute path policies
-- **Tools** — available CLIs and runtimes
-- **Workflows** — multi-step procedures with success criteria
-- **Tasks** — reusable named tasks with inputs and gates
-- **Safety** — forbidden paths, forbidden actions, confirmation requirements
-- **Validation** — commands the agent must run after changes
-- **Output** — required sections and format for reports
+## What AgentML Is
 
-AgentML also supports reusable `.skill` files for installable AI capabilities (e.g. `auth.skill`, `testing.skill`, `rust-cli.skill`).
+AgentML is a markup language and CLI for **AI execution contracts**. Every project can include an `AGENT.agent` file that tells agents:
+
+- What they are allowed to do
+- Which files they can read and write
+- Which actions are forbidden
+- Which commands must pass before changes are accepted
+- What format their reports must follow
+
+AgentML also supports `.skill` files for reusable, installable AI capabilities.
+
+---
+
+## Why It Exists
+
+AI coding agents are powerful but need guardrails. Without contracts:
+
+- Agents edit files they shouldn't
+- Destructive commands run without confirmation
+- Sensitive files are modified blindly
+- Validation steps are skipped
+- Reports are inconsistent
+
+AgentML solves this by making the contract **explicit, machine-readable, and enforced by the CLI**.
+
+---
+
+## Quickstart
+
+```bash
+# 1. Install from source
+git clone https://github.com/Nom-nom-hub/agentml.git
+cd agentml && cargo install --path .
+
+# 2. Initialize in your project
+cd your-project
+agentml init --template generic
+
+# 3. Validate the contract
+agentml validate AGENT.agent
+
+# 4. Run self-check
+agentml self-check
+
+# 5. Export context for LLMs
+agentml context
+```
+
+**That is the entire workflow.** You now have an `AGENT.agent` file governing your project.
 
 ---
 
 ## Install
 
-```bash
-cargo install --path agentml
-```
-
-Or clone and build:
+### From source
 
 ```bash
-git clone https://github.com/agentml/agentml.git
-cd agentml && cargo build --release
+git clone https://github.com/Nom-nom-hub/agentml.git
+cd agentml && cargo install --path .
 ```
+
+### Requirements
+
+- Rust 1.70+
+- Cargo
 
 ---
 
-## Quick Start
+## Basic Commands
 
 ```bash
-# Initialize a new project
-agentml init
-
-# Validate an AGENT.agent file
-agentml validate
-
-# Inspect an AGENT.agent file
-agentml inspect
-
-# Run a specific task
-agentml run <task>
-
-# Export agent context for LLMs
-agentml context
-
-# Work with skills
-agentml skill validate auth.skill
-agentml skill pack ./my-skill-folder
-```
-
----
-
-## CLI Reference
-
-### `agentml init`
-
-Creates a new `AGENT.agent` file in the current directory.
-
-```bash
-agentml init [path] [--template <basic|nextjs|rust>]
-```
-
-### `agentml validate`
-
-Validates an `AGENT.agent` file against semantic rules and prints a report.
-
-```bash
+agentml init [path] [--template <generic|rust-cli|nextjs-app|python-package>] [--force]
 agentml validate <file> [--strict]
-```
-
-**Report includes:**
-- `valid` / `invalid`
-- `errors` with suggested fixes
-- `warnings` with suggestions
-- `risk_score` (0-100)
-- `risk_factors`
-
-### `agentml inspect`
-
-Displays a human-readable summary of an `AGENT.agent` file.
-
-```bash
 agentml inspect <file>
-```
-
-### `agentml run <task>`
-
-Shows the execution plan for a specific task defined in `AGENT.agent`.
-
-```bash
-agentml run <task> [file=AGENT.agent]
-```
-
-### `agentml context`
-
-Exports the agent file as YAML context for consumption by LLMs.
-
-```bash
-agentml context [file=AGENT.agent] [--output <path>]
-```
-
-### `agentml skill validate <file>`
-
-Validates a `.skill` file.
-
-```bash
+agentml run <task> [file]
+agentml context [file] [--output <path>]
 agentml skill validate <file>
-```
-
-### `agentml skill pack <folder>`
-
-Packages all `.skill` files in a folder into a `.skill.tar.gz` archive.
-
-```bash
 agentml skill pack <folder>
+agentml self-check
+agentml diff
+agentml doctor
 ```
 
 ---
 
-## Agent File Example
+## Example: AGENT.agent
 
 ```yaml
 meta:
-  name: my-nextjs-app
+  name: my-project
   version: "1.0.0"
 
 purpose: >
-  AI agent for building and maintaining a Next.js application with Supabase auth.
+  AI agent for building and maintaining a Rust CLI application.
 
 context:
-  project_type: nextjs
-  languages: [typescript, javascript]
-  frameworks: [nextjs, react]
+  project_type: rust-cli
+  languages: [rust]
+  frameworks: [clap, tokio]
 
 permissions:
   read:
-    - "**/*.ts"
-    - "**/*.tsx"
-    - "**/*.json"
+    - "**/*.rs"
+    - "**/Cargo.toml"
   write:
-    - "src/**/*.ts"
-    - "app/**/*.tsx"
+    - "src/**/*.rs"
+    - "Cargo.toml"
   execute:
-    - "npm run"
-    - "npx"
+    - "cargo"
+
+tools: [cargo, rustfmt, clippy, git, bash]
 
 safety:
-  policy: "Never commit secrets. Use environment variables."
   forbidden_paths:
-    - ".env*.local"
-    - "node_modules/**"
+    - "target/**"
+    - "**/*.rs.bk"
   forbidden_actions:
-    - "git push --force"
+    - "cargo publish"
     - "rm -rf src"
   require_confirmation:
-    - "git push"
+    - "cargo publish"
 
 validation:
-  - name: Lint
-    command: "npm run lint"
-  - name: Type Check
-    command: "npm run typecheck"
+  - name: Format
+    command: "cargo fmt -- --check"
+  - name: Clippy
+    command: "cargo clippy -- -D warnings"
   - name: Test
-    command: "npm test"
+    command: "cargo test"
 
 output:
   format: markdown
@@ -183,109 +147,162 @@ output:
 
 ---
 
-## Skill File Example
+## Example: .skill file
 
 ```yaml
-skill: nextjs-auth
+skill: rust-cli-maintainer
 version: "1.0.0"
-description: >
-  Reusable skill for adding Supabase authentication to Next.js applications.
+description: Maintain a Rust CLI project safely.
 
 requirements:
-  - "Next.js 14+"
-  - "Supabase project"
-
-inputs:
-  - name: supabase_url
-    description: "Supabase project URL"
-    required: true
-  - name: supabase_anon_key
-    description: "Public anon key"
-    required: true
+  - Rust
+  - Cargo
 
 actions:
-  - "Create src/middleware.ts with auth guard"
-  - "Create app/login/page.tsx"
-  - "Update app/layout.tsx with SessionProvider"
+  - inspect_cli_commands
+  - update_parser
+  - run_cargo_checks
 
 rules:
-  - "Never expose service_role key in client code"
-  - "Use SSR cookies for server-side auth"
+  - Keep CLI output stable unless intentionally changed.
+  - Add tests for every new validation rule.
+  - Avoid panics in user-facing parsing paths.
 
 success: >
-  User can sign up, log in, and access protected routes.
+  cargo fmt passes, cargo clippy passes, cargo test passes.
 
 output: >
-  Summary of files created, env vars required, and verification steps.
+  List changed modules, commands run, and test results.
 ```
 
 ---
 
-## Validation Rules
+## Dogfooding Proof
 
-AgentML enforces these semantic rules:
-
-1. **Must have `purpose`** — every file needs a clear purpose statement
-2. **Must define `permissions`** — at minimum, `read` must be specified
-3. **Must define `safety`** — including `forbidden_paths` and `forbidden_actions`
-4. **Must define at least one `validation` command** — so the agent proves its work
-5. **Must define success criteria** — in tasks or workflows
-6. **Must define `output` requirements** — so the agent knows the expected report format
-7. **Reject broad unsafe write permissions** — unless explicitly marked `dangerous`
-8. **Warn if secrets policy is missing** — agents need guidance on handling credentials
-9. **Warn if destructive command has no confirmation** — destructive actions need gates
-
----
-
-## Project Structure
-
-```
-your-project/
-├── AGENT.agent          # Core agent execution contract
-├── .skills/
-│   └── auth.skill       # Reusable capability
-├── src/
-└── package.json
-```
-
----
-
-## Philosophy
-
-AgentML combines the best of:
-
-- **README.md** — human-readable purpose and context
-- **package.json** — structured metadata and commands
-- **policy.yaml** — permissions and safety constraints
-- **task runner** — workflows and validation gates
-- **agent instruction** — everything an AI needs to work correctly
-
-**One standard. One file. AI-native.**
-
----
-
-## Dogfooding
-
-AgentML uses AgentML to govern its own development.
-
-This repository includes:
+AgentML uses AgentML to govern its own development. This repository includes:
 
 - `AGENT.agent` — the project-level AI execution contract
-- `skills/*.skill` — reusable AgentML skills used to maintain this repo
+- `skills/*.skill` — reusable AgentML skills
 - `agentml self-check` — validates the project against its own contract
-- `.github/workflows/agentml-self-check.yml` — runs dogfood validation in CI
+- `.github/workflows/agentml-self-check.yml` — enforces dogfooding in CI
 
-Run:
+Run it yourself:
 
 ```bash
 cargo run -- self-check
 ```
 
-A passing self-check proves:
+Expected output:
 
-- the root contract is valid
-- all local skills are valid
-- safety policies are present
-- forbidden paths are protected
-- validation commands are defined
-- docs and examples are present
+```
+══ AgentML Self-Check ══
+
+Contract: AGENT.agent
+Status: valid
+
+Skills:
+  agentml-validator.skill: valid
+  rust-cli-maintainer.skill: valid
+  spec-writer.skill: valid
+  release-auditor.skill: valid
+
+Safety:
+  ✔ forbidden_paths
+  ✔ destructive_actions_policy
+  ✔ secrets_policy
+
+Validation:
+  fmt: cargo fmt -- --check
+  clippy: cargo clippy --all-targets -- -D warnings
+  test: cargo test
+  self_validate: cargo run -- validate AGENT.agent
+
+Result:
+  Dogfood status: PASS
+  Risk score: 5/100
+```
+
+---
+
+## CI Usage
+
+Copy this workflow into your repo to enforce AgentML validation on every push:
+
+```yaml
+name: AgentML Check
+on: [push, pull_request]
+jobs:
+  agentml:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test
+      - run: cargo run -- validate AGENT.agent
+      - run: cargo run -- skill validate skills/*.skill
+      - run: cargo run -- self-check
+```
+
+---
+
+## Security Model
+
+AgentML enforces safety through four mechanisms:
+
+1. **Permissions** — explicit read/write/execute path policies
+2. **Forbidden paths** — paths the agent must never touch
+3. **Forbidden actions** — commands the agent must never run
+4. **Confirmation requirements** — destructive actions that need human approval
+
+### Risk Levels
+
+| Score | Level | Meaning |
+|-------|-------|---------|
+| 0-20 | Low | Minimal safety concerns |
+| 21-50 | Medium | Some policy gaps or minor overlaps |
+| 51-80 | High | Dangerous permissions or missing guards |
+| 81-100 | Critical | Severe overlap or critical safety gaps |
+
+The validator reports:
+- **Errors** — contract is invalid; agent must not run
+- **Warnings** — potential issues; agent should review
+- **Risk score** — 0-100 numeric assessment
+- **Suggested fixes** — how to resolve issues
+
+---
+
+## Limitations
+
+- AgentML is **not** a sandbox or runtime. It is a contract layer.
+- The CLI does **not** execute arbitrary commands in MVP. It validates, inspects, and plans.
+- YAML is the MVP format. Future versions may add native syntax.
+- No built-in agent runtime integration yet.
+- No `extends` or skill composition UI yet.
+
+---
+
+## Roadmap
+
+- [ ] Native AgentML syntax (not just YAML)
+- [ ] `extends` field for skill composition
+- [ ] `agentml run --dry-run` for full simulation
+- [ ] `agentml diff` for permission diffing
+- [ ] Plugin system for custom validators
+- [ ] Integration with popular agent frameworks (Claude, GPT-4, Codex)
+- [ ] Registry for community `.skill` packages
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Security Policy
+
+See [SECURITY.md](SECURITY.md).
+
+## License
+
+MIT — see [LICENSE](LICENSE).

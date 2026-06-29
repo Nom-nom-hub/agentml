@@ -1,4 +1,6 @@
 pub mod context;
+pub mod diff;
+pub mod doctor;
 pub mod init;
 pub mod inspect;
 pub mod run;

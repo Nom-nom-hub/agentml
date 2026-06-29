@@ -1,0 +1,52 @@
+meta:
+  name: rust-cli-example
+  version: "1.0.0"
+
+purpose: >
+  AI agent for developing and maintaining a Rust CLI application.
+
+context:
+  project_type: rust-cli
+  languages: [rust]
+  frameworks: [clap, tokio]
+
+permissions:
+  read:
+    - "**/*.rs"
+    - "**/Cargo.toml"
+    - "**/*.md"
+  write:
+    - "src/**/*.rs"
+    - "Cargo.toml"
+  execute:
+    - "cargo"
+    - "rustfmt"
+    - "clippy"
+
+tools: [cargo, rustfmt, clippy, git, bash]
+
+safety:
+  forbidden_paths:
+    - "target/**"
+    - "**/*.rs.bk"
+  forbidden_actions:
+    - "cargo publish"
+    - "rm -rf src"
+  require_confirmation:
+    - "cargo publish"
+    - "cargo install"
+
+validation:
+  - name: Format
+    command: "cargo fmt -- --check"
+  - name: Clippy
+    command: "cargo clippy -- -D warnings"
+  - name: Test
+    command: "cargo test"
+
+output:
+  format: markdown
+  required_sections:
+    - "changes"
+    - "tests"
+    - "risks"
