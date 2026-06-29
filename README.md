@@ -66,11 +66,23 @@ agentml context
 
 ## Use AgentML in any repo
 
-```bash
-# Install AgentML CLI
-cargo install --path .
+### Install from crates.io (recommended)
 
-# Initialize in your project
+```bash
+cargo install agentml
+```
+
+### Install from source
+
+```bash
+git clone https://github.com/Nom-nom-hub/agentml.git
+cd agentml
+cargo install --path .
+```
+
+### Initialize in your project
+
+```bash
 cd /path/to/your/project
 agentml init --template generic
 

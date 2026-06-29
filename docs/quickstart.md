@@ -4,6 +4,14 @@ Get AgentML running in 5 minutes.
 
 ## 1. Install
 
+### From crates.io (recommended)
+
+```bash
+cargo install agentml
+```
+
+### From source
+
 ```bash
 git clone https://github.com/Nom-nom-hub/agentml.git
 cd agentml && cargo install --path .
