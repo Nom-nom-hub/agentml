@@ -1,3 +1,9 @@
+---
+layout: default
+title: Templates
+description: Built-in init templates for common project types.
+---
+
 # Templates
 
 AgentML includes built-in templates for common project types. Use `agentml init --template <name>` to generate a starter `AGENT.agent`.

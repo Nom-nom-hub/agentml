@@ -1,3 +1,9 @@
+---
+layout: default
+title: Dogfooding
+description: How AgentML uses AgentML to govern its own development.
+---
+
 # AgentML Dogfooding
 
 AgentML uses AgentML to govern its own development. This document explains what that means, how it works, and how future agents should use the project's self-contract.

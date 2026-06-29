@@ -1,3 +1,9 @@
+---
+layout: default
+title: Agent Prompts
+description: Copy-paste prompts to make AI agents respect AgentML contracts.
+---
+
 # Agent Prompts
 
 Copy-paste prompts to make AI agents respect AgentML contracts.

@@ -1,3 +1,9 @@
+---
+layout: default
+title: Specification
+description: AgentML language specification v0.1.0.
+---
+
 # AgentML Specification v0.1.0
 
 AgentML (Agent Markup Language) is an AI-native language for defining execution contracts between humans and AI agents working on software projects.

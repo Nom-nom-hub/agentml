@@ -1,0 +1,24 @@
+title: AgentML
+description: Contract language for AI coding agents
+theme: null
+permalink: pretty
+sass:
+  style: compressed
+  load_paths:
+    - _sass
+collections:
+  docs:
+    output: true
+    permalink: /:collection/:name
+defaults:
+  - scope:
+      path: ""
+      type: docs
+    values:
+      layout: default
+      nav: docs
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: default

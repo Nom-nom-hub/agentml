@@ -1,3 +1,9 @@
+---
+layout: default
+title: Security Model
+description: How AgentML protects projects through permissions, risk scoring, and CI enforcement.
+---
+
 # Security Model
 
 AgentML is designed to make AI agent behavior **predictable, auditable, and safe**. This document explains the security model.

@@ -1,3 +1,9 @@
+---
+layout: default
+title: AgentML v0.1.0 Release Notes
+description: Initial release notes for AgentML v0.1.0.
+---
+
 # AgentML v0.1.0 — Contract Language for AI Coding Agents
 
 AgentML is a markup language and CLI for defining how AI agents understand, modify, validate, and report on software projects.

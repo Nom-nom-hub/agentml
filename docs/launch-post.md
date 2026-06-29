@@ -1,3 +1,9 @@
+---
+layout: default
+title: Launch Post
+description: AgentML v0.1.0 is live — contract language for AI coding agents.
+---
+
 # AgentML v0.1.0 is live.
 
 AgentML is a contract language for AI coding agents.

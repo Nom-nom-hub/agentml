@@ -1,3 +1,9 @@
+---
+layout: default
+title: Adoption Guide
+description: How to test AgentML in a real project and give feedback.
+---
+
 # Adoption Guide
 
 How to test AgentML in a real project and give feedback.

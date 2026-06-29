@@ -1,3 +1,9 @@
+---
+layout: default
+title: AgentML v0.1.2
+description: Patch release notes for AgentML v0.1.2.
+---
+
 # AgentML v0.1.2 — Patch Release
 
 v0.1.2 fixes the first-run experience for new users.

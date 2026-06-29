@@ -1,3 +1,9 @@
+---
+layout: default
+title: CI Integration
+description: Enforce AgentML validation in continuous integration.
+---
+
 # CI Integration
 
 This document explains how to enforce AgentML validation in continuous integration.
