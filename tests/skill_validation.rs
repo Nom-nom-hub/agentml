@@ -1,14 +1,18 @@
 use agentml::parser;
 use agentml::validator;
-use std::path::Path;
+use std::path::PathBuf;
+
+fn skills_dir() -> PathBuf {
+    std::env::current_dir().unwrap().join("skills")
+}
 
 #[test]
 fn every_skill_file_validates() {
-    let skills_dir = Path::new("skills");
+    let skills_dir = skills_dir();
     if !skills_dir.exists() {
         return;
     }
-    let entries = std::fs::read_dir(skills_dir).expect("skills dir must exist");
+    let entries = std::fs::read_dir(&skills_dir).expect("skills dir must exist");
     for entry in entries {
         let entry = entry.expect("entry must be readable");
         let path = entry.path();
