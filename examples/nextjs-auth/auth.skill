@@ -1,0 +1,45 @@
+skill: nextjs-auth
+version: "1.0.0"
+description: >
+  Reusable skill for adding Supabase authentication to Next.js applications.
+  Covers client-side components, middleware, API routes, and protected layouts.
+
+requirements:
+  - "Next.js 14+ App Router"
+  - "TypeScript"
+  - "Supabase project configured"
+
+inputs:
+  - name: supabase_url
+    description: "Supabase project URL"
+    required: true
+  - name: supabase_anon_key
+    description: "Public anon key for client-side auth"
+    required: true
+  - name: redirect_paths
+    description: "Login/signup/callback redirect paths"
+    required: false
+
+actions:
+  - "Create src/middleware.ts with Supabase auth guard"
+  - "Create app/login/page.tsx with email/password and OAuth"
+  - "Create app/signup/page.tsx"
+  - "Create lib/supabase/server.ts for server-side client"
+  - "Create lib/supabase/client.ts for client-side client"
+  - "Update app/layout.tsx with SessionProvider"
+  - "Add environment variable documentation"
+
+rules:
+  - "Never expose service_role key in client components"
+  - "Always use SSR/SSR cookies for server-side auth"
+  - "Validate redirect paths to prevent open redirects"
+  - "Use Row Level Security (RLS) on all tables"
+
+success: >
+  User can sign up, log in, log out, and access protected routes.
+  Session persists across page refreshes.
+  Unauthenticated users are redirected to /login.
+
+output: >
+  Summary of files created and modified, environment variables required,
+  and verification steps to test authentication flow.

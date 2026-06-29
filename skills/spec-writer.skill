@@ -1,0 +1,24 @@
+skill: spec-writer
+version: 0.1.0
+description: Keep the AgentML language spec aligned with the implementation.
+
+actions:
+  - compare_schema_to_docs
+  - document_required_fields
+  - document_validation_rules
+  - update_examples
+  - record_compatibility_notes
+
+rules:
+  - Every required schema field must be documented.
+  - Every validation rule must have an example.
+  - Docs must not promise unsupported CLI behavior.
+  - Examples must validate.
+
+success: >
+  docs/spec.md matches implementation.
+  examples validate.
+  README quickstart works.
+
+output: >
+  Required fields: docs_changed, examples_changed, validation_notes.

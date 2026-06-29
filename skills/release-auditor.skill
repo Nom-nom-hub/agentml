@@ -1,0 +1,25 @@
+skill: release-auditor
+version: 0.1.0
+description: Audit AgentML before release.
+
+actions:
+  - run_full_validation
+  - check_examples
+  - check_docs
+  - check_security_rules
+  - check_changelog
+
+rules:
+  - Do not release if tests fail.
+  - Do not release if AGENT.agent fails validation.
+  - Do not release if examples fail validation.
+  - Do not release if README install commands are wrong.
+  - Do not publish without explicit approval.
+
+success: >
+  All checks pass.
+  Release risks are documented.
+  Version number is consistent.
+
+output: >
+  Required fields: release_ready, blocking_issues, warnings, commands_run.

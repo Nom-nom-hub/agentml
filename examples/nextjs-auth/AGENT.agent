@@ -1,0 +1,81 @@
+meta:
+  name: nextjs-auth
+  version: "1.0.0"
+  description: "Next.js authentication system"
+
+purpose: >
+  AI agent for implementing and maintaining a Next.js application
+  with Supabase authentication, protected routes, and session management.
+
+context:
+  project_type: nextjs
+  languages: [typescript, css]
+  frameworks: [nextjs, react, supabase]
+
+permissions:
+  read:
+    - "**/*.ts"
+    - "**/*.tsx"
+    - "**/*.css"
+    - "**/package.json"
+    - "**/*.md"
+  write:
+    - "src/**/*.{ts,tsx,css}"
+    - "app/**/*.{ts,tsx,css}"
+    - "lib/**/*.{ts}"
+  execute:
+    - "npm run"
+    - "npx"
+    - "node"
+
+tools: [npm, node, git, bash]
+
+workflows:
+  - name: implement-auth
+    description: "Add Supabase authentication to the app"
+    steps:
+      - name: Install dependencies
+        commands: ["npm install @supabase/auth-helpers-nextjs @supabase/supabase-js"]
+      - name: Create auth middleware
+        commands: ["mkdir -p src/middleware.ts"]
+        success: "middleware.ts created with Supabase auth guard"
+      - name: Update layout
+        commands: ["edit app/layout.tsx"]
+        success: "Layout updated with SessionProvider"
+
+tasks:
+  - name: add-login-page
+    description: "Create a login page with email/password and OAuth"
+    workflow: implement-auth
+    success: "Login page renders and authenticates with Supabase"
+
+safety:
+  policy: >
+    Never expose Supabase service role key in client code.
+    All auth secrets must stay server-side.
+  forbidden_paths:
+    - ".env*.local"
+    - ".env.production"
+    - "**/node_modules/**"
+  forbidden_actions:
+    - "git push --force"
+    - "npm run db:reset"
+  require_confirmation:
+    - "git push"
+    - "npm run db:migrate"
+
+validation:
+  - name: Lint
+    command: "npm run lint"
+  - name: Type Check
+    command: "npm run typecheck"
+  - name: Test
+    command: "npm test -- --watchAll=false"
+
+output:
+  format: markdown
+  required_sections:
+    - "changes"
+    - "files_modified"
+    - "tests"
+    - "risks"

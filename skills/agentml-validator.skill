@@ -1,0 +1,33 @@
+skill: agentml-validator
+version: 0.1.0
+description: Validate AGENT.agent and .skill files using AgentML semantic rules.
+
+requirements:
+  - Rust CLI project
+  - AgentML schema exists
+
+actions:
+  - parse_contract
+  - validate_required_sections
+  - validate_permissions
+  - validate_safety_policy
+  - validate_tasks
+  - calculate_risk_score
+  - emit_report
+
+rules:
+  - Missing purpose is an error.
+  - Missing permissions is an error.
+  - Missing validation commands is an error.
+  - Missing success criteria is an error.
+  - Forbidden paths must never be writable.
+  - Destructive commands require explicit approval.
+
+success: >
+  Invalid contracts fail with clear errors.
+  Valid contracts pass with zero errors.
+  Risk score is included in the output.
+  Suggested fixes are generated for warnings.
+
+output: >
+  Required fields: valid, errors, warnings, risk_score, suggested_fixes.

@@ -1,0 +1,140 @@
+meta:
+  name: agentml
+  version: 0.1.0
+  contract_version: 1
+
+purpose:
+  human_goal: >
+    Build an AI-native markup language and CLI for agent execution contracts.
+  agent_goal: >
+    Modify this repo safely, validate all changes, and report proof of completion.
+  non_goals:
+    - Do not become a general programming language.
+    - Do not execute untrusted skills without validation.
+    - Do not store secrets or credentials.
+
+context:
+  stack:
+    - Rust
+    - CLI
+    - Serde
+    - JSON Schema
+    - GitHub Actions
+  architecture:
+    parser: Parses AGENT.agent and .skill files.
+    validator: Enforces AgentML semantic rules.
+    reporter: Generates validation and risk reports.
+    cli: Exposes init, validate, inspect, context, and skill commands.
+  important_files:
+    - src/main.rs
+    - src/parser.rs
+    - src/validator.rs
+    - src/report.rs
+    - src/schema.rs
+    - agentml.schema.json
+    - docs/spec.md
+    - examples/
+
+permissions:
+  read:
+    - "**/*.rs"
+    - "**/*.agent"
+    - "**/*.skill"
+    - "**/*.md"
+    - "**/*.json"
+    - "Cargo.toml"
+  write:
+    - "src/**"
+    - "tests/**"
+    - "docs/**"
+    - "examples/**"
+    - "AGENT.agent"
+    - "agentml.schema.json"
+    - "README.md"
+  forbidden:
+    - ".env"
+    - ".git/**"
+    - "target/**"
+    - "**/*secret*"
+    - "**/*credential*"
+    - "~/.ssh/**"
+
+safety:
+  forbidden_paths:
+    - ".env"
+    - ".git/**"
+    - "target/**"
+    - "**/*secret*"
+    - "**/*credential*"
+    - "~/.ssh/**"
+  forbidden_actions:
+    - "rm -rf"
+    - "git reset --hard"
+    - "git clean -fd"
+    - "cargo publish"
+  destructive_actions:
+    require_explicit_user_approval: true
+    commands:
+      - "rm -rf"
+      - "git reset --hard"
+      - "git clean -fd"
+      - "cargo publish"
+  secrets_policy:
+    never_read:
+      - ".env"
+      - "*.pem"
+      - "*.key"
+    never_output_secret_values: true
+
+workflows:
+  - name: default_change
+    description: >
+      Default change workflow: inspect contract, plan minimal change, edit files, run validation, report result.
+    steps:
+      - name: inspect_contract
+      - name: plan_minimal_change
+      - name: edit_files
+      - name: run_validation
+      - name: report_result
+  - name: release_check
+    description: >
+      Pre-release workflow: run fmt, clippy, tests, validate AGENT.agent, validate all skills.
+    steps:
+      - name: fmt
+        commands: ["cargo fmt -- --check"]
+      - name: clippy
+        commands: ["cargo clippy --all-targets -- -D warnings"]
+      - name: test
+        commands: ["cargo test"]
+      - name: validate_contract
+        commands: ["cargo run -- validate AGENT.agent"]
+      - name: validate_skills
+        commands: ["cargo run -- skill validate skills/*.skill"]
+
+validation:
+  - name: fmt
+    command: "cargo fmt -- --check"
+  - name: clippy
+    command: "cargo clippy --all-targets -- -D warnings"
+  - name: test
+    command: "cargo test"
+  - name: self_validate
+    command: "cargo run -- validate AGENT.agent"
+
+success_criteria:
+  - Rust tests pass.
+  - AGENT.agent validates successfully.
+  - Example .skill files validate successfully.
+  - No forbidden files are modified.
+  - Final report includes changed files, tests run, and risks.
+
+output:
+  format: markdown
+  final_report:
+    required_fields:
+      - summary
+      - files_changed
+      - commands_run
+      - validation_result
+      - risks
+      - next_steps

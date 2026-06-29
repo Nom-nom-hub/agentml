@@ -1,0 +1,67 @@
+meta:
+  name: basic-project
+  version: "1.0.0"
+  description: "A minimal AgentML example"
+
+purpose: >
+  This agent helps maintain a small software project by running lint,
+  tests, and generating status reports.
+
+context:
+  project_type: generic
+  languages: [python, javascript]
+  frameworks: []
+
+permissions:
+  read:
+    - "**/*"
+  write:
+    - "src/**/*"
+    - "docs/**/*"
+  execute:
+    - "npm run"
+    - "pytest"
+
+tools: [git, bash, npm]
+
+workflows:
+  - name: lint-and-test
+    description: "Run linting and tests"
+    steps:
+      - name: Lint
+        commands: ["npm run lint"]
+        success: "Lint passes with zero errors"
+      - name: Test
+        commands: ["pytest"]
+        success: "All tests pass"
+
+tasks:
+  - name: fix-lint
+    description: "Fix lint errors automatically"
+    workflow: lint-and-test
+    success: "Lint passes after fixes"
+
+safety:
+  policy: "Never delete files without explicit confirmation."
+  forbidden_paths:
+    - ".env*"
+    - "node_modules/**"
+  forbidden_actions:
+    - "rm -rf src"
+    - "git push --force"
+  require_confirmation:
+    - "git push"
+
+validation:
+  - name: Lint
+    command: "npm run lint"
+  - name: Test
+    command: "pytest"
+
+output:
+  format: markdown
+  required_sections:
+    - "summary"
+    - "changes"
+    - "tests"
+    - "risks"
