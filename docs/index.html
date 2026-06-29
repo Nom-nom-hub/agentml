@@ -1,0 +1,419 @@
+---
+layout: default
+title: AgentML — Contract Language for AI Coding Agents
+description: AgentML gives coding agents structured project contracts with safe commands, sensitive paths, reusable skills, validation rules, generated context, risk scoring, self-checks, and CI enforcement.
+---
+
+<section class="hero">
+  <div class="container">
+    <h1>
+      AgentML is a contract language for AI coding agents.
+      <span style="font-size:0.55em;vertical-align:middle;margin-left:8px;padding:4px 10px;border-radius:999px;background:var(--bg-tertiary);border:1px solid var(--border);color:var(--text-secondary);font-weight:500;">v0.1.2</span>
+    </h1>
+    <p>Give your repo a structured contract for safe commands, sensitive paths, reusable skills, validation rules, generated context, self-checks, risk scoring, and CI enforcement.</p>
+    <div class="install">
+      <code>cargo install agentml</code>
+      <button class="install-copy" onclick="copyCommand('cargo install agentml', this)">Copy</button>
+    </div>
+    <div class="quickstart" style="margin-bottom:24px;">
+      <a href="https://github.com/Nom-nom-hub/agentml">View on GitHub</a>
+      <a href="/docs/quickstart.md">Read the quickstart</a>
+    </div>
+    <div class="terminal">
+      <div class="terminal-header">
+        <span class="terminal-dot" style="background:#ff5f57;"></span>
+        <span class="terminal-dot" style="background:#febc2e;"></span>
+        <span class="terminal-dot" style="background:#28c840;"></span>
+        <span class="terminal-title" style="margin-left:8px;color:var(--text-muted);font-size:12px;">terminal</span>
+      </div>
+      <div class="terminal-body">
+        <div class="terminal-line"><span class="prompt">$</span> cargo install agentml</div>
+        <div class="terminal-line"><span class="prompt">$</span> agentml init --template generic</div>
+        <div class="terminal-line"><span class="prompt">$</span> agentml self-check</div>
+        <div class="terminal-line"><span class="prompt">$</span> agentml context</div>
+        <div class="terminal-line"><span class="prompt">$</span> agentml doctor</div>
+        <div class="terminal-line" style="color:var(--success);">✔ AgentML structure looks good.</div>
+      </div>
+    </div>
+    <div class="badges">
+      <span style="background:var(--bg-secondary);border:1px solid var(--border);padding:6px 12px;border-radius:999px;font-size:12px;color:var(--text-secondary);">Built in Rust</span>
+      <span style="background:var(--bg-secondary);border:1px solid var(--border);padding:6px 12px;border-radius:999px;font-size:12px;color:var(--text-secondary);">Open source</span>
+      <span style="background:var(--bg-secondary);border:1px solid var(--border);padding:6px 12px;border-radius:999px;font-size:12px;color:var(--text-secondary);">CI ready</span>
+      <span style="background:var(--bg-secondary);border:1px solid var(--border);padding:6px 12px;border-radius:999px;font-size:12px;color:var(--text-secondary);">Published on crates.io</span>
+      <span style="background:var(--bg-secondary);border:1px solid var(--border);padding:6px 12px;border-radius:999px;font-size:12px;color:var(--text-secondary);">Dogfoods itself</span>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="container">
+    <h2>Markdown instructions are not enough for coding agents.</h2>
+    <p style="color:var(--text-secondary);max-width:640px;margin:0 auto 48px;">Agents need structured context, enforceable boundaries, and machine-readable contracts — not loose instructions buried in README files.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Loose instructions get ignored.</h3>
+        <p>Agents often miss project rules buried in README files or chat history. Without enforcement, boundaries are suggestions.</p>
+      </div>
+      <div class="card">
+        <h3>Risky files need stronger boundaries.</h3>
+        <p>Auth, release, CI, dependency, and security files need explicit handling. A single blind edit can break a build or leak a secret.</p>
+      </div>
+      <div class="card">
+        <h3>Agents need structured context.</h3>
+        <p>A coding agent performs better when project rules, safe commands, sensitive paths, and skills are machine-readable and validated.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="content" style="background:var(--bg-secondary);padding:64px 0;">
+  <div class="container">
+    <h2>AgentML turns project rules into an enforceable agent contract.</h2>
+    <div class="terminal" style="max-width:520px;margin:0 auto 40px;">
+      <div class="terminal-header">
+        <span class="terminal-dot" style="background:#ff5f57;"></span>
+        <span class="terminal-dot" style="background:#febc2e;"></span>
+        <span class="terminal-dot" style="background:#28c840;"></span>
+        <span class="terminal-title" style="margin-left:8px;color:var(--text-muted);font-size:12px;">flow</span>
+      </div>
+      <div class="terminal-body" style="text-align:center;padding:24px;">
+        <div style="font-size:14px;color:var(--text-secondary);">AGENT.agent</div>
+        <div style="font-size:18px;color:var(--accent);margin:12px 0;">↓</div>
+        <div style="font-size:14px;color:var(--text-secondary);">agentml validate</div>
+        <div style="font-size:18px;color:var(--accent);margin:12px 0;">↓</div>
+        <div style="font-size:14px;color:var(--text-secondary);">agentml context</div>
+        <div style="font-size:18px;color:var(--accent);margin:12px 0;">↓</div>
+        <div style="font-size:14px;color:var(--text);">coding agent works with better project awareness</div>
+      </div>
+    </div>
+    <div class="grid" style="max-width:800px;margin:0 auto;">
+      <div class="card">
+        <h3>AGENT.agent</h3>
+        <p>Defines project intent, safe commands, sensitive paths, and validation rules in one structured file.</p>
+      </div>
+      <div class="card">
+        <h3>.skill files</h3>
+        <p>Define reusable agent capabilities like auth review, release auditing, and spec validation.</p>
+      </div>
+      <div class="card">
+        <h3>.agentml/context.md</h3>
+        <p>Generated project briefing that coding agents load before making changes.</p>
+      </div>
+      <div class="card">
+        <h3>Self-check &amp; Doctor</h3>
+        <p>Catch problems before the agent works blindly. Verify contract validity and project structure.</p>
+      </div>
+      <div class="card" style="grid-column:1/-1;">
+        <h3>CI enforcement</h3>
+        <p>Run validation, skill checks, self-checks, and context generation in GitHub Actions on every push and pull request.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="container">
+    <h2>Features</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Structured project contract</h3>
+        <p>Define what the project is, what commands are safe, what paths are sensitive, and what rules agents must respect — in one file.</p>
+      </div>
+      <div class="card">
+        <h3>Generated agent context</h3>
+        <p>Generate .agentml/context.md so Cursor, Claude, ChatGPT, Windsurf, and other agents get a clear repo briefing.</p>
+      </div>
+      <div class="card">
+        <h3>Risk scoring</h3>
+        <p>Surface risk around sensitive paths, destructive commands, security files, dependency files, and release logic with a 0-100 score.</p>
+      </div>
+      <div class="card">
+        <h3>Reusable skills</h3>
+        <p>Define focused .skill files for validation, release review, spec writing, Rust maintenance, and more.</p>
+      </div>
+      <div class="card">
+        <h3>Dogfooding</h3>
+        <p>AgentML uses AgentML to validate and protect its own development. Self-check passes with risk score 5/100.</p>
+      </div>
+      <div class="card">
+        <h3>CI enforcement</h3>
+        <p>Run validation, skill checks, self-checks, and context generation in GitHub Actions on every push and PR.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="content" style="background:var(--bg-secondary);padding:64px 0;">
+  <div class="container">
+    <h2>How it works</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;margin-top:32px;">
+      <div style="text-align:center;">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--bg-tertiary);border:1px solid var(--border);display:grid;place-items:center;margin:0 auto 16px;font-weight:700;color:var(--accent);">1</div>
+        <h3 style="margin:0 0 8px;">Install</h3>
+        <code style="display:block;background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text);">cargo install agentml</code>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--bg-tertiary);border:1px solid var(--border);display:grid;place-items:center;margin:0 auto 16px;font-weight:700;color:var(--accent);">2</div>
+        <h3 style="margin:0 0 8px;">Initialize</h3>
+        <code style="display:block;background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text);">agentml init --template generic</code>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--bg-tertiary);border:1px solid var(--border);display:grid;place-items:center;margin:0 auto 16px;font-weight:700;color:var(--accent);">3</div>
+        <h3 style="margin:0 0 8px;">Use with your agent</h3>
+        <code style="display:block;background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text);">agentml context<br>agentml self-check<br>agentml doctor</code>
+      </div>
+    </div>
+    <p style="text-align:center;color:var(--text-secondary);max-width:560px;margin:32px auto 0;">Paste <code>.agentml/context.md</code> into your coding agent or tell the agent to read it before making changes.</p>
+  </div>
+</section>
+
+<section class="content">
+  <div class="container">
+    <h2>Contract example</h2>
+    <p style="color:var(--text-secondary);max-width:640px;margin:0 auto 32px;">A simplified AGENT.agent file. The real contract supports workflows, tasks, skills, permissions, safety, validation, and output requirements.</p>
+    <div class="terminal">
+      <div class="terminal-header">
+        <span class="terminal-dot" style="background:#ff5f57;"></span>
+        <span class="terminal-dot" style="background:#febc2e;"></span>
+        <span class="terminal-dot" style="background:#28c840;"></span>
+        <span class="terminal-title" style="margin-left:8px;color:var(--text-muted);font-size:12px;">AGENT.agent</span>
+        <button class="install-copy" style="margin-left:auto;" onclick="copyCommand(this.closest('.terminal').querySelector('.terminal-body').innerText, this)">Copy</button>
+      </div>
+      <div class="terminal-body">
+        <div class="terminal-line"><span class="key">project</span>:</div>
+        <div class="terminal-line"><span class="key">  name</span>: <span class="string">my-project</span></div>
+        <div class="terminal-line"><span class="key">  purpose</span>: <span class="string">"Describe what this repo does"</span></div>
+        <div class="terminal-line"><span class="key">  safe_commands</span>:</div>
+        <div class="terminal-line"><span class="key">    - </span><span class="string">cargo test</span></div>
+        <div class="terminal-line"><span class="key">    - </span><span class="string">cargo fmt -- --check</span></div>
+        <div class="terminal-line"><span class="key">  sensitive_paths</span>:</div>
+        <div class="terminal-line"><span class="key">    - </span><span class="string">src/auth/**</span></div>
+        <div class="terminal-line"><span class="key">    - </span><span class="string">.github/workflows/**</span></div>
+        <div class="terminal-line"><span class="key">  approval_required</span>:</div>
+        <div class="terminal-line"><span class="key">    - </span><span class="string">destructive_commands</span></div>
+        <div class="terminal-line"><span class="key">    - </span><span class="string">release_files</span></div>
+        <div class="terminal-line"><span class="key">    - </span><span class="string">auth_logic</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="content" style="background:var(--bg-secondary);padding:64px 0;">
+  <div class="container">
+    <h2>How AgentML compares</h2>
+    <p style="color:var(--text-secondary);max-width:640px;margin:0 auto 32px;">AgentML does not replace all project docs. It gives agents a structured, validateable contract that can be checked locally and in CI.</p>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);">
+            <th style="text-align:left;padding:12px 8px;color:var(--text);font-weight:600;">Tool / Format</th>
+            <th style="text-align:left;padding:12px 8px;color:var(--text);font-weight:600;">Best for</th>
+            <th style="text-align:left;padding:12px 8px;color:var(--text);font-weight:600;">Limitation</th>
+            <th style="text-align:left;padding:12px 8px;color:var(--text);font-weight:600;">Where AgentML fits</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:12px 8px;color:var(--text-secondary);">README.md</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">Human onboarding</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">Unstructured; agents can ignore it</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">Complements with enforceability</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:12px 8px;color:var(--text-secondary);">AGENTS.md</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">Loose agent instructions</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">No validation or enforcement</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">Adds structure and risk scoring</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:12px 8px;color:var(--text-secondary);">CLAUDE.md</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">Model-specific guidance</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">Tied to one model/tool</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">Portable across agents</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:12px 8px;color:var(--text-secondary);">Cursor rules</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">Editor-specific guidance</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">Editor-locked; no CLI or CI</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">CLI, CI, and skill system</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 8px;color:var(--accent);font-weight:600;">AgentML</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">Agent execution contracts</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">YAML MVP; no runtime yet</td>
+            <td style="padding:12px 8px;color:var(--text-secondary);">Validateable, enforceable, portable</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="container">
+    <h2>Demo: sensitive change detection</h2>
+    <p style="color:var(--text-secondary);max-width:640px;margin:0 auto 32px;">Without AgentML, an agent may edit auth, release, or CI files without understanding the risk. With AgentML, the repo declares sensitive paths, validation commands, and approval rules — and risk is surfaced before the change is accepted.</p>
+    <div class="terminal" style="max-width:600px;margin:0 auto 32px;">
+      <div class="terminal-header">
+        <span class="terminal-dot" style="background:#ff5f57;"></span>
+        <span class="terminal-dot" style="background:#febc2e;"></span>
+        <span class="terminal-dot" style="background:#28c840;"></span>
+        <span class="terminal-title" style="margin-left:8px;color:var(--text-muted);font-size:12px;">demo</span>
+      </div>
+      <div class="terminal-body">
+        <div class="terminal-line"><span class="prompt">$</span> <span style="color:var(--text-secondary);"># Without AgentML</span></div>
+        <div class="terminal-line">agent edits config/auth.rs <span style="color:#ef4444;">← sensitive, no review</span></div>
+        <div class="terminal-line">agent deletes migrations/ <span style="color:#ef4444;">← destructive, no backup</span></div>
+        <div class="terminal-line">agent skips tests <span style="color:#ef4444;">← validation not required</span></div>
+        <div class="terminal-line" style="color:var(--text-muted);">output: "done" <span style="color:#ef4444;">← inconsistent format</span></div>
+        <div class="terminal-line" style="margin-top:12px;"><span class="prompt">$</span> <span style="color:var(--text-secondary);"># With AgentML</span></div>
+        <div class="terminal-line">agent reads AGENT.agent <span style="color:var(--success);">✔</span></div>
+        <div class="terminal-line">write permission: src/main.rs only <span style="color:var(--success);">✔</span></div>
+        <div class="terminal-line">forbidden: config/**, migrations/** <span style="color:var(--success);">✔</span></div>
+        <div class="terminal-line">runs cargo test <span style="color:var(--success);">✔ required</span></div>
+        <div class="terminal-line">outputs structured report <span style="color:var(--success);">✔ enforced</span></div>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <a href="/examples/demo-sensitive-change/README.md" class="btn">View full demo-sensitive-change example</a>
+    </div>
+  </div>
+</section>
+
+<section class="content" style="background:var(--bg-secondary);padding:64px 0;">
+  <div class="container">
+    <h2>Templates</h2>
+    <p style="color:var(--text-secondary);max-width:640px;margin:0 auto 32px;">Start with a template tuned for your stack. Each template generates permissions, safety rules, validation commands, and CI workflow.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>generic</h3>
+        <code style="font-size:12px;color:var(--accent);">agentml init --template generic</code>
+        <p style="margin-top:10px;">Default template for any project. Basic lint/test validation.</p>
+      </div>
+      <div class="card">
+        <h3>rust-cli</h3>
+        <code style="font-size:12px;color:var(--accent);">agentml init --template rust-cli</code>
+        <p style="margin-top:10px;">Rust CLI with Cargo workflows. fmt, clippy, test.</p>
+      </div>
+      <div class="card">
+        <h3>nextjs-app</h3>
+        <code style="font-size:12px;color:var(--accent);">agentml init --template nextjs-app</code>
+        <p style="margin-top:10px;">Next.js + TypeScript. lint, typecheck, test.</p>
+      </div>
+      <div class="card">
+        <h3>python-package</h3>
+        <code style="font-size:12px;color:var(--accent);">agentml init --template python-package</code>
+        <p style="margin-top:10px;">Python package with pytest and ruff.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="content">
+  <div class="container">
+    <h2>AgentML protects itself.</h2>
+    <p style="color:var(--text-secondary);max-width:640px;margin:0 auto 32px;">AgentML’s own repo contains an AGENT.agent contract, skills, generated context, self-checks, tests, and CI enforcement. If it cannot govern itself, it is not ready to govern other projects.</p>
+    <div class="terminal">
+      <div class="terminal-header">
+        <span class="terminal-dot" style="background:#ff5f57;"></span>
+        <span class="terminal-dot" style="background:#febc2e;"></span>
+        <span class="terminal-dot" style="background:#28c840;"></span>
+        <span class="terminal-title" style="margin-left:8px;color:var(--text-muted);font-size:12px;">verification</span>
+      </div>
+      <div class="terminal-body">
+        <div class="terminal-line"><span class="prompt">$</span> cargo fmt --check</div>
+        <div class="terminal-line"><span class="prompt">$</span> cargo clippy --all-targets -- -D warnings</div>
+        <div class="terminal-line"><span class="prompt">$</span> cargo test</div>
+        <div class="terminal-line"><span class="prompt">$</span> agentml validate AGENT.agent</div>
+        <div class="terminal-line"><span class="prompt">$</span> agentml skill validate skills/*.skill</div>
+        <div class="terminal-line"><span class="prompt">$</span> agentml self-check</div>
+        <div class="terminal-line"><span class="prompt">$</span> agentml context</div>
+        <div class="terminal-line" style="color:var(--success);margin-top:8px;">✔ Dogfood status: PASS</div>
+        <div class="terminal-line" style="color:var(--text-secondary);">Risk score: 5/100</div>
+      </div>
+    </div>
+    <p style="text-align:center;color:var(--text-secondary);margin-top:16px;">See the <a href="/docs/dogfooding.md">dogfooding docs</a> for details.</p>
+  </div>
+</section>
+
+<section class="content" id="faq" style="background:var(--bg-secondary);padding:64px 0;">
+  <div class="container">
+    <h2>FAQ</h2>
+    <div style="max-width:760px;margin:0 auto;display:grid;gap:24px;">
+      <div class="card">
+        <h3>Is AgentML an agent runtime?</h3>
+        <p>No. AgentML is a contract layer. It defines project rules, context, skills, validation, and risk signals for coding agents.</p>
+      </div>
+      <div class="card">
+        <h3>Does AgentML sandbox agents?</h3>
+        <p>No. It is not a sandbox. It helps define and validate boundaries, but execution safety still depends on the agent, user, and environment.</p>
+      </div>
+      <div class="card">
+        <h3>Does it replace AGENTS.md?</h3>
+        <p>Not necessarily. AGENTS.md is useful instruction text. AgentML adds structure, validation, risk scoring, skills, and CI enforcement.</p>
+      </div>
+      <div class="card">
+        <h3>Which agents can use it?</h3>
+        <p>Any coding agent that can read files or use generated context. Cursor, Claude, ChatGPT, Windsurf, custom agents, and MCP-based systems can all consume the generated context.</p>
+      </div>
+      <div class="card">
+        <h3>Why YAML right now?</h3>
+        <p>YAML is the MVP format because it is readable, familiar, and easy to validate. A native AgentML syntax can come later if real usage proves the need.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="content" id="cta" style="padding:80px 0 96px;">
+  <div class="container" style="text-align:center;">
+    <h2 style="margin-bottom:18px;">Give your coding agent a project contract.</h2>
+    <p style="color:var(--text-secondary);max-width:560px;margin:0 auto 32px;">Agents should not guess how your repo works. AgentML gives them a contract.</p>
+    <div class="install" style="margin-bottom:24px;">
+      <code>cargo install agentml</code>
+      <button class="install-copy" onclick="copyCommand('cargo install agentml', this)">Copy</button>
+    </div>
+    <div class="quickstart">
+      <a href="https://github.com/Nom-nom-hub/agentml" class="btn">View on GitHub</a>
+      <a href="/docs/quickstart.md" class="btn" style="background:var(--bg-tertiary);border-color:var(--border);">Read Quickstart</a>
+      <a href="https://crates.io/crates/agentml" class="btn" style="background:var(--bg-tertiary);border-color:var(--border);">crates.io</a>
+    </div>
+    <div class="badges" style="margin-top:28px;">
+      <a href="https://github.com/Nom-nom-hub/agentml/actions/workflows/agentml-self-check.yml"><img src="https://img.shields.io/badge/CI-passing-brightgreen" alt="CI"></a>
+      <a href="https://crates.io/crates/agentml"><img src="https://img.shields.io/crates/v/agentml.svg" alt="Version"></a>
+      <a href="https://github.com/Nom-nom-hub/agentml/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
+      <a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/rust-1.70%2B-blue" alt="Rust"></a>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // Copy button logic
+  function copyCommand(text, btn) {
+    navigator.clipboard.writeText(text).then(function() {
+      btn.textContent = 'Copied';
+      setTimeout(function() { btn.textContent = 'Copy'; }, 1500);
+    }).catch(function() {
+      btn.textContent = 'Failed';
+      setTimeout(function() { btn.textContent = 'Copy'; }, 1500);
+    });
+  }
+
+  // Mobile nav toggle
+  (function() {
+    var nav = document.querySelector('nav');
+    if (!nav) return;
+    // If we wanted a mobile hamburger menu we'd add it here.
+    // For now we'll keep the nav visible but compact on mobile via CSS.
+  })();
+</script>

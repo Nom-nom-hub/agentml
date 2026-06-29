@@ -4,10 +4,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-blue)](https://www.rust-lang.org)
 [![Version](https://img.shields.io/badge/version-v0.1.2-blue)](https://github.com/Nom-nom-hub/agentml/releases/tag/v0.1.2)
+[![Site](https://img.shields.io/badge/site-online-brightgreen)](https://nom-nom-hub.github.io/agentml/)
 
 **AgentML is a contract language for AI coding agents.**
 
 AgentML defines how AI agents understand, modify, validate, and report on software projects. It is not Markdown, not YAML config — it is an executable contract that sits between humans and AI agents.
+
+Website: https://nom-nom-hub.github.io/agentml/
 
 ---
 
