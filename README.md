@@ -42,9 +42,8 @@ AgentML solves this by making the contract **explicit, machine-readable, and enf
 ## Quickstart
 
 ```bash
-# 1. Install from source
-git clone https://github.com/Nom-nom-hub/agentml.git
-cd agentml && cargo install --path .
+# 1. Install
+cargo install agentml
 
 # 2. Initialize in your project
 cd your-project
@@ -58,6 +57,9 @@ agentml self-check
 
 # 5. Export context for LLMs
 agentml context
+
+# 6. Verify project structure
+agentml doctor
 ```
 
 **That is the entire workflow.** You now have an `AGENT.agent` file governing your project.
@@ -91,7 +93,18 @@ agentml self-check
 
 # Export context for LLMs
 agentml context
+
+# Verify project structure
+agentml doctor
 ```
+
+### Next steps
+
+- Read the [adoption guide](docs/adoption.md) to test AgentML in a real repo
+- Copy [agent prompts](docs/agent-prompts.md) to make your AI agent respect the contract
+- Choose a [template](docs/templates.md) for your stack
+- Add [CI enforcement](docs/ci.md) to your pipeline
+- Open a [feedback issue](https://github.com/Nom-nom-hub/agentml/issues/new?template=feedback.md)
 
 ### Templates
 
@@ -402,6 +415,8 @@ output:
 
 Agents should read this context before making changes. It is the machine-readable version of your project's ground rules.
 
+See [docs/agent-prompts.md](docs/agent-prompts.md) for copy-paste prompts to make your agent respect the contract.
+
 ---
 
 ## Roadmap
@@ -413,6 +428,20 @@ Agents should read this context before making changes. It is the machine-readabl
 - [ ] Plugin system for custom validators
 - [ ] Integration with popular agent frameworks (Claude, GPT-4, Codex)
 - [ ] Registry for community `.skill` packages
+
+---
+
+## Feedback Wanted
+
+AgentML is young and your experience matters. Help us improve by answering:
+
+1. **Did AgentML make your coding agent safer?** Did the contract prevent bad behavior?
+2. **Did `.agentml/context.md` help your agent understand the repo?** Was the generated context clear and useful?
+3. **Was the `AGENT.agent` file clear?** Were the sections easy to write and understand?
+4. **What template do you need next?** We have `generic`, `rust-cli`, `nextjs-app`, and `python-package`. What other stacks should we support?
+5. **What command felt confusing?** Which CLI command or output was hard to use?
+
+Open a feedback issue: https://github.com/Nom-nom-hub/agentml/issues/new?template=feedback.md
 
 ---
 
