@@ -1,5 +1,10 @@
 # AgentML
 
+[![CI](https://github.com/Nom-nom-hub/agentml/actions/workflows/agentml-self-check.yml/badge.svg)](https://github.com/Nom-nom-hub/agentml/actions/workflows/agentml-self-check.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Rust](https://img.shields.io/badge/rust-1.70%2B-blue)](https://www.rust-lang.org)
+[![Version](https://img.shields.io/badge/version-v0.1.0-blue)](https://github.com/Nom-nom-hub/agentml/releases/tag/v0.1.0)
+
 **AgentML is a contract language for AI coding agents.**
 
 AgentML defines how AI agents understand, modify, validate, and report on software projects. It is not Markdown, not YAML config — it is an executable contract that sits between humans and AI agents.
@@ -56,6 +61,41 @@ agentml context
 ```
 
 **That is the entire workflow.** You now have an `AGENT.agent` file governing your project.
+
+---
+
+## Use AgentML in any repo
+
+```bash
+# Install AgentML CLI
+cargo install --path .
+
+# Initialize in your project
+cd /path/to/your/project
+agentml init --template generic
+
+# Verify the contract
+agentml self-check
+
+# Export context for LLMs
+agentml context
+```
+
+### Templates
+
+| Template | Command | Best for |
+|----------|---------|----------|
+| `generic` | `agentml init --template generic` | Any project |
+| `rust-cli` | `agentml init --template rust-cli` | Rust CLI apps |
+| `nextjs-app` | `agentml init --template nextjs-app` | Next.js + TypeScript |
+| `python-package` | `agentml init --template python-package` | Python packages |
+
+Each template generates:
+- `AGENT.agent` — the execution contract
+- `skills/` — reusable capabilities
+- `.agentml/context.md` — LLM-readable context
+- `docs/agentml.md` — project-specific docs
+- `.github/workflows/agentml-check.yml` — CI enforcement
 
 ---
 
@@ -280,6 +320,75 @@ The validator reports:
 - YAML is the MVP format. Future versions may add native syntax.
 - No built-in agent runtime integration yet.
 - No `extends` or skill composition UI yet.
+
+---
+
+## AgentML vs AGENTS.md / CLAUDE.md / Cursor rules
+
+AgentML complements, but does not replace, existing project documentation formats.
+
+| Format | Purpose | Strength | AgentML Difference |
+|--------|---------|----------|-------------------|
+| `AGENTS.md` | Loose Markdown instructions for agents | Human-readable, flexible | Unstructured; no validation or enforcement |
+| `CLAUDE.md` | Model-specific project guidance | Tool-aware | Tied to one model; no portable contract format |
+| Cursor rules | Editor-specific guidance | IDE-integrated | Editor-locked; no CLI, CI, or skill system |
+| **AgentML** | **Structured agent execution contract** | **Validateable, enforceable, portable** | **Schema, risk scoring, skills, self-check, CI** |
+
+AgentML is not anti-documentation. It is the **enforcement layer** that makes documentation actionable.
+
+---
+
+## Generated Context Example
+
+Running `agentml context` produces `.agentml/context.md`:
+
+```yaml
+meta:
+  name: my-project
+  version: "1.0.0"
+
+purpose: >
+  AI agent for building and maintaining a Rust CLI application.
+
+context:
+  project_type: rust-cli
+  languages: [rust]
+  frameworks: [clap, tokio]
+
+permissions:
+  read:
+    - "**/*.rs"
+    - "**/Cargo.toml"
+  write:
+    - "src/**/*.rs"
+  execute:
+    - "cargo"
+
+safety:
+  forbidden_paths:
+    - "target/**"
+  forbidden_actions:
+    - "cargo publish"
+  require_confirmation:
+    - "cargo publish"
+
+validation:
+  - name: Format
+    command: "cargo fmt -- --check"
+  - name: Clippy
+    command: "cargo clippy -- -D warnings"
+  - name: Test
+    command: "cargo test"
+
+output:
+  format: markdown
+  required_sections:
+    - "changes"
+    - "tests"
+    - "risks"
+```
+
+Agents should read this context before making changes. It is the machine-readable version of your project's ground rules.
 
 ---
 
