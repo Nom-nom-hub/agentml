@@ -238,6 +238,39 @@ thresholds:
   </div>
 </section>
 
+<section class="content" id="releases">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-label" style="color:var(--accent-green);background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);">Release Notes</span>
+    </div>
+    <h2 class="text-center">What's new in v0.2.0</h2>
+    <p class="section-subtitle">AGENTS.md generation, real-world examples, dangerous change demo.</p>
+    <div class="release-grid" style="display:flex;flex-direction:column;gap:12px;max-width:700px;margin:0 auto;">
+      <div class="feature-card" style="margin:0;">
+        <h3 style="margin:0 0 8px 0;">AGENTS.md generation</h3>
+        <p style="margin:0;color:var(--text-muted);font-size:14px;">
+          New <code>agentml agents-md</code> command generates a human-readable AGENTS.md from your AGENT.agent.
+          <code>agentml init --detect</code> now creates it automatically. Doctor checks for it. Inspect lists it.
+        </p>
+      </div>
+      <div class="feature-card" style="margin:0;">
+        <h3 style="margin:0 0 8px 0;">Real-world examples</h3>
+        <p style="margin:0;color:var(--text-muted);font-size:14px;">
+          Five example projects with complete contracts: Rust CLI, Next.js App, Node Package, Python Package,
+          and a Dangerous Change Demo showing AgentML catching bad AI behavior (risk score 100/100).
+        </p>
+      </div>
+      <div class="feature-card" style="margin:0;">
+        <h3 style="margin:0 0 8px 0;">Init flags</h3>
+        <p style="margin:0;color:var(--text-muted);font-size:14px;">
+          New <code>--no-agents-md</code>, <code>--no-context</code>, <code>--no-brief</code> flags for
+          <code>agentml init</code>. The <code>--force</code> flag now applies to all generated files.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="content alt" id="quickstart">
   <div class="container">
     <div class="text-center">

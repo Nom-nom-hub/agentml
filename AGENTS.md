@@ -6,6 +6,19 @@ This project uses AgentML to define how AI coding agents should safely work in t
 
 The machine-readable source of truth is `AGENT.agent`.
 
+## Version
+
+Current version: **v0.2.0**
+
+### v0.2.0 — AGENTS.md generation & real-world examples
+- New `agentml agents-md` command generates AGENTS.md from AGENT.agent
+- `agentml init --detect` now creates AGENTS.md automatically
+- Five real-world examples with complete contracts
+- New `--no-agents-md`, `--no-context`, `--no-brief` init flags
+- Doctor and inspect now check/report AGENTS.md status
+
+See [CHANGELOG.md](CHANGELOG.md) for full history.
+
 ## Required first steps
 
 Before editing files, agents should read:
