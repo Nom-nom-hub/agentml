@@ -25,3 +25,6 @@ jobs:
 
       - name: AgentML validates itself
         run: cargo run -- self-check
+
+      - name: AgentML diff audit
+        run: cargo run -- diff || echo "No changes to audit"

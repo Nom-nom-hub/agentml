@@ -423,13 +423,46 @@ See [docs/agent-prompts.md](docs/agent-prompts.md) for copy-paste prompts to mak
 
 ## Roadmap
 
+- [x] `agentml diff` for permission diffing
 - [ ] Native AgentML syntax (not just YAML)
 - [ ] `extends` field for skill composition
 - [ ] `agentml run --dry-run` for full simulation
-- [ ] `agentml diff` for permission diffing
 - [ ] Plugin system for custom validators
 - [ ] Integration with popular agent frameworks (Claude, GPT-4, Codex)
 - [ ] Registry for community `.skill` packages
+
+---
+
+## Diff Audit
+
+The `agentml diff` command audits changes against AGENT.agent permissions and calculates risk scores.
+
+```bash
+agentml diff
+```
+
+### Risk Scoring
+
+| Score | Level | Meaning |
+|-------|-------|---------|
+| 0-20 | Low | Minimal safety concerns |
+| 21-49 | Medium | Some policy gaps or minor overlaps |
+| 50-79 | High | Dangerous permissions or missing guards |
+| 80-99 | Critical | Severe overlap or critical safety gaps |
+| 100 | Blocked | Forbidden file modified |
+
+### Risk Factors
+
+- `forbidden file modified`: 100 (blocked)
+- `validator/parser/schema changed`: +25
+- `CLI command behavior changed`: +20
+- `docs/spec changed`: +10
+- `examples changed`: +10
+- `tests changed`: +5
+- `source changed without tests`: +20
+- `AGENT.agent changed`: +30
+- `skills changed`: +20
+- `README changed`: +5
 
 ---
 
