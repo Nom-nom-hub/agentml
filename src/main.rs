@@ -5,9 +5,7 @@ use clap::Parser;
 fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
-        Some(agentml::cli::Commands::Mcp {}) => {
-            agentml::mcp::run()
-        }
+        Some(agentml::cli::Commands::Mcp {}) => agentml::mcp::run(),
         Some(agentml::cli::Commands::Version {}) => {
             println!("agentml {}", env!("CARGO_PKG_VERSION"));
             Ok(())
@@ -30,9 +28,7 @@ fn main() -> Result<()> {
             agentml::commands::validate::run(file, strict)
         }
         Some(agentml::cli::Commands::Inspect {}) => agentml::commands::inspect::run(),
-        Some(agentml::cli::Commands::Run { task, file }) => {
-            agentml::commands::run::run(file, task)
-        }
+        Some(agentml::cli::Commands::Run { task, file }) => agentml::commands::run::run(file, task),
         Some(agentml::cli::Commands::Context { file, output }) => {
             agentml::commands::context::run(file, output)
         }

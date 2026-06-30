@@ -1,6 +1,6 @@
 use crate::parser::parse_agent_file;
 use crate::types::AgentFile;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use colored::Colorize;
 use glob::glob;
 use serde_yaml::Value;
@@ -23,9 +23,8 @@ pub fn run() -> Result<()> {
     println!("{}", "══ AgentML Diff Audit ══".cyan().bold());
     println!();
 
-    let agent_file = parse_agent_file(std::path::Path::new("AGENT.agent")).unwrap_or_else(|_| {
-        AgentFile::default()
-    });
+    let agent_file = parse_agent_file(std::path::Path::new("AGENT.agent"))
+        .unwrap_or_else(|_| AgentFile::default());
 
     let changed_files = get_changed_files()?;
     if changed_files.is_empty() {
@@ -99,7 +98,9 @@ pub fn run() -> Result<()> {
     }
 
     if report.score >= 100 {
-        return Err(anyhow!("Risk score indicates blocked state - forbidden file modified"));
+        return Err(anyhow!(
+            "Risk score indicates blocked state - forbidden file modified"
+        ));
     }
 
     Ok(())
@@ -132,14 +133,19 @@ pub fn get_changed_files() -> Result<Vec<ChangedFile>> {
 
 pub fn check_permissions(files: &[ChangedFile], agent: &AgentFile) -> Vec<(String, String)> {
     let mut results = Vec::new();
-    let write_patterns: Vec<String> = agent.permissions.as_ref()
+    let write_patterns: Vec<String> = agent
+        .permissions
+        .as_ref()
         .and_then(|p| p.write.clone())
         .unwrap_or_default();
     let forbidden_patterns: Vec<String> = if let Some(safety) = &agent.safety {
         if let Some(obj) = safety.as_mapping() {
             if let Some(paths) = obj.get(&Value::String("forbidden_paths".to_string())) {
                 if let Some(arr) = paths.as_sequence() {
-                    arr.iter().filter_map(|v| v.as_str()).map(|s| s.to_string()).collect()
+                    arr.iter()
+                        .filter_map(|v| v.as_str())
+                        .map(|s| s.to_string())
+                        .collect()
                 } else {
                     Vec::new()
                 }
@@ -191,28 +197,45 @@ pub fn calculate_risk(files: &[ChangedFile], _agent: &AgentFile, report: &mut Ri
     for file in files {
         if file.path.eq_ignore_ascii_case("AGENT.agent") {
             report.score += 30;
-            report.issues.push(format!("{}: AGENT.agent changed: +30", file.path));
-            report.next_actions.push("Review AGENT.agent changes carefully".to_string());
+            report
+                .issues
+                .push(format!("{}: AGENT.agent changed: +30", file.path));
+            report
+                .next_actions
+                .push("Review AGENT.agent changes carefully".to_string());
         }
         if file.path.starts_with("skills/") && file.path.ends_with(".skill") {
             report.score += 20;
-            report.issues.push(format!("{}: skill changed: +20", file.path));
+            report
+                .issues
+                .push(format!("{}: skill changed: +20", file.path));
         }
         if file.path.starts_with("src/") && file.path.ends_with(".rs") {
-            let test_path = file.path.replace("src/", "tests/").replace(".rs", "_test.rs");
+            let test_path = file
+                .path
+                .replace("src/", "tests/")
+                .replace(".rs", "_test.rs");
             if !std::path::Path::new(&test_path).exists() {
                 report.score += 20;
-                report.issues.push(format!("{}: source changed without tests: +20", file.path));
-                report.next_actions.push(format!("Add or update tests for {}", file.path));
+                report
+                    .issues
+                    .push(format!("{}: source changed without tests: +20", file.path));
+                report
+                    .next_actions
+                    .push(format!("Add or update tests for {}", file.path));
             }
         }
         if file.path.eq_ignore_ascii_case("README.md") {
             report.score += 5;
-            report.issues.push(format!("{}: README changed: +5", file.path));
+            report
+                .issues
+                .push(format!("{}: README changed: +5", file.path));
         }
         if file.path.starts_with("docs/") || file.path.ends_with(".md") {
             report.score += 10;
-            report.issues.push(format!("{}: docs changed: +10", file.path));
+            report
+                .issues
+                .push(format!("{}: docs changed: +10", file.path));
         }
     }
 

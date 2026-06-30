@@ -218,7 +218,7 @@ fn handle_tool_call(req: &McpRequest) -> McpResponse {
                         message: "Invalid params".to_string(),
                         data: None,
                     }),
-                }
+                };
             }
         },
         None => ToolCallParams::default(),
@@ -244,7 +244,7 @@ fn handle_tool_call(req: &McpRequest) -> McpResponse {
                     message: format!("Unknown tool: {}", params.name),
                     data: None,
                 }),
-            }
+            };
         }
     };
 
@@ -290,10 +290,22 @@ pub fn handle_get_brief(params: &ToolCallParams) -> serde_json::Value {
     let agent = parse_agent_file(Path::new("AGENT.agent")).unwrap_or_default();
     let info = detect_project().unwrap_or_default();
 
-    let (score, _reasons) = if include_diff { run_diff_check() } else { (0, vec![]) };
+    let (score, _reasons) = if include_diff {
+        run_diff_check()
+    } else {
+        (0, vec![])
+    };
 
-    let validation_commands: Vec<String> = agent.validation.as_ref().map(|v| v.iter().map(|cmd| cmd.command.clone()).collect()).unwrap_or_default();
-    let write_paths: Vec<String> = agent.permissions.as_ref().and_then(|p| p.write.clone()).unwrap_or_default();
+    let validation_commands: Vec<String> = agent
+        .validation
+        .as_ref()
+        .map(|v| v.iter().map(|cmd| cmd.command.clone()).collect())
+        .unwrap_or_default();
+    let write_paths: Vec<String> = agent
+        .permissions
+        .as_ref()
+        .and_then(|p| p.write.clone())
+        .unwrap_or_default();
 
     if format == "json" {
         json!({
@@ -326,8 +338,16 @@ pub fn handle_get_brief(params: &ToolCallParams) -> serde_json::Value {
 
 pub fn handle_get_allowed_paths() -> serde_json::Value {
     let agent = parse_agent_file(Path::new("AGENT.agent")).unwrap_or_default();
-    let read_paths: Vec<String> = agent.permissions.as_ref().and_then(|p| p.read.clone()).unwrap_or_default();
-    let write_paths: Vec<String> = agent.permissions.as_ref().and_then(|p| p.write.clone()).unwrap_or_default();
+    let read_paths: Vec<String> = agent
+        .permissions
+        .as_ref()
+        .and_then(|p| p.read.clone())
+        .unwrap_or_default();
+    let write_paths: Vec<String> = agent
+        .permissions
+        .as_ref()
+        .and_then(|p| p.write.clone())
+        .unwrap_or_default();
     json!({
         "read_paths": read_paths,
         "write_paths": write_paths,
@@ -338,11 +358,21 @@ pub fn handle_get_allowed_paths() -> serde_json::Value {
 pub fn handle_get_validation_commands() -> serde_json::Value {
     let agent = parse_agent_file(Path::new("AGENT.agent")).unwrap_or_default();
     let info = detect_project().unwrap_or_default();
-    let validation_commands: Vec<serde_json::Value> = agent.validation.as_ref().map(|v| v.iter().map(|cmd| json!({
-        "name": &cmd.name,
-        "command": &cmd.command,
-        "description": cmd.description.as_ref(),
-    })).collect()).unwrap_or_default();
+    let validation_commands: Vec<serde_json::Value> = agent
+        .validation
+        .as_ref()
+        .map(|v| {
+            v.iter()
+                .map(|cmd| {
+                    json!({
+                        "name": &cmd.name,
+                        "command": &cmd.command,
+                        "description": cmd.description.as_ref(),
+                    })
+                })
+                .collect()
+        })
+        .unwrap_or_default();
     json!({
         "validation_commands": validation_commands,
         "detected_commands": info.validation_commands,
@@ -364,7 +394,11 @@ pub fn handle_audit_diff() -> serde_json::Value {
 
 pub fn get_validation_commands_for_audit() -> Vec<String> {
     let agent = parse_agent_file(Path::new("AGENT.agent")).unwrap_or_default();
-    agent.validation.as_ref().map(|v| v.iter().map(|cmd| cmd.command.clone()).collect()).unwrap_or_default()
+    agent
+        .validation
+        .as_ref()
+        .map(|v| v.iter().map(|cmd| cmd.command.clone()).collect())
+        .unwrap_or_default()
 }
 
 pub fn handle_validate_contract() -> serde_json::Value {
@@ -380,14 +414,20 @@ pub fn handle_validate_contract() -> serde_json::Value {
 pub fn handle_validate_skill(params: &ToolCallParams) -> serde_json::Value {
     let path = match &params.path {
         Some(p) => p,
-        None => return json!({"valid": false, "errors": ["path required"], "warnings": [], "suggested_fixes": []}),
+        None => {
+            return json!({"valid": false, "errors": ["path required"], "warnings": [], "suggested_fixes": []});
+        }
     };
 
     if path.contains("..") || path.starts_with('/') {
         return json!({"valid": false, "errors": ["Invalid path: potential traversal"], "warnings": [], "suggested_fixes": []});
     }
 
-    if path.contains(".agent") || path.contains("secret") || path.contains("key") || path.contains("token") {
+    if path.contains(".agent")
+        || path.contains("secret")
+        || path.contains("key")
+        || path.contains("token")
+    {
         return json!({"valid": false, "errors": ["Forbidden path: potential secret"], "warnings": [], "suggested_fixes": []});
     }
 
@@ -396,8 +436,13 @@ pub fn handle_validate_skill(params: &ToolCallParams) -> serde_json::Value {
 
 pub fn handle_generate_context(write: bool) -> serde_json::Value {
     let agent = parse_agent_file(Path::new("AGENT.agent")).unwrap_or_default();
-    let content = format!("# AgentML Context\n\nProject: {}\n\nPurpose: {:?}\n\nStack: {:?}\n",
-        agent.meta.as_ref().map(|m| m.name.as_str()).unwrap_or("unknown"),
+    let content = format!(
+        "# AgentML Context\n\nProject: {}\n\nPurpose: {:?}\n\nStack: {:?}\n",
+        agent
+            .meta
+            .as_ref()
+            .map(|m| m.name.as_str())
+            .unwrap_or("unknown"),
         agent.purpose,
         agent.context,
     );
@@ -421,10 +466,22 @@ pub fn handle_generate_brief(params: &ToolCallParams) -> serde_json::Value {
 
     let agent = parse_agent_file(Path::new("AGENT.agent")).unwrap_or_default();
     let info = detect_project().unwrap_or_default();
-    let (score, _reasons) = if include_diff { run_diff_check() } else { (0, vec![]) };
+    let (score, _reasons) = if include_diff {
+        run_diff_check()
+    } else {
+        (0, vec![])
+    };
 
-    let validation_commands: Vec<String> = agent.validation.as_ref().map(|v| v.iter().map(|cmd| cmd.command.clone()).collect()).unwrap_or_default();
-    let write_paths: Vec<String> = agent.permissions.as_ref().and_then(|p| p.write.clone()).unwrap_or_default();
+    let validation_commands: Vec<String> = agent
+        .validation
+        .as_ref()
+        .map(|v| v.iter().map(|cmd| cmd.command.clone()).collect())
+        .unwrap_or_default();
+    let write_paths: Vec<String> = agent
+        .permissions
+        .as_ref()
+        .and_then(|p| p.write.clone())
+        .unwrap_or_default();
 
     let content: String = if format == "json" {
         serde_json::to_string(&json!({
@@ -434,10 +491,16 @@ pub fn handle_generate_brief(params: &ToolCallParams) -> serde_json::Value {
             "forbidden_paths": Vec::<String>::new(),
             "validation_commands": validation_commands,
             "risk": {"score": score, "status": risk_status(score)},
-        })).unwrap_or_else(|_| "{}".to_string())
+        }))
+        .unwrap_or_else(|_| "{}".to_string())
     } else {
-        format!("# AgentML Operating Brief\n\nProject: {}\n\nStack: {}\n\nAllowed write paths:\n- {:?}\n\nForbidden:\n- {:?}\n\nRequired validation:\n{:?}\n\nRisk: {} ({})\n",
-            agent.meta.as_ref().map(|m| m.name.as_str()).unwrap_or("unknown"),
+        format!(
+            "# AgentML Operating Brief\n\nProject: {}\n\nStack: {}\n\nAllowed write paths:\n- {:?}\n\nForbidden:\n- {:?}\n\nRequired validation:\n{:?}\n\nRisk: {} ({})\n",
+            agent
+                .meta
+                .as_ref()
+                .map(|m| m.name.as_str())
+                .unwrap_or("unknown"),
             info.project_type,
             write_paths,
             Vec::<String>::new() as Vec<String>,
@@ -466,7 +529,9 @@ pub fn handle_generate_brief(params: &ToolCallParams) -> serde_json::Value {
 
 pub fn run_diff_check() -> (u32, Vec<String>) {
     use std::process::Command;
-    let output = Command::new("git").args(["diff", "--name-only", "HEAD"]).output();
+    let output = Command::new("git")
+        .args(["diff", "--name-only", "HEAD"])
+        .output();
     if let Ok(out) = output {
         if out.status.success() {
             let stdout = String::from_utf8_lossy(&out.stdout);
@@ -474,9 +539,16 @@ pub fn run_diff_check() -> (u32, Vec<String>) {
             let mut reasons = Vec::new();
             for line in stdout.lines() {
                 let path = line.trim();
-                if path == "AGENT.agent" { score += 30; reasons.push(path.to_string()); }
-                else if path.starts_with("skills/") && path.ends_with(".skill") { score += 20; reasons.push(path.to_string()); }
-                else if path.starts_with("src/") && path.ends_with(".rs") { score += 20; reasons.push(path.to_string()); }
+                if path == "AGENT.agent" {
+                    score += 30;
+                    reasons.push(path.to_string());
+                } else if path.starts_with("skills/") && path.ends_with(".skill") {
+                    score += 20;
+                    reasons.push(path.to_string());
+                } else if path.starts_with("src/") && path.ends_with(".rs") {
+                    score += 20;
+                    reasons.push(path.to_string());
+                }
             }
             return (score.min(100), reasons);
         }
@@ -485,5 +557,15 @@ pub fn run_diff_check() -> (u32, Vec<String>) {
 }
 
 pub fn risk_status(score: u32) -> &'static str {
-    if score >= 100 { "blocked" } else if score >= 80 { "critical" } else if score >= 50 { "high" } else if score >= 20 { "medium" } else { "low" }
+    if score >= 100 {
+        "blocked"
+    } else if score >= 80 {
+        "critical"
+    } else if score >= 50 {
+        "high"
+    } else if score >= 20 {
+        "medium"
+    } else {
+        "low"
+    }
 }

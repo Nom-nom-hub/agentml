@@ -34,7 +34,11 @@ pub fn detect_project() -> Result<ProjectInfo> {
         let package_json = fs::read_to_string("package.json")?;
         let pkg: serde_json::Value = serde_json::from_str(&package_json)?;
 
-        if pkg.get("dependencies").and_then(|d| d.get("next")).is_some() {
+        if pkg
+            .get("dependencies")
+            .and_then(|d| d.get("next"))
+            .is_some()
+        {
             info.project_type = "Next.js".to_string();
             info.important_files = vec![
                 "app/**/*.tsx".to_string(),
@@ -43,7 +47,11 @@ pub fn detect_project() -> Result<ProjectInfo> {
                 "next.config.*".to_string(),
                 "package.json".to_string(),
             ];
-        } else if pkg.get("dependencies").and_then(|d| d.get("vite")).is_some() {
+        } else if pkg
+            .get("dependencies")
+            .and_then(|d| d.get("vite"))
+            .is_some()
+        {
             info.project_type = "Vite".to_string();
             info.important_files = vec![
                 "src/**/*.ts".to_string(),
@@ -70,26 +78,48 @@ pub fn detect_project() -> Result<ProjectInfo> {
 
         if let Some(scripts) = pkg.get("scripts").and_then(|s| s.as_object()) {
             for (name, _) in scripts {
-                info.detected_scripts.push((name.clone(), format!("{} run {}", info.package_manager.as_deref().unwrap_or("npm"), name)));
+                info.detected_scripts.push((
+                    name.clone(),
+                    format!(
+                        "{} run {}",
+                        info.package_manager.as_deref().unwrap_or("npm"),
+                        name
+                    ),
+                ));
             }
             if scripts.contains_key("lint") {
-                info.validation_commands.push(format!("{} run lint", info.package_manager.as_deref().unwrap_or("npm")));
+                info.validation_commands.push(format!(
+                    "{} run lint",
+                    info.package_manager.as_deref().unwrap_or("npm")
+                ));
             }
             if scripts.contains_key("test") {
-                info.validation_commands.push(format!("{} run test", info.package_manager.as_deref().unwrap_or("npm")));
+                info.validation_commands.push(format!(
+                    "{} run test",
+                    info.package_manager.as_deref().unwrap_or("npm")
+                ));
             }
             if scripts.contains_key("typecheck") || scripts.contains_key("type-check") {
-                info.validation_commands.push(format!("{} run typecheck", info.package_manager.as_deref().unwrap_or("npm")));
+                info.validation_commands.push(format!(
+                    "{} run typecheck",
+                    info.package_manager.as_deref().unwrap_or("npm")
+                ));
             }
             if scripts.contains_key("build") {
-                info.validation_commands.push(format!("{} run build", info.package_manager.as_deref().unwrap_or("npm")));
+                info.validation_commands.push(format!(
+                    "{} run build",
+                    info.package_manager.as_deref().unwrap_or("npm")
+                ));
             }
         }
 
         return Ok(info);
     }
 
-    if Path::new("pyproject.toml").exists() || Path::new("requirements.txt").exists() || Path::new("setup.py").exists() {
+    if Path::new("pyproject.toml").exists()
+        || Path::new("requirements.txt").exists()
+        || Path::new("setup.py").exists()
+    {
         info.project_type = "Python".to_string();
         info.package_manager = None;
         info.important_files = vec![
@@ -118,7 +148,10 @@ pub fn detect_project() -> Result<ProjectInfo> {
         "docs/**".to_string(),
         "README.md".to_string(),
     ];
-    println!("{}: No known stack detected. Generated conservative generic AGENT.agent.", "Warning".yellow());
+    println!(
+        "{}: No known stack detected. Generated conservative generic AGENT.agent.",
+        "Warning".yellow()
+    );
 
     Ok(info)
 }
@@ -153,7 +186,10 @@ pub fn print_inspect(info: &ProjectInfo) {
     println!();
     println!("{}", "Status:".bold());
     if info.project_type == "Generic" {
-        println!("  {}", "Unknown stack - manual configuration needed".yellow());
+        println!(
+            "  {}",
+            "Unknown stack - manual configuration needed".yellow()
+        );
     } else {
         println!("  {}", "Ready to generate AGENT.agent".green());
     }

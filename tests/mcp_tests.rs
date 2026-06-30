@@ -1,7 +1,7 @@
 use agentml::mcp::{
-    handle_audit_diff, handle_generate_context, handle_generate_brief,
-    handle_get_brief, handle_get_contract, handle_validate_contract,
-    handle_validate_skill, risk_status, ToolCallParams,
+    ToolCallParams, handle_audit_diff, handle_generate_brief, handle_generate_context,
+    handle_get_brief, handle_get_contract, handle_validate_contract, handle_validate_skill,
+    risk_status,
 };
 
 #[test]
@@ -59,15 +59,22 @@ fn mcp_validate_skill_blocks_path_traversal() {
     };
     let result = handle_validate_skill(&params);
     assert_eq!(result["valid"].as_bool().unwrap(), false);
-    assert!(result["errors"].as_array().unwrap()[0]
-        .as_str().unwrap().contains("traversal"));
+    assert!(
+        result["errors"].as_array().unwrap()[0]
+            .as_str()
+            .unwrap()
+            .contains("traversal")
+    );
 }
 
 #[test]
 fn mcp_generate_context_write_only_writes_to_agentml() {
     let result = handle_generate_context(true);
     assert!(result.is_object());
-    assert_eq!(result["written_path"].as_str().unwrap(), ".agentml/context.md");
+    assert_eq!(
+        result["written_path"].as_str().unwrap(),
+        ".agentml/context.md"
+    );
 }
 
 #[test]
@@ -79,7 +86,10 @@ fn mcp_generate_brief_write_only_writes_to_agentml() {
         ..Default::default()
     };
     let result = handle_generate_brief(&params);
-    assert_eq!(result["written_path"].as_str().unwrap(), ".agentml/brief.md");
+    assert_eq!(
+        result["written_path"].as_str().unwrap(),
+        ".agentml/brief.md"
+    );
 }
 
 #[test]

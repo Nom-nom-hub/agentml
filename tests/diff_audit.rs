@@ -1,4 +1,4 @@
-use agentml::commands::diff::{calculate_risk, check_permissions, ChangedFile, RiskReport};
+use agentml::commands::diff::{ChangedFile, RiskReport, calculate_risk, check_permissions};
 use agentml::types::AgentFile;
 
 fn make_agent_file() -> AgentFile {

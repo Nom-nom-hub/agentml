@@ -10,7 +10,10 @@ pub fn run(path: PathBuf, template: Option<String>, detect: bool) -> Result<()> 
     let agent_path = target.join("AGENT.agent");
 
     if agent_path.exists() && std::env::var("AGENTML_FORCE_INIT").is_err() {
-        println!("{}", "AGENT.agent already exists in this directory".yellow());
+        println!(
+            "{}",
+            "AGENT.agent already exists in this directory".yellow()
+        );
         println!("Use --force or set AGENTML_FORCE_INIT=1 to overwrite.");
         return Ok(());
     }
@@ -29,7 +32,11 @@ pub fn run(path: PathBuf, template: Option<String>, detect: bool) -> Result<()> 
     };
 
     fs::write(&agent_path, template_content).with_context(|| "Failed to write AGENT.agent")?;
-    println!("{} {}", "Created".green().bold(), agent_path.display().to_string().cyan());
+    println!(
+        "{} {}",
+        "Created".green().bold(),
+        agent_path.display().to_string().cyan()
+    );
 
     let skills_dir = target.join("skills");
     fs::create_dir_all(&skills_dir)?;
@@ -97,10 +104,20 @@ agentml self-check
 }
 
 fn generate_detected_template(info: &crate::detect::ProjectInfo) -> String {
-    let read_patterns: Vec<String> = info.important_files.iter().map(|f| format!("- {}", f)).collect();
-    let validation: String = info.validation_commands.iter().map(|c| format!("  - name: validate\n    command: \"{}\"", c)).collect::<Vec<_>>().join("\n");
+    let read_patterns: Vec<String> = info
+        .important_files
+        .iter()
+        .map(|f| format!("- {}", f))
+        .collect();
+    let validation: String = info
+        .validation_commands
+        .iter()
+        .map(|c| format!("  - name: validate\n    command: \"{}\"", c))
+        .collect::<Vec<_>>()
+        .join("\n");
 
-    format!(r#"# AgentML Execution Contract
+    format!(
+        r#"# AgentML Execution Contract
 meta:
   name: detected-project
   version: "1.0.0"
@@ -237,7 +254,8 @@ output:
     - "changes"
     - "tests"
     - "risks"
-"#.to_string()
+"#
+    .to_string()
 }
 
 fn rust_cli_template() -> String {
@@ -297,7 +315,8 @@ output:
     - "changes"
     - "tests"
     - "risks"
-"#.to_string()
+"#
+    .to_string()
 }
 
 fn nextjs_app_template() -> String {
@@ -359,7 +378,8 @@ output:
     - "changes"
     - "tests"
     - "risks"
-"#.to_string()
+"#
+    .to_string()
 }
 
 fn python_package_template() -> String {
@@ -417,7 +437,8 @@ output:
     - "changes"
     - "tests"
     - "risks"
-"#.to_string()
+"#
+    .to_string()
 }
 
 fn workflow_template() -> &'static str {
