@@ -51,7 +51,10 @@ fn self_check_docs_exist() {
         project_root().join("docs/spec.md").exists(),
         "docs/spec.md must exist"
     );
-    assert!(project_root().join("README.md").exists(), "README.md must exist");
+    assert!(
+        project_root().join("README.md").exists(),
+        "README.md must exist"
+    );
 }
 
 #[test]
