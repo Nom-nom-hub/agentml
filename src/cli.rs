@@ -19,15 +19,14 @@ pub enum Commands {
         template: Option<String>,
         #[arg(long)]
         force: bool,
+        #[arg(long)]
+        detect: bool,
     },
     #[command(alias = "check")]
     Validate {
         file: PathBuf,
         #[arg(short, long)]
         strict: bool,
-    },
-    Inspect {
-        file: PathBuf,
     },
     Run {
         task: String,
@@ -39,6 +38,7 @@ pub enum Commands {
         #[arg(short, long)]
         output: Option<PathBuf>,
     },
+    Inspect {},
     Skill {
         #[command(subcommand)]
         skill: SkillCommands,
