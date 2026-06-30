@@ -4,9 +4,10 @@ use std::path::PathBuf;
 #[derive(Parser, Debug)]
 #[command(name = "agentml")]
 #[command(about = "AI-native markup language and CLI for agent execution contracts", long_about = None)]
+#[command(version)]
 pub struct Cli {
     #[command(subcommand)]
-    pub command: Commands,
+    pub command: Option<Commands>,
 }
 
 #[derive(Subcommand, Debug)]
@@ -51,6 +52,7 @@ pub enum Commands {
         #[arg(long)]
         no_diff: bool,
     },
+    Mcp {},
     Skill {
         #[command(subcommand)]
         skill: SkillCommands,
@@ -58,6 +60,10 @@ pub enum Commands {
     SelfCheck {},
     Diff {},
     Doctor {},
+    Completions {
+        shell: String,
+    },
+    Version {},
 }
 
 #[derive(Subcommand, Debug)]

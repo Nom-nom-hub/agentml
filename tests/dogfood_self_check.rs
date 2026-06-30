@@ -4,12 +4,30 @@ use agentml::validator;
 use std::path::Path;
 use std::path::PathBuf;
 
+struct CwdGuard {
+    original: std::path::PathBuf,
+}
+
+impl CwdGuard {
+    fn new() -> Self {
+        let original = std::env::current_dir().unwrap();
+        Self { original }
+    }
+}
+
+impl Drop for CwdGuard {
+    fn drop(&mut self) {
+        let _ = std::env::set_current_dir(&self.original);
+    }
+}
+
 fn skills_dir() -> PathBuf {
     std::env::current_dir().unwrap().join("skills")
 }
 
 #[test]
 fn self_check_contract_is_valid() {
+    let _guard = CwdGuard::new();
     let path = PathBuf::from("AGENT.agent");
     let agent: AgentFile = parser::parse_agent_file(&path).expect("AGENT.agent must parse");
     let report = validator::validate_agent_file(&agent, false);
@@ -19,6 +37,7 @@ fn self_check_contract_is_valid() {
 
 #[test]
 fn self_check_skills_are_valid() {
+    let _guard = CwdGuard::new();
     let skills_dir = skills_dir();
     if !skills_dir.exists() {
         return;
@@ -40,6 +59,7 @@ fn self_check_skills_are_valid() {
 
 #[test]
 fn self_check_docs_exist() {
+    let _guard = CwdGuard::new();
     assert!(
         Path::new("docs/spec.md").exists(),
         "docs/spec.md must exist"
@@ -49,6 +69,7 @@ fn self_check_docs_exist() {
 
 #[test]
 fn self_check_readme_mentions_dogfooding() {
+    let _guard = CwdGuard::new();
     let readme = std::fs::read_to_string("README.md").expect("README.md must exist");
     assert!(
         readme.contains("dogfood"),

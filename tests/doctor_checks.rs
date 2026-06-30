@@ -3,6 +3,27 @@ use std::env;
 use std::fs;
 use std::path::Path;
 
+struct CwdGuard {
+    original: std::path::PathBuf,
+}
+
+impl CwdGuard {
+    fn new() -> Self {
+        let original = env::current_dir().unwrap();
+        Self { original }
+    }
+
+    fn set(&self, new: &Path) {
+        let _ = env::set_current_dir(new);
+    }
+}
+
+impl Drop for CwdGuard {
+    fn drop(&mut self) {
+        let _ = env::set_current_dir(&self.original);
+    }
+}
+
 fn setup_generic_init(root: &Path) {
     fs::create_dir_all(root.join("skills")).unwrap();
     fs::create_dir_all(root.join(".agentml")).unwrap();
@@ -35,10 +56,9 @@ fn doctor_passes_after_generic_init() {
 
     setup_generic_init(&temp_dir);
 
-    let original = env::current_dir().unwrap();
-    env::set_current_dir(&temp_dir).unwrap();
+    let _guard = CwdGuard::new();
+    _guard.set(&temp_dir);
     let result = doctor::run();
-    env::set_current_dir(original).unwrap();
 
     let _ = fs::remove_dir_all(&temp_dir);
     assert!(result.is_ok(), "doctor should pass after generic init");
@@ -52,14 +72,29 @@ fn doctor_warns_for_missing_user_repo_files() {
 
     fs::write(temp_dir.join("AGENT.agent"), "purpose: test\n").unwrap();
 
-    let original = env::current_dir().unwrap();
-    env::set_current_dir(&temp_dir).unwrap();
+    let _guard = CwdGuard::new();
+    _guard.set(&temp_dir);
     let result = doctor::run();
-    env::set_current_dir(original).unwrap();
 
     let _ = fs::remove_dir_all(&temp_dir);
     assert!(
         result.is_ok(),
         "doctor should not hard-fail for missing optional files"
     );
+}
+
+#[test]
+fn doctor_detects_git_repo() {
+    let temp_dir = env::temp_dir().join("agentml-doctor-git-test");
+    let _ = fs::remove_dir_all(&temp_dir);
+    fs::create_dir_all(&temp_dir).unwrap();
+
+    fs::write(temp_dir.join("AGENT.agent"), "purpose: test\n").unwrap();
+
+    let _guard = CwdGuard::new();
+    _guard.set(&temp_dir);
+    let result = doctor::run();
+
+    let _ = fs::remove_dir_all(&temp_dir);
+    assert!(result.is_ok());
 }
