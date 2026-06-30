@@ -1,3 +1,4 @@
+mod agents_md;
 mod contract_validation;
 mod diff_audit;
 mod doctor_checks;

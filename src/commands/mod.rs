@@ -1,3 +1,4 @@
+pub mod agents_md;
 pub mod brief;
 pub mod completions;
 pub mod context;

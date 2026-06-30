@@ -22,6 +22,12 @@ pub enum Commands {
         force: bool,
         #[arg(long)]
         detect: bool,
+        #[arg(long)]
+        no_agents_md: bool,
+        #[arg(long)]
+        no_context: bool,
+        #[arg(long)]
+        no_brief: bool,
     },
     #[command(alias = "check")]
     Validate {
@@ -51,6 +57,12 @@ pub enum Commands {
         include_diff: bool,
         #[arg(long)]
         no_diff: bool,
+    },
+    AgentsMd {
+        #[arg(long)]
+        write: bool,
+        #[arg(long)]
+        force: bool,
     },
     Mcp {},
     Skill {

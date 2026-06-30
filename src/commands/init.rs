@@ -1,10 +1,19 @@
 use crate::detect::{detect_project, print_inspect};
+use crate::parser::parse_agent_file;
 use anyhow::{Context, Result};
 use colored::Colorize;
+use std::env;
 use std::fs;
 use std::path::PathBuf;
 
-pub fn run(path: PathBuf, template: Option<String>, detect: bool) -> Result<()> {
+pub fn run(
+    path: PathBuf,
+    template: Option<String>,
+    detect: bool,
+    no_agents_md: bool,
+    no_context: bool,
+    no_brief: bool,
+) -> Result<()> {
     let target = path;
     fs::create_dir_all(&target)?;
     let agent_path = target.join("AGENT.agent");
@@ -44,7 +53,81 @@ pub fn run(path: PathBuf, template: Option<String>, detect: bool) -> Result<()> 
 
     let agentml_dir = target.join(".agentml");
     fs::create_dir_all(&agentml_dir)?;
-    fs::write(agentml_dir.join("context.md"), generate_context_md())?;
+    let force = std::env::var("AGENTML_FORCE_INIT").is_ok();
+
+    if !no_context {
+        let context_path = agentml_dir.join("context.md");
+        if context_path.exists() && !force {
+            println!(
+                "{}",
+                ".agentml/context.md already exists. Use --force to overwrite.".yellow()
+            );
+        } else {
+            fs::write(&context_path, generate_context_md())?;
+            println!(
+                "{} {}",
+                "Created".green().bold(),
+                context_path.display().to_string().cyan()
+            );
+        }
+    }
+
+    if !no_brief {
+        let brief_path = agentml_dir.join("brief.md");
+        if brief_path.exists() && !force {
+            println!(
+                "{}",
+                ".agentml/brief.md already exists. Use --force to overwrite.".yellow()
+            );
+        } else {
+            let cwd = env::current_dir()?;
+            env::set_current_dir(&target)?;
+            let brief_result = crate::commands::brief::run("md", true, 80, false);
+            env::set_current_dir(&cwd)?;
+                if let Err(e) = brief_result {
+                    println!(
+                        "{} {}",
+                        "Warning:".yellow(),
+                        format_args!("Could not generate .agentml/brief.md: {}", e)
+                    );
+            } else {
+                println!(
+                    "{} {}",
+                    "Created".green().bold(),
+                    brief_path.display().to_string().cyan()
+                );
+            }
+        }
+    }
+
+    if !no_agents_md {
+        let agents_md_path = target.join("AGENTS.md");
+        if agents_md_path.exists() && !force {
+            println!(
+                "{}",
+                "AGENTS.md already exists. Use --force to overwrite.".yellow()
+            );
+        } else {
+            match parse_agent_file(&agent_path) {
+                Ok(agent) => {
+                    let md = crate::commands::agents_md::generate(&agent);
+                    fs::write(&agents_md_path, &md)?;
+                    println!(
+                        "{} {}",
+                        "Created".green().bold(),
+                        agents_md_path.display().to_string().cyan()
+                    );
+                }
+                Err(e) => {
+                    println!(
+                        "{} {}",
+                        "Warning:".yellow(),
+                        format_args!("Could not generate AGENTS.md: {}", e)
+                    );
+                }
+            }
+        }
+    }
 
     let docs_dir = target.join("docs");
     fs::create_dir_all(&docs_dir)?;

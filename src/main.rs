@@ -18,11 +18,14 @@ fn main() -> Result<()> {
             template,
             force,
             detect,
+            no_agents_md,
+            no_context,
+            no_brief,
         }) => {
             if force {
                 unsafe { std::env::set_var("AGENTML_FORCE_INIT", "1") };
             }
-            agentml::commands::init::run(path, template, detect)
+            agentml::commands::init::run(path, template, detect, no_agents_md, no_context, no_brief)
         }
         Some(agentml::cli::Commands::Validate { file, strict }) => {
             agentml::commands::validate::run(file, strict)
@@ -42,6 +45,9 @@ fn main() -> Result<()> {
             let fmt = format.unwrap_or_else(|| "md".to_string());
             let max = max_lines.unwrap_or(80);
             agentml::commands::brief::run(&fmt, write, max, include_diff && !no_diff)
+        }
+        Some(agentml::cli::Commands::AgentsMd { write, force }) => {
+            agentml::commands::agents_md::run(write, force)
         }
         Some(agentml::cli::Commands::Skill { skill }) => match skill {
             agentml::cli::SkillCommands::Validate { file } => {

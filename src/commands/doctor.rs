@@ -44,6 +44,15 @@ fn check_agentml_repo() -> Result<()> {
             message: "Project contract file".to_string(),
         },
         HealthCheck {
+            name: "AGENTS.md",
+            status: if Path::new("AGENTS.md").exists() {
+                HealthStatus::Healthy
+            } else {
+                HealthStatus::Warning
+            },
+            message: "Human-readable agent guide".to_string(),
+        },
+        HealthCheck {
             name: "skills/",
             status: if Path::new("skills").exists() {
                 HealthStatus::Healthy
@@ -105,6 +114,16 @@ fn check_user_repo() -> Result<()> {
             HealthStatus::Warning
         },
         message: "Project contract file".to_string(),
+    });
+
+    checks.push(HealthCheck {
+        name: "AGENTS.md",
+        status: if Path::new("AGENTS.md").exists() {
+            HealthStatus::Healthy
+        } else {
+            HealthStatus::Warning
+        },
+        message: "Human-readable agent guide".to_string(),
     });
 
     checks.push(HealthCheck {
@@ -217,16 +236,23 @@ fn render_checks(checks: &[HealthCheck]) {
 
     let has_unhealthy = checks.iter().any(|c| c.status == HealthStatus::Unhealthy);
     let has_warning = checks.iter().any(|c| c.status == HealthStatus::Warning);
+    let agents_md_missing = checks
+        .iter()
+        .any(|c| c.name == "AGENTS.md" && c.status == HealthStatus::Warning);
 
     if has_unhealthy {
         println!("{}", "Some checks failed.".red().bold());
         println!("{}", "Fix the issues above before proceeding.".yellow());
     } else if has_warning {
-        println!("{}", "AgentML setup is incomplete.".yellow().bold());
-        println!(
-            "{}",
-            "Run `agentml init --detect` to auto-initialize.".dimmed()
-        );
+        if agents_md_missing {
+            println!("{}", "AGENTS.md is missing. Run agentml agents-md --write to generate a human-readable guide for coding agents.".yellow());
+        } else {
+            println!("{}", "AgentML setup is incomplete.".yellow().bold());
+            println!(
+                "{}",
+                "Run `agentml init --detect` to auto-initialize.".dimmed()
+            );
+        }
     } else {
         println!("{}", "All checks passed.".green().bold());
     }

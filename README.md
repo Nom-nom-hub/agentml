@@ -58,12 +58,13 @@ agentml mcp
 ## Basic Commands
 
 ```
-agentml init [path] [--template <generic|rust-cli|nextjs-app|python-package>] [--detect] [--force]
+agentml init [path] [--template <generic|rust-cli|nextjs-app|python-package>] [--detect] [--force] [--no-agents-md] [--no-context] [--no-brief]
 agentml validate <file> [--strict]
 agentml inspect
 agentml run <task> [file]
 agentml context [file] [--output <path>]
 agentml brief [--format md|json] [--write] [--max-lines N] [--include-diff]
+agentml agents-md [--write] [--force]
 agentml self-check
 agentml diff
 agentml doctor
@@ -126,6 +127,37 @@ output:
     - "tests"
     - "risks"
 ```
+
+---
+
+## AGENTS.md generation
+
+AgentML generates both a machine-readable contract and a human-readable guide for coding agents:
+
+- **`AGENT.agent`** — validated machine-readable contract (source of truth)
+- **`AGENTS.md`** — human-readable guide for coding agents (generated from `AGENT.agent`)
+
+### `agentml init --detect`
+
+Creates `AGENTS.md` automatically alongside `AGENT.agent`, `.agentml/context.md`, and `.agentml/brief.md`.
+
+Flags:
+- `--no-agents-md` — skip AGENTS.md generation
+- `--no-context` — skip .agentml/context.md
+- `--no-brief` — skip .agentml/brief.md
+- `--force` — overwrite existing files
+
+### `agentml agents-md`
+
+Reads `AGENT.agent` and generates `AGENTS.md` content.
+
+```
+agentml agents-md          # print to stdout
+agentml agents-md --write  # write to AGENTS.md
+agentml agents-md --write --force  # overwrite existing
+```
+
+Generated `AGENTS.md` includes: purpose, required first steps, stack, important files, allowed work areas, forbidden areas, validation commands, diff audit instructions, final report format, and source of truth hierarchy.
 
 ---
 
