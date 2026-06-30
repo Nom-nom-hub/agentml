@@ -28,4 +28,5 @@ pub fn is_native_syntax(content: &str) -> bool {
         || content.starts_with("skill \"")
         || content.contains("\npermissions {")
         || content.contains("\nskill \"")
+        || content.contains("agent \"")
 }

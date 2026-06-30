@@ -136,7 +136,15 @@ impl Parser {
                 while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
                     self.parse_validation_field(ast.validation.as_mut().unwrap())?;
                 }
-                self.advance();
+                let _ = self.advance();
+            }
+            Token::Identifier(ref ident) if ident == "safety" => {
+                self.expect(Token::LBrace)?;
+                ast.safety = Some(crate::syntax::ast::SafetyAst::default());
+                while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
+                    self.parse_safety_field(ast.safety.as_mut().unwrap())?;
+                }
+                let _ = self.advance();
             }
             Token::Identifier(_) => {
                 self.advance();
@@ -266,6 +274,21 @@ impl Parser {
             Token::Identifier(ref ident) if ident == "command" => {
                 let t = self.advance()?;
                 validation.commands.push(match t.token {
+                    Token::String(s) => s,
+                    _ => return Err(anyhow!("Expected string")),
+                });
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+
+    fn parse_safety_field(&mut self, safety: &mut crate::syntax::ast::SafetyAst) -> Result<()> {
+        let token = self.advance()?;
+        match token.token {
+            Token::Identifier(ref ident) if ident == "rule" => {
+                let t = self.advance()?;
+                safety.rules.push(match t.token {
                     Token::String(s) => s,
                     _ => return Err(anyhow!("Expected string")),
                 });

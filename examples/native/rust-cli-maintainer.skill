@@ -35,3 +35,5 @@ rules {
   rule "Avoid unwrap in user-facing execution paths."
   rule "Update README and docs when command behavior changes."
 }
+
+success "CLI behavior is tested."
