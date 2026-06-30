@@ -69,6 +69,16 @@ pub enum Commands {
         #[command(subcommand)]
         skill: SkillCommands,
     },
+    Close {
+        #[arg(long)]
+        json: bool,
+        #[arg(long)]
+        require_clean: bool,
+        #[arg(long)]
+        fail_at_risk: Option<u32>,
+        #[arg(long)]
+        write_report: bool,
+    },
     SelfCheck {},
     Diff {},
     Doctor {},

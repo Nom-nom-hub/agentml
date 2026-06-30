@@ -65,6 +65,7 @@ agentml run <task> [file]
 agentml context [file] [--output <path>]
 agentml brief [--format md|json] [--write] [--max-lines N] [--include-diff]
 agentml agents-md [--write] [--force]
+agentml close [--json] [--require-clean] [--fail-at-risk <N>] [--write-report]
 agentml self-check
 agentml diff
 agentml doctor
@@ -175,6 +176,29 @@ It tells agents:
 - when to update AGENTS.md itself
 
 This helps agents behave like maintainers instead of one-off code generators.
+
+---
+
+## Task closure
+
+```bash
+agentml close
+```
+
+Run before reporting completion. Runs all final checks and generates a structured closure report:
+
+- Validates the contract
+- Runs self-check
+- Audits changes via diff
+- Checks git status
+- Generates a risk-scored completion report
+
+Flags:
+
+- `--json` — output as JSON
+- `--require-clean` — fail if working tree is dirty
+- `--fail-at-risk <N>` — fail if risk score is N or higher
+- `--write-report` — write report to `.agentml/close-report.md`
 
 ---
 

@@ -58,6 +58,12 @@ fn main() -> Result<()> {
             }
         },
         Some(agentml::cli::Commands::SelfCheck {}) => agentml::commands::self_check::run(),
+        Some(agentml::cli::Commands::Close {
+            json,
+            require_clean,
+            fail_at_risk,
+            write_report,
+        }) => agentml::commands::close::run(json, require_clean, fail_at_risk, write_report),
         Some(agentml::cli::Commands::Diff {}) => agentml::commands::diff::run(),
         Some(agentml::cli::Commands::Doctor {}) => agentml::commands::doctor::run(),
         None => {

@@ -30,6 +30,17 @@ pub fn run() -> Result<()> {
         check_user_repo()?;
     }
 
+    // Check if close command is available
+    let close_path = Path::new("src/commands/close.rs");
+    if !close_path.exists() {
+        println!(
+            "  {} {}",
+            "⚠".yellow(),
+            "Close command not available. Install latest agentml for `agentml close`.".dimmed()
+        );
+        println!();
+    }
+
     Ok(())
 }
 

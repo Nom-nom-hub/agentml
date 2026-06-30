@@ -1,5 +1,6 @@
 pub mod agents_md;
 pub mod brief;
+pub mod close;
 pub mod completions;
 pub mod context;
 pub mod diff;

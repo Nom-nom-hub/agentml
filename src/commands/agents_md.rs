@@ -216,8 +216,8 @@ pub fn generate(agent: &AgentFile) -> String {
     output.push_str("Before reporting completion, verify:\n\n");
     output.push_str("- Code changes are complete.\n");
     output.push_str("- Tests were added or updated when needed.\n");
-    output.push_str("- Validation commands were run.\n");
-    output.push_str("- `agentml diff` was run.\n");
+    output.push_str("- Validation commands were run (or `agentml close`).\n");
+    output.push_str("- `agentml diff` was run (or `agentml close`).\n");
     output.push_str("- Risk score is included in the final report.\n");
     output.push_str("- `README.md` is updated if public behavior changed.\n");
     output.push_str("- `docs/` are updated if behavior or architecture changed.\n");

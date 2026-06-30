@@ -183,8 +183,8 @@ Before reporting completion, verify:
 
 - Code changes are complete.
 - Tests were added or updated when needed.
-- Validation commands were run.
-- `agentml diff` was run.
+- Validation commands were run (or `agentml close`).
+- `agentml diff` was run (or `agentml close`).
 - Risk score is included in the final report.
 - `README.md` is updated if public behavior changed.
 - `docs/` are updated if behavior or architecture changed.
