@@ -1,6 +1,3 @@
-#![allow(clippy::all)]
-#![allow(unused_must_use)]
-
 use crate::syntax::lexer::{Lexer, Token, TokenWithPos};
 use anyhow::{Result, anyhow};
 
@@ -89,13 +86,6 @@ impl Parser {
                     _ => return Err(anyhow!("Expected version string")),
                 };
             }
-            Token::Identifier(ref ident) if ident == "contract_version" => {
-                let t = self.advance()?;
-                ast.contract_version = Some(match t.token {
-                    Token::Number(n) => n,
-                    _ => return Err(anyhow!("Expected number")),
-                });
-            }
             Token::Identifier(ref ident) if ident == "description" => {
                 let t = self.advance()?;
                 ast.description = Some(match t.token {
@@ -113,7 +103,7 @@ impl Parser {
                 while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
                     self.parse_purpose_field(ast.purpose.as_mut().unwrap())?;
                 }
-                self.advance();
+                let _ = self.advance();
             }
             Token::Identifier(ref ident) if ident == "context" => {
                 self.expect(Token::LBrace)?;
@@ -121,7 +111,7 @@ impl Parser {
                 while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
                     self.parse_context_field(ast.context.as_mut().unwrap())?;
                 }
-                self.advance();
+                let _ = self.advance();
             }
             Token::Identifier(ref ident) if ident == "permissions" => {
                 self.expect(Token::LBrace)?;
@@ -129,7 +119,7 @@ impl Parser {
                 while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
                     self.parse_permissions_field(ast.permissions.as_mut().unwrap())?;
                 }
-                self.advance();
+                let _ = self.advance();
             }
             Token::Identifier(ref ident) if ident == "validation" => {
                 self.expect(Token::LBrace)?;
@@ -148,7 +138,7 @@ impl Parser {
                 let _ = self.advance();
             }
             Token::Identifier(_) => {
-                self.advance();
+                let _ = self.advance();
             }
             _ => {}
         }
@@ -181,10 +171,10 @@ impl Parser {
                         _ => return Err(anyhow!("Expected string in non_goals")),
                     });
                     if self.current().map(|t| &t.token) == Some(&Token::Comma) {
-                        self.advance();
+                        let _ = self.advance();
                     }
                 }
-                self.advance();
+                let _ = self.advance();
             }
             _ => {}
         }
@@ -203,10 +193,24 @@ impl Parser {
                         _ => return Err(anyhow!("Expected string in stack")),
                     });
                     if self.current().map(|t| &t.token) == Some(&Token::Comma) {
-                        self.advance();
+                        let _ = self.advance();
                     }
                 }
-                self.advance();
+                let _ = self.advance();
+            }
+            Token::Identifier(ref ident) if ident == "important_files" => {
+                self.expect(Token::LBracket)?;
+                while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
+                    let t = self.advance()?;
+                    context.important_files.push(match t.token {
+                        Token::String(s) => s,
+                        _ => return Err(anyhow!("Expected string in important_files")),
+                    });
+                    if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                        let _ = self.advance();
+                    }
+                }
+                let _ = self.advance();
             }
             _ => {}
         }
@@ -228,10 +232,10 @@ impl Parser {
                         _ => return Err(anyhow!("Expected string")),
                     });
                     if self.current().map(|t| &t.token) == Some(&Token::Comma) {
-                        self.advance();
+                        let _ = self.advance();
                     }
                 }
-                self.advance();
+                let _ = self.advance();
             }
             Token::Identifier(ref ident) if ident == "write" => {
                 self.expect(Token::LBracket)?;
@@ -242,10 +246,10 @@ impl Parser {
                         _ => return Err(anyhow!("Expected string")),
                     });
                     if self.current().map(|t| &t.token) == Some(&Token::Comma) {
-                        self.advance();
+                        let _ = self.advance();
                     }
                 }
-                self.advance();
+                let _ = self.advance();
             }
             Token::Identifier(ref ident) if ident == "forbidden" => {
                 self.expect(Token::LBracket)?;
@@ -256,10 +260,10 @@ impl Parser {
                         _ => return Err(anyhow!("Expected string")),
                     });
                     if self.current().map(|t| &t.token) == Some(&Token::Comma) {
-                        self.advance();
+                        let _ = self.advance();
                     }
                 }
-                self.advance();
+                let _ = self.advance();
             }
             _ => {}
         }
@@ -287,6 +291,20 @@ impl Parser {
     fn parse_safety_field(&mut self, safety: &mut crate::syntax::ast::SafetyAst) -> Result<()> {
         let token = self.advance()?;
         match token.token {
+            Token::Identifier(ref ident) if ident == "forbidden_actions" => {
+                self.expect(Token::LBracket)?;
+                while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
+                    let t = self.advance()?;
+                    safety.rules.push(match t.token {
+                        Token::String(s) => s,
+                        _ => return Err(anyhow!("Expected string")),
+                    });
+                    if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                        let _ = self.advance();
+                    }
+                }
+                let _ = self.advance();
+            }
             Token::Identifier(ref ident) if ident == "rule" => {
                 let t = self.advance()?;
                 safety.rules.push(match t.token {
@@ -311,6 +329,7 @@ impl Parser {
         let mut ast = crate::syntax::ast::SkillAst {
             skill,
             version: "0.4.0".to_string(),
+            description: String::new(),
             ..Default::default()
         };
 
@@ -345,21 +364,97 @@ impl Parser {
                 while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
                     self.parse_applies_to_field(ast.applies_to.as_mut().unwrap())?;
                 }
-                self.advance();
+                let _ = self.advance();
             }
             Token::Identifier(ref ident) if ident == "rules" => {
                 self.expect(Token::LBrace)?;
                 while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
                     let t = self.advance()?;
-                    ast.rules.push(match t.token {
-                        Token::String(s) => s,
-                        _ => return Err(anyhow!("Expected rule string")),
-                    });
+                    if let Token::Identifier(ident) = &t.token {
+                        if ident == "rule" {
+                            let str_token = self.advance()?;
+                            ast.rules.push(match str_token.token {
+                                Token::String(s) => s,
+                                _ => return Err(anyhow!("Expected rule string after 'rule'")),
+                            });
+                        } else {
+                            return Err(anyhow!("Expected 'rule' keyword"));
+                        }
+                    } else {
+                        return Err(anyhow!("Expected 'rule' keyword"));
+                    }
                     if self.current().map(|t| &t.token) == Some(&Token::Comma) {
-                        self.advance();
+                        let _ = self.advance();
                     }
                 }
-                self.advance();
+                let _ = self.advance();
+            }
+            Token::Identifier(ref ident) if ident == "requires_validation" => {
+                self.expect(Token::LBracket)?;
+                while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
+                    let t = self.advance()?;
+                    ast.requires_validation.push(match t.token {
+                        Token::String(s) => s,
+                        _ => return Err(anyhow!("Expected string")),
+                    });
+                    if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                        let _ = self.advance();
+                    }
+                }
+                let _ = self.advance();
+            }
+            Token::Identifier(ref ident) if ident == "success" => {
+                self.expect(Token::LBrace)?;
+                while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
+                    let t = self.advance()?;
+                    if let Token::Identifier(ref kw) = t.token {
+                        if kw == "item" {
+                            let str_token = self.advance()?;
+                            ast.success.items.push(match str_token.token {
+                                Token::String(s) => s,
+                                _ => {
+                                    return Err(anyhow!(
+                                        "Expected success item string after 'item'"
+                                    ));
+                                }
+                            });
+                        }
+                    } else {
+                        ast.success.items.push(match t.token {
+                            Token::String(s) => s,
+                            _ => return Err(anyhow!("Expected success item string")),
+                        });
+                    }
+                    if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                        let _ = self.advance();
+                    }
+                }
+                let _ = self.advance();
+            }
+            Token::Identifier(ref ident) if ident == "output" => {
+                self.expect(Token::LBrace)?;
+                while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
+                    let t = self.advance()?;
+                    if let Token::Identifier(ref kw) = t.token {
+                        if kw == "required" {
+                            self.expect(Token::LBracket)?;
+                            while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
+                                let str_token = self.advance()?;
+                                if let Token::String(s) = str_token.token {
+                                    ast.output.final_report.push(s);
+                                }
+                                if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                                    let _ = self.advance();
+                                }
+                            }
+                            let _ = self.advance();
+                        }
+                    }
+                    if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                        let _ = self.advance();
+                    }
+                }
+                let _ = self.advance();
             }
             _ => {}
         }
@@ -381,10 +476,10 @@ impl Parser {
                         _ => return Err(anyhow!("Expected string")),
                     });
                     if self.current().map(|t| &t.token) == Some(&Token::Comma) {
-                        self.advance();
+                        let _ = self.advance();
                     }
                 }
-                self.advance();
+                let _ = self.advance();
             }
             Token::Identifier(ref ident) if ident == "stacks" => {
                 self.expect(Token::LBracket)?;
@@ -395,10 +490,10 @@ impl Parser {
                         _ => return Err(anyhow!("Expected string")),
                     });
                     if self.current().map(|t| &t.token) == Some(&Token::Comma) {
-                        self.advance();
+                        let _ = self.advance();
                     }
                 }
-                self.advance();
+                let _ = self.advance();
             }
             Token::Identifier(ref ident) if ident == "keywords" => {
                 self.expect(Token::LBracket)?;
@@ -409,10 +504,10 @@ impl Parser {
                         _ => return Err(anyhow!("Expected string")),
                     });
                     if self.current().map(|t| &t.token) == Some(&Token::Comma) {
-                        self.advance();
+                        let _ = self.advance();
                     }
                 }
-                self.advance();
+                let _ = self.advance();
             }
             _ => {}
         }

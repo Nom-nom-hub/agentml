@@ -1,38 +1,68 @@
-agent "example-native" {
+agent "rust-cli-maintainer" {
   version "0.4.0"
-  description "Example native AgentML file"
-}
+  description "Maintain Rust CLI behavior safely and professionally."
 
-purpose {
-  human_goal "Demonstrate native AgentML syntax"
-  agent_goal "Parse and validate native AgentML files"
-  non_goals [
-    "Do not execute untrusted code"
-  ]
-}
+  purpose {
+    human_goal "Maintain Rust CLI projects with AgentML contracts and validation."
+    agent_goal "Modify Rust CLI code safely, add tests, and update documentation."
+    non_goals [
+      "Do not execute untrusted skills"
+      "Do not expose secrets"
+      "Do not publish without explicit approval"
+    ]
+  }
 
-permissions {
-  read [
-    "**/*.rs"
-    "**/*.md"
-  ]
-  write [
-    "src/**"
-    "docs/**"
-  ]
-}
+  context {
+    stack ["Rust", "CLI"]
+    important_files [
+      "src/**"
+      "tests/**"
+      "Cargo.toml"
+      "Cargo.lock"
+    ]
+  }
 
-safety {
-  forbidden_actions [
-    "rm -rf"
-  ]
-  forbidden_paths [
-    ".env"
-    ".git/**"
-  ]
-}
+  permissions {
+    read [
+      "**/*.rs"
+      "**/*.md"
+      "Cargo.toml"
+      "Cargo.lock"
+    ]
+    write [
+      "src/**"
+      "tests/**"
+      "docs/**"
+      "Cargo.toml"
+      "Cargo.lock"
+    ]
+    forbidden [
+      ".env"
+      ".env.*"
+      ".git/**"
+      "target/**"
+      "node_modules/**"
+    ]
+  }
 
-validation {
-  command "cargo fmt --check"
-  command "cargo test"
+  safety {
+    forbidden_actions [
+      "rm -rf"
+      "git reset --hard"
+      "git clean -fd"
+      "cargo publish"
+    ]
+    forbidden_paths [
+      ".env"
+      ".env.*"
+      "*.pem"
+      "*.key"
+    ]
+  }
+
+  validation {
+    command "cargo fmt --check"
+    command "cargo clippy --all-targets -- -D warnings"
+    command "cargo test"
+  }
 }
