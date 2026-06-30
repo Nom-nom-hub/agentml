@@ -24,6 +24,17 @@ fn main() -> Result<()> {
         agentml::cli::Commands::Context { file, output } => {
             agentml::commands::context::run(file, output)
         }
+        agentml::cli::Commands::Brief {
+            format,
+            write,
+            max_lines,
+            include_diff,
+            no_diff,
+        } => {
+            let fmt = format.unwrap_or_else(|| "md".to_string());
+            let max = max_lines.unwrap_or(80);
+            agentml::commands::brief::run(&fmt, write, max, include_diff && !no_diff)
+        }
         agentml::cli::Commands::Skill { skill } => match skill {
             agentml::cli::SkillCommands::Validate { file } => {
                 agentml::commands::skill::validate::run(file)

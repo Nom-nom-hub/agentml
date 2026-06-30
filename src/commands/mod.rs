@@ -1,3 +1,4 @@
+pub mod brief;
 pub mod context;
 pub mod diff;
 pub mod doctor;

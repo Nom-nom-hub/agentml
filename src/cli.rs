@@ -39,6 +39,18 @@ pub enum Commands {
         output: Option<PathBuf>,
     },
     Inspect {},
+    Brief {
+        #[arg(long)]
+        format: Option<String>,
+        #[arg(long)]
+        write: bool,
+        #[arg(long)]
+        max_lines: Option<usize>,
+        #[arg(long)]
+        include_diff: bool,
+        #[arg(long)]
+        no_diff: bool,
+    },
     Skill {
         #[command(subcommand)]
         skill: SkillCommands,
