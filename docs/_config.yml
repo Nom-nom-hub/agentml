@@ -2,6 +2,8 @@ title: AgentML
 description: Contract language for AI coding agents
 theme: null
 permalink: pretty
+baseurl: "/agentml"
+url: "https://nom-nom-hub.github.io"
 sass:
   style: compressed
   load_paths:
