@@ -1,3 +1,5 @@
+use crate::parser::parse_agent_file;
+use crate::validator::validate_agent_file;
 use anyhow::Result;
 use colored::Colorize;
 use std::fs;
@@ -276,10 +278,24 @@ fn is_git_repo() -> bool {
 }
 
 fn validate_contract() -> HealthStatus {
-    if Path::new("AGENT.agent").exists() {
-        HealthStatus::Healthy
-    } else {
-        HealthStatus::Warning
+    let path = Path::new("AGENT.agent");
+    if !path.exists() {
+        return HealthStatus::Warning;
+    }
+    match parse_agent_file(path) {
+        Ok(agent) => {
+            let report = validate_agent_file(&agent, false);
+            if report.valid {
+                HealthStatus::Healthy
+            } else {
+                eprintln!("  Validation errors: {:?}", report.errors);
+                HealthStatus::Unhealthy
+            }
+        }
+        Err(e) => {
+            eprintln!("  Parse error: {}", e);
+            HealthStatus::Unhealthy
+        }
     }
 }
 

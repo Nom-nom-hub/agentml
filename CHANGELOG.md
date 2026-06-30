@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-06-30
+
+### Fixed
+- Fixed `agentml init --detect` YAML indentation so generated `AGENT.agent` files parse and validate correctly.
+- Fixed `agentml doctor` to parse and validate `AGENT.agent` content instead of only checking that the file exists.
+
+### Added
+- Added adoption proof documentation for Rust, Next.js, Node package, and Python package project shapes.
+
+### Changed
+- Updated README and website with adoption proof links.
+
 ## [0.2.1] - 2026-06-30
 
 ### Fixed
