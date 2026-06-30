@@ -1,48 +1,71 @@
 meta:
-  name: python-package-example
+  name: "python-ml-utils"
   version: "1.0.0"
+  description: "AI-safe Python ML utility package with PyPI publishing"
 
 purpose: >
-  AI agent for developing and maintaining a Python package.
+  AI agent for developing and maintaining a Python machine learning utility
+  package published on PyPI.
 
 context:
   project_type: python-package
   languages: [python]
-  frameworks: [pytest, ruff]
+  frameworks: [pytest, ruff, mypy, build]
 
 permissions:
   read:
-    - "**/*.py"
-    - "**/pyproject.toml"
-    - "**/*.md"
+    - "src/**/*.py"
+    - "tests/**/*.py"
+    - "pyproject.toml"
+    - "setup.py"
+    - "README.md"
+    - "docs/**/*.md"
   write:
     - "src/**/*.py"
     - "tests/**/*.py"
     - "pyproject.toml"
+    - "README.md"
   execute:
     - "python"
     - "pytest"
     - "ruff"
+    - "mypy"
+    - "pip"
 
-tools: [python, pip, git, bash]
+tools: [python, pip, git, bash, pytest]
 
 safety:
+  policy: "Never commit secrets. Never publish to PyPI without human approval."
   forbidden_paths:
+    - ".env*"
     - ".venv/**"
+    - "venv/**"
+    - "__pycache__/**"
+    - "*.pyc"
     - "dist/**"
+    - "build/**"
     - "*.egg-info"
+    - ".pypirc"
+    - "**/*.pem"
   forbidden_actions:
+    - "twine upload"
+    - "python -m build && twine upload"
     - "rm -rf src"
     - "git push --force"
   require_confirmation:
-    - "git push"
     - "twine upload"
+    - "git push"
+    - "python -m build"
 
 validation:
-  - name: Lint
+  - name: "Lint"
     command: "ruff check ."
-  - name: Test
+  - name: "Type Check"
+    command: "mypy ."
+  - name: "Test"
     command: "pytest"
+  - name: "Build Check"
+    command: "python -m build --sdist"
 
 output:
   format: markdown

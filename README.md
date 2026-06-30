@@ -183,6 +183,31 @@ See [docs/mcp.md](docs/mcp.md) for client configuration.
 
 ---
 
+## Examples
+
+See AgentML applied to real projects:
+
+- **[Rust CLI](examples/rust-cli/)** — Parser/validator safety, `cargo publish` prevention, fmt/clippy/test enforcement
+- **[Next.js App](examples/nextjs-app/)** — Env secret protection, database safety, build verification
+- **[Node Package](examples/node-package/)** — npm token protection, release gates, version bump safety
+- **[Python Package](examples/python-package/)** — PyPI protection, ruff/mypy/pytest enforcement, build artifact safety
+- **[Dangerous Change Demo](examples/dangerous-change-demo/)** — AgentML catching an AI agent attempting to read `.env`, modify validators without tests, skip validation, and run destructive commands
+
+### See AgentML catch a dangerous AI change
+
+In the [dangerous-change-demo](examples/dangerous-change-demo/), an AI agent attempts to:
+
+1. Read `.env` (forbidden path) — **Blocked**
+2. Modify `src/validator.rs` without tests — **Risk +45**
+3. Run `rm -rf target/` (destructive action) — **Blocked**
+4. Report completion without running validation — **Rejected**
+
+**Result: Risk score 100/100 — BLOCKED**
+
+AgentML prevented secret exposure, safety bypass, destructive cleanup, and false completion reporting.
+
+---
+
 ## Security Model
 
 AgentML enforces safety through four mechanisms:

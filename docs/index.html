@@ -386,6 +386,73 @@ thresholds:
   </div>
 </section>
 
+<section class="content" id="examples">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-label" style="color:var(--accent-violet);background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);">Examples</span>
+    </div>
+    <h2 class="text-center">See AgentML in action across real projects.</h2>
+    <p class="section-subtitle">Each example includes a complete AGENT.agent, a generated AGENTS.md, and a README explaining the protections.</p>
+    <div class="template-grid">
+      <div class="template-card">
+        <div class="template-name"><span>Rust CLI</span></div>
+        <div class="template-desc">Parser/validator safety, publish prevention</div>
+        <div class="template-cmd">examples/rust-cli/</div>
+        <ul class="template-files">
+          <li>AGENT.agent + AGENTS.md</li>
+          <li>cargo fmt / clippy / test</li>
+          <li>Forbidden: .env, target/</li>
+        </ul>
+        <a href="/examples/rust-cli/AGENT.agent" style="color:var(--accent-cyan);font-size:13px;">View contract →</a>
+      </div>
+      <div class="template-card">
+        <div class="template-name"><span>Next.js App</span></div>
+        <div class="template-desc">Env secrets, DB safety, build verification</div>
+        <div class="template-cmd">examples/nextjs-app/</div>
+        <ul class="template-files">
+          <li>AGENT.agent + AGENTS.md</li>
+          <li>pnpm lint / typecheck / test / build</li>
+          <li>Forbidden: .env.local, .next/</li>
+        </ul>
+        <a href="/examples/nextjs-app/AGENT.agent" style="color:var(--accent-cyan);font-size:13px;">View contract →</a>
+      </div>
+      <div class="template-card">
+        <div class="template-name"><span>Node Package</span></div>
+        <div class="template-desc">npm token protection, release gates</div>
+        <div class="template-cmd">examples/node-package/</div>
+        <ul class="template-files">
+          <li>AGENT.agent + AGENTS.md</li>
+          <li>npm test / lint / build</li>
+          <li>Forbidden: .npmrc, node_modules/</li>
+        </ul>
+        <a href="/examples/node-package/AGENT.agent" style="color:var(--accent-cyan);font-size:13px;">View contract →</a>
+      </div>
+      <div class="template-card">
+        <div class="template-name"><span>Python Package</span></div>
+        <div class="template-desc">PyPI protection, build artifact safety</div>
+        <div class="template-cmd">examples/python-package/</div>
+        <ul class="template-files">
+          <li>AGENT.agent + AGENTS.md</li>
+          <li>ruff / mypy / pytest</li>
+          <li>Forbidden: .venv, dist/, .pypirc</li>
+        </ul>
+        <a href="/examples/python-package/AGENT.agent" style="color:var(--accent-cyan);font-size:13px;">View contract →</a>
+      </div>
+      <div class="template-card" style="border-color:var(--accent-red);">
+        <div class="template-name"><span>Dangerous Change</span></div>
+        <div class="template-desc">AgentML catching dangerous AI agent behavior</div>
+        <div class="template-cmd">examples/dangerous-change-demo/</div>
+        <ul class="template-files">
+          <li>Risk score: 100/100 BLOCKED</li>
+          <li>.env read blocked ⛔</li>
+          <li>Validator change flagged +25</li>
+        </ul>
+        <a href="/examples/dangerous-change-demo/README.md" style="color:var(--accent-red);font-size:13px;">View scenario →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="content" id="dogfooding">
   <div class="container">
     <div class="text-center">

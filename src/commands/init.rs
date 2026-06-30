@@ -84,12 +84,12 @@ pub fn run(
             env::set_current_dir(&target)?;
             let brief_result = crate::commands::brief::run("md", true, 80, false);
             env::set_current_dir(&cwd)?;
-                if let Err(e) = brief_result {
-                    println!(
-                        "{} {}",
-                        "Warning:".yellow(),
-                        format_args!("Could not generate .agentml/brief.md: {}", e)
-                    );
+            if let Err(e) = brief_result {
+                println!(
+                    "{} {}",
+                    "Warning:".yellow(),
+                    format_args!("Could not generate .agentml/brief.md: {}", e)
+                );
             } else {
                 println!(
                     "{} {}",

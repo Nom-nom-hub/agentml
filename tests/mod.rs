@@ -3,4 +3,5 @@ mod contract_validation;
 mod diff_audit;
 mod doctor_checks;
 mod dogfood_self_check;
+mod examples_validation;
 mod skill_validation;

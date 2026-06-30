@@ -1,48 +1,72 @@
 meta:
-  name: nextjs-app-example
+  name: "nextjs-blog-platform"
   version: "1.0.0"
+  description: "AI-safe Next.js blog with authentication, CMS, and API routes"
 
 purpose: >
-  AI agent for building and maintaining a Next.js application.
+  AI agent for building and maintaining a Next.js blog platform with
+  authentication, content management, and public API routes.
 
 context:
   project_type: nextjs
   languages: [typescript, javascript]
-  frameworks: [nextjs, react]
+  frameworks: [nextjs, react, tailwindcss, prisma]
+  features: [ssr, api-routes, auth, cms]
 
 permissions:
   read:
-    - "**/*.ts"
-    - "**/*.tsx"
-    - "**/*.json"
-    - "**/*.md"
+    - "src/app/**/*.tsx"
+    - "src/app/**/*.ts"
+    - "src/components/**/*.tsx"
+    - "src/lib/**/*.ts"
+    - "src/styles/**/*.css"
+    - "tests/**/*.ts"
+    - "*.config.*"
+    - "package.json"
+    - "README.md"
   write:
-    - "src/**/*.ts"
-    - "src/**/*.tsx"
-    - "app/**/*.tsx"
+    - "src/app/**/*.tsx"
+    - "src/app/**/*.ts"
+    - "src/components/**/*.tsx"
+    - "src/lib/**/*.ts"
+    - "tests/**/*.ts"
+    - "README.md"
   execute:
-    - "npm run"
+    - "pnpm"
     - "npx"
 
-tools: [npm, node, git, bash]
+tools: [pnpm, node, git, bash, npx]
 
 safety:
+  policy: "Never commit secrets. Use environment variables and .env.local. Never expose Vercel secrets."
   forbidden_paths:
-    - ".env*.local"
+    - ".env.local"
+    - ".env.production"
+    - ".next/**"
     - "node_modules/**"
+    - "vercel.json"
+    - "**/*.pem"
+    - "**/*.key"
   forbidden_actions:
     - "git push --force"
     - "rm -rf src"
+    - "vercel secrets"
+    - "vercel env pull"
   require_confirmation:
     - "git push"
+    - "pnpm db:migrate"
+    - "pnpm db:push"
+    - "vercel deploy --prod"
 
 validation:
-  - name: Lint
-    command: "npm run lint"
-  - name: Type Check
-    command: "npm run typecheck"
-  - name: Test
-    command: "npm test"
+  - name: "Lint"
+    command: "pnpm lint"
+  - name: "Type Check"
+    command: "pnpm typecheck"
+  - name: "Test"
+    command: "pnpm test"
+  - name: "Build"
+    command: "pnpm build"
 
 output:
   format: markdown
@@ -50,3 +74,4 @@ output:
     - "changes"
     - "tests"
     - "risks"
+    - "validation"

@@ -1,0 +1,73 @@
+meta:
+  name: "node-utils-library"
+  version: "1.0.0"
+  description: "AI-safe Node.js utility library with npm publishing"
+
+purpose: >
+  AI agent for developing and maintaining an open-source Node.js utility
+  library published on npm.
+
+context:
+  project_type: node-package
+  languages: [typescript, javascript]
+  frameworks: [vitest, eslint, typescript]
+
+permissions:
+  read:
+    - "src/**/*.ts"
+    - "src/**/*.js"
+    - "tests/**/*.ts"
+    - "package.json"
+    - "tsconfig.json"
+    - "README.md"
+  write:
+    - "src/**/*.ts"
+    - "src/**/*.js"
+    - "tests/**/*.ts"
+    - "package.json"
+    - "README.md"
+  execute:
+    - "npm"
+    - "npx"
+    - "node"
+
+tools: [npm, node, git, bash, npx]
+
+safety:
+  policy: "Never commit or expose npm tokens, .env files, or publish secrets."
+  forbidden_paths:
+    - ".env*"
+    - ".npmrc"
+    - "node_modules/**"
+    - "dist/**"
+    - "build/**"
+    - "coverage/**"
+    - "**/*.pem"
+    - "**/*.key"
+  forbidden_actions:
+    - "npm publish"
+    - "npm version"
+    - "git push --force"
+    - "rm -rf src"
+  require_confirmation:
+    - "npm publish"
+    - "npm version"
+    - "git push"
+    - "npm run release"
+
+validation:
+  - name: "Lint"
+    command: "npm run lint"
+  - name: "Type Check"
+    command: "npx tsc --noEmit"
+  - name: "Test"
+    command: "npm test"
+  - name: "Build"
+    command: "npm run build"
+
+output:
+  format: markdown
+  required_sections:
+    - "changes"
+    - "tests"
+    - "risks"

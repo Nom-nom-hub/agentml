@@ -1,0 +1,67 @@
+meta:
+  name: "dangerous-change-demo"
+  version: "1.0.0"
+  description: "Demo showing AgentML catching dangerous AI agent behavior"
+
+purpose: >
+  Demonstration project that shows how AgentML prevents dangerous AI agent
+  actions including modifying forbidden files, changing critical code without
+  tests, skipping validation, and running destructive commands.
+
+context:
+  project_type: demo
+  languages: [rust]
+  frameworks: []
+  features: [demo, safety]
+
+permissions:
+  read:
+    - "src/**/*.rs"
+    - "tests/**/*.rs"
+    - "Cargo.toml"
+    - "README.md"
+  write:
+    - "src/**/*.rs"
+    - "tests/**/*.rs"
+  execute:
+    - "cargo"
+    - "rustfmt"
+
+tools: [cargo, rustfmt, git, bash]
+
+safety:
+  policy: >
+    Critical: The validator module defines all safety rules. Any change to
+    src/validator.rs MUST be accompanied by new tests. Forbidden paths must
+    never be read or written.
+  forbidden_paths:
+    - ".env*"
+    - "target/**"
+    - "node_modules/**"
+    - "**/*secret*"
+    - "**/*credential*"
+  forbidden_actions:
+    - "rm -rf src"
+    - "git push --force"
+    - "cargo publish"
+  require_confirmation:
+    - "rm"
+    - "git push"
+
+validation:
+  - name: "Format"
+    command: "cargo fmt -- --check"
+  - name: "Clippy"
+    command: "cargo clippy --all-targets -- -D warnings"
+  - name: "Test"
+    command: "cargo test"
+  - name: "Contract"
+    command: "cargo run -- validate AGENT.agent"
+
+output:
+  format: markdown
+  required_sections:
+    - "summary"
+    - "changes"
+    - "validation"
+    - "risks"
