@@ -1,5 +1,6 @@
 use anyhow::Result;
 use colored::Colorize;
+use std::fs;
 use std::path::Path;
 use std::process::Command;
 
@@ -33,6 +34,7 @@ pub fn run() -> Result<()> {
 }
 
 fn check_agentml_repo() -> Result<()> {
+    let agents_md_quality = check_agents_md_quality();
     let checks = vec![
         HealthCheck {
             name: "AGENT.agent",
@@ -45,7 +47,7 @@ fn check_agentml_repo() -> Result<()> {
         },
         HealthCheck {
             name: "AGENTS.md",
-            status: if Path::new("AGENTS.md").exists() {
+            status: if agents_md_quality.is_empty() {
                 HealthStatus::Healthy
             } else {
                 HealthStatus::Warning
@@ -100,7 +102,53 @@ fn check_agentml_repo() -> Result<()> {
     ];
 
     render_checks(&checks);
+
+    let missing = check_agents_md_quality();
+    if !missing.is_empty() {
+        for section in &missing {
+            println!("  {} {}", "⚠".yellow(), format!("AGENTS.md is missing {section}. Run `agentml agents-md --write --force` or update AGENTS.md manually.").dimmed());
+        }
+        println!();
+    }
+
     Ok(())
+}
+
+pub fn check_agents_md_quality() -> Vec<&'static str> {
+    let path = Path::new("AGENTS.md");
+    if !path.exists() {
+        return vec!["AGENTS.md (file missing)"];
+    }
+    let content = match fs::read_to_string(path) {
+        Ok(c) => c,
+        Err(_) => return vec!["(unreadable)"],
+    };
+
+    let required = [
+        "## Purpose",
+        "## Required first steps",
+        "## Validation commands",
+        "## Final report format",
+        "## Source of truth",
+        "## Maintenance Intelligence",
+        "## Pre-Final Checklist",
+        "## Git Workflow",
+        "## Task Closure Rule",
+    ];
+
+    let mut missing = Vec::new();
+    for section in &required {
+        if !content.contains(section) {
+            missing.push(*section);
+        }
+    }
+
+    // Check that final report format includes Commit field
+    if content.contains("## Final report format") && !content.contains("Commit:") {
+        missing.push("Commit: in final report format");
+    }
+
+    missing
 }
 
 fn check_user_repo() -> Result<()> {
@@ -116,9 +164,10 @@ fn check_user_repo() -> Result<()> {
         message: "Project contract file".to_string(),
     });
 
+    let agents_md_quality = check_agents_md_quality();
     checks.push(HealthCheck {
         name: "AGENTS.md",
-        status: if Path::new("AGENTS.md").exists() {
+        status: if agents_md_quality.is_empty() {
             HealthStatus::Healthy
         } else {
             HealthStatus::Warning
@@ -195,6 +244,15 @@ fn check_user_repo() -> Result<()> {
     });
 
     render_checks(&checks);
+
+    let missing = check_agents_md_quality();
+    if !missing.is_empty() && Path::new("AGENTS.md").exists() {
+        for section in &missing {
+            println!("  {} {}", "⚠".yellow(), format!("AGENTS.md is missing {section}. Run `agentml agents-md --write --force` or update AGENTS.md manually.").dimmed());
+        }
+        println!();
+    }
+
     Ok(())
 }
 

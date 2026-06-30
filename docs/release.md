@@ -6,7 +6,11 @@ This document describes the maintenance release process for AgentML.
 
 1. Update version in `Cargo.toml`
 2. Update `CHANGELOG.md` with changes
-3. Ensure all tests pass:
+3. Ensure working tree is clean:
+   ```bash
+   git status --short
+   ```
+4. Ensure all tests pass:
    ```bash
    cargo fmt --check
    cargo clippy --all-targets -- -D warnings
@@ -61,3 +65,10 @@ If using GitHub Pages for docs:
 1. Update GitHub release notes from CHANGELOG.md
 2. Verify crates.io has the new version
 3. Update version in docs if needed
+
+## Release checklist
+
+- Working tree is clean.
+- Version bump committed.
+- CHANGELOG.md committed.
+- Release tag created.

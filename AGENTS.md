@@ -6,19 +6,6 @@ This project uses AgentML to define how AI coding agents should safely work in t
 
 The machine-readable source of truth is `AGENT.agent`.
 
-## Version
-
-Current version: **v0.2.0**
-
-### v0.2.0 — AGENTS.md generation & real-world examples
-- New `agentml agents-md` command generates AGENTS.md from AGENT.agent
-- `agentml init --detect` now creates AGENTS.md automatically
-- Five real-world examples with complete contracts
-- New `--no-agents-md`, `--no-context`, `--no-brief` init flags
-- Doctor and inspect now check/report AGENTS.md status
-
-See [CHANGELOG.md](CHANGELOG.md) for full history.
-
 ## Required first steps
 
 Before editing files, agents should read:
@@ -99,6 +86,8 @@ agentml diff
 
 Include the risk score in the final report.
 
+Never report `Risk score: N/A` if `agentml diff` was successfully run. Include the actual score and status.
+
 ## Final report format
 
 Every agent task should end with:
@@ -109,9 +98,12 @@ Files changed:
 Commands run:
 Validation result:
 Risk score:
+Commit:
 Risks:
 Next steps:
 ```
+
+The `Commit:` field should contain the commit hash and short message. If not committed, state why:
 
 ## Source of truth
 
@@ -122,3 +114,119 @@ If files disagree, follow this order:
 3. `.agentml/context.md`
 4. `AGENTS.md`
 5. `README.md`
+
+## Maintenance Intelligence
+
+Agents must keep the project synchronized. When behavior changes, update every surface affected by that behavior.
+
+Before reporting completion, ask:
+
+1. Did CLI behavior change?
+2. Did validation behavior change?
+3. Did MCP behavior change?
+4. Did generated file behavior change?
+5. Did project templates change?
+6. Did public documentation become outdated?
+7. Did the website need a matching update?
+8. Did examples need to be updated?
+9. Did tests cover the new behavior?
+10. Did CHANGELOG.md need an entry?
+
+If yes, update the matching files before reporting completion.
+
+## Documentation Sync Rule
+
+Code changes are incomplete if user-facing documentation is stale.
+
+When user-facing behavior changes, update documentation in the same task.
+
+User-facing behavior includes:
+
+- CLI commands
+- command flags
+- command output
+- validation errors
+- generated files
+- templates
+- MCP tools
+- install flow
+- examples
+- website copy
+- security behavior
+- release process
+
+Do not report completion if docs are knowingly outdated.
+
+## Agent Self-Update Rule
+
+Agents may update `AGENTS.md` when project workflow guidance changes.
+
+Update `AGENTS.md` when:
+
+- new commands are added
+- agent workflow changes
+- validation requirements change
+- MCP usage changes
+- final report expectations change
+- source-of-truth order changes
+- docs synchronization rules change
+- release process changes
+- project maintenance expectations change
+
+Do not update `AGENTS.md` for unrelated code changes.
+
+When updating `AGENTS.md`, keep it concise, accurate, and aligned with `AGENT.agent`.
+
+## Pre-Final Checklist
+
+Before reporting completion, verify:
+
+- Code changes are complete.
+- Tests were added or updated when needed.
+- Validation commands were run.
+- `agentml diff` was run.
+- Risk score is included in the final report.
+- `README.md` is updated if public behavior changed.
+- `docs/` are updated if behavior or architecture changed.
+- `CHANGELOG.md` is updated if user-facing behavior changed.
+- Website content is updated if public messaging changed.
+- Examples are updated if templates or expected usage changed.
+- `AGENT.agent` is updated if contract rules changed.
+- `AGENTS.md` is updated if agent workflow changed.
+- `git status --short` was checked.
+- Unrelated user changes were not included.
+- All intended changes were committed unless the user explicitly said not to commit.
+- Final report includes the commit hash.
+
+## Git Workflow
+
+Before finishing, check:
+
+```bash
+git status --short
+agentml diff
+```
+
+If the task is complete and validation passes, commit the intended changes unless the human asked you not to.
+
+Do not commit secrets, build artifacts, dependency folders, or unrelated user changes.
+
+Final reports should include the commit hash when a commit is created.
+
+## Task Closure Rule
+
+A task is not complete until the repository is left in a clear final state.
+
+For normal implementation tasks, that means:
+
+1. Code/docs/tests are updated.
+2. Required validation commands pass.
+3. `agentml diff` has been run.
+4. Changes are committed.
+5. Final report includes commit hash and risk score.
+
+If changes are intentionally left uncommitted, the final report must clearly say:
+
+- why they were not committed
+- which files remain modified
+- what command the user should run next

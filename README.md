@@ -161,6 +161,23 @@ Generated `AGENTS.md` includes: purpose, required first steps, stack, important 
 
 ---
 
+## Smart AGENTS.md
+
+AgentML generates `AGENTS.md` as a human-readable guide for coding agents.
+
+It tells agents:
+
+- what files they can touch
+- what files are forbidden
+- what commands to run
+- how to report completion
+- when to update README, docs, website, examples, CHANGELOG, and AGENT.agent
+- when to update AGENTS.md itself
+
+This helps agents behave like maintainers instead of one-off code generators.
+
+---
+
 ## Use AgentML with coding agents
 
 ### Workflow
