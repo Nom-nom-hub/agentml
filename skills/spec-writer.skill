@@ -1,6 +1,24 @@
 skill: spec-writer
-version: 0.1.0
+version: 0.2.2
 description: Keep the AgentML language spec aligned with the implementation.
+
+applies_to:
+  paths:
+    - docs/spec.md
+    - agentml.schema.json
+    - README.md
+  keywords:
+    - spec
+    - schema
+    - documentation
+
+risk:
+  base_score: 10
+
+requires_validation:
+  - cargo fmt --check
+  - cargo clippy --all-targets -- -D warnings
+  - cargo test
 
 actions:
   - compare_schema_to_docs

@@ -92,4 +92,7 @@ pub enum Commands {
 pub enum SkillCommands {
     Validate { file: PathBuf },
     Pack { folder: PathBuf },
+    List,
+    Inspect { path: String },
+    Match,
 }

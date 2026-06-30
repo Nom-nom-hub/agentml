@@ -1,10 +1,26 @@
 skill: agentml-validator
-version: 0.1.0
+version: 0.2.2
 description: Validate AGENT.agent and .skill files using AgentML semantic rules.
 
-requirements:
-  - Rust CLI project
-  - AgentML schema exists
+applies_to:
+  paths:
+    - AGENT.agent
+    - "**/*.skill"
+    - src/validator.rs
+  stacks:
+    - Rust
+  keywords:
+    - validate
+    - contract
+    - skill
+
+risk:
+  base_score: 10
+
+requires_validation:
+  - cargo fmt --check
+  - cargo clippy --all-targets -- -D warnings
+  - cargo test
 
 actions:
   - parse_contract

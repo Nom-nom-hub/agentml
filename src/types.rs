@@ -103,6 +103,9 @@ pub struct SkillFile {
     pub rules: Option<Vec<String>>,
     pub success: Option<String>,
     pub output: Option<String>,
+    pub applies_to: Option<SkillAppliesTo>,
+    pub risk: Option<SkillRisk>,
+    pub requires_validation: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -110,4 +113,17 @@ pub struct SkillInput {
     pub name: String,
     pub description: String,
     pub required: Option<bool>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+pub struct SkillAppliesTo {
+    pub paths: Option<Vec<String>>,
+    pub stacks: Option<Vec<String>>,
+    pub keywords: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+pub struct SkillRisk {
+    pub base_score: Option<u32>,
+    pub high_risk_paths: Option<Vec<String>>,
 }
