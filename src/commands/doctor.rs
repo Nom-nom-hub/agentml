@@ -288,10 +288,14 @@ fn validate_contract() -> HealthStatus {
             if report.valid {
                 HealthStatus::Healthy
             } else {
+                eprintln!("  Validation errors: {:?}", report.errors);
                 HealthStatus::Unhealthy
             }
         }
-        Err(_) => HealthStatus::Unhealthy,
+        Err(e) => {
+            eprintln!("  Parse error: {}", e);
+            HealthStatus::Unhealthy
+        }
     }
 }
 
