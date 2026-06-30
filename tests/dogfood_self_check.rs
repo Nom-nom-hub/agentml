@@ -1,45 +1,31 @@
 use agentml::parser;
 use agentml::types::AgentFile;
 use agentml::validator;
+use std::env;
 use std::path::Path;
 use std::path::PathBuf;
 
-struct CwdGuard {
-    original: std::path::PathBuf,
-}
-
-impl CwdGuard {
-    fn new() -> Self {
-        let original = std::env::current_dir().unwrap();
-        Self { original }
-    }
-}
-
-impl Drop for CwdGuard {
-    fn drop(&mut self) {
-        let _ = std::env::set_current_dir(&self.original);
-    }
-}
-
 fn skills_dir() -> PathBuf {
-    std::env::current_dir().unwrap().join("skills")
+    env::current_dir().unwrap().join("skills")
 }
 
 #[test]
 fn self_check_contract_is_valid() {
-    let _guard = CwdGuard::new();
+    let original = env::current_dir().unwrap();
     let path = PathBuf::from("AGENT.agent");
     let agent: AgentFile = parser::parse_agent_file(&path).expect("AGENT.agent must parse");
     let report = validator::validate_agent_file(&agent, false);
     assert!(report.valid);
     assert!(report.errors.is_empty());
+    let _ = env::set_current_dir(&original);
 }
 
 #[test]
 fn self_check_skills_are_valid() {
-    let _guard = CwdGuard::new();
+    let original = env::current_dir().unwrap();
     let skills_dir = skills_dir();
     if !skills_dir.exists() {
+        let _ = env::set_current_dir(&original);
         return;
     }
     for entry in std::fs::read_dir(&skills_dir).expect("skills dir") {
@@ -55,24 +41,27 @@ fn self_check_skills_are_valid() {
             );
         }
     }
+    let _ = env::set_current_dir(&original);
 }
 
 #[test]
 fn self_check_docs_exist() {
-    let _guard = CwdGuard::new();
+    let original = env::current_dir().unwrap();
     assert!(
         Path::new("docs/spec.md").exists(),
         "docs/spec.md must exist"
     );
     assert!(Path::new("README.md").exists(), "README.md must exist");
+    let _ = env::set_current_dir(&original);
 }
 
 #[test]
 fn self_check_readme_mentions_dogfooding() {
-    let _guard = CwdGuard::new();
+    let original = env::current_dir().unwrap();
     let readme = std::fs::read_to_string("README.md").expect("README.md must exist");
     assert!(
         readme.contains("dogfood"),
         "README.md should mention dogfooding"
     );
+    let _ = env::set_current_dir(&original);
 }
