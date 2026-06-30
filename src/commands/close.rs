@@ -8,14 +8,26 @@ use std::path::Path;
 use std::process::Command;
 
 #[derive(Debug, Serialize)]
+pub struct RiskInfo {
+    pub score: u32,
+    pub status: String,
+    pub reasons: Vec<String>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct CommitInfo {
+    pub hash: String,
+    pub message: String,
+}
+
+#[derive(Debug, Serialize)]
 pub struct CloseReport {
     pub summary: String,
     pub files_changed: Vec<String>,
     pub commands_run: Vec<String>,
     pub validation_result: String,
-    pub risk_score: String,
-    pub risk_status: String,
-    pub commit: String,
+    pub risk: RiskInfo,
+    pub commit: CommitInfo,
     pub git_status: String,
     pub risks: Vec<String>,
     pub next_steps: Vec<String>,
@@ -44,7 +56,7 @@ fn is_working_tree_clean() -> bool {
         .unwrap_or(false)
 }
 
-fn get_latest_commit() -> String {
+fn get_latest_commit() -> (String, String) {
     let hash = Command::new("git")
         .args(["log", "-1", "--format=%H"])
         .output()
@@ -59,7 +71,7 @@ fn get_latest_commit() -> String {
         .unwrap_or_default();
 
     if hash.is_empty() {
-        return "unknown".to_string();
+        return ("unknown".to_string(), String::new());
     }
 
     let msg = Command::new("git")
@@ -75,11 +87,7 @@ fn get_latest_commit() -> String {
         })
         .unwrap_or_default();
 
-    if msg.is_empty() {
-        hash
-    } else {
-        format!("{} - {}", &hash[..7], msg)
-    }
+    (hash, msg)
 }
 
 fn risk_status_label(score: u32) -> &'static str {
@@ -122,7 +130,6 @@ pub fn run(
     let mut validation_ok = true;
     let mut validation_warnings = Vec::new();
 
-    // Check health via doctor conditions
     let agent_exists = Path::new("AGENT.agent").exists();
     let agents_md_exists = Path::new("AGENTS.md").exists();
     if !agent_exists {
@@ -134,7 +141,6 @@ pub fn run(
         validation_warnings.push("AGENTS.md not found".to_string());
     }
 
-    // Validate contract
     if agent_exists {
         match parse_agent_file(Path::new("AGENT.agent")) {
             Ok(agent) => {
@@ -153,18 +159,17 @@ pub fn run(
         }
     }
 
-    let git_status = get_git_status();
+    let git_status_str = get_git_status();
     let tree_clean = is_working_tree_clean();
     let in_git_repo = is_git_repo();
 
     if require_clean && !tree_clean {
         return Err(anyhow!(
             "Working tree is dirty. Commit or stash changes before closing.\n{}",
-            git_status
+            git_status_str
         ));
     }
 
-    // Use diff module for risk calculation
     let changed_files = if in_git_repo {
         diff::get_changed_files().unwrap_or_default()
     } else {
@@ -183,10 +188,13 @@ pub fn run(
     let score = risk_report.score;
     let status = risk_status_label(score);
 
-    let commit_field = if tree_clean && in_git_repo {
+    let (commit_hash, commit_msg) = if tree_clean && in_git_repo {
         get_latest_commit()
     } else {
-        "Not created - working tree has uncommitted changes".to_string()
+        (
+            "Not created".to_string(),
+            "working tree has uncommitted changes".to_string(),
+        )
     };
 
     let mut risks = risk_report.issues.clone();
@@ -221,6 +229,19 @@ pub fn run(
         steps
     };
 
+    let git_status_label = if tree_clean { "clean" } else { "dirty" };
+
+    let risk_info = RiskInfo {
+        score,
+        status: status.to_string(),
+        reasons: risk_report.issues.clone(),
+    };
+
+    let commit_info = CommitInfo {
+        hash: commit_hash.clone(),
+        message: commit_msg.clone(),
+    };
+
     let report = CloseReport {
         summary: if validation_ok {
             "AgentML Close Report".to_string()
@@ -237,14 +258,9 @@ pub fn run(
         } else {
             "warnings".to_string()
         },
-        risk_score: format!("{}/100", score),
-        risk_status: status.to_string(),
-        commit: commit_field,
-        git_status: if tree_clean {
-            "clean".to_string()
-        } else {
-            "dirty".to_string()
-        },
+        risk: risk_info,
+        commit: commit_info,
+        git_status: git_status_label.to_string(),
         risks,
         next_steps,
     };
@@ -285,11 +301,18 @@ fn format_report_markdown(report: &CloseReport) -> String {
         report.validation_result
     ));
     md.push_str(&format!(
-        "**Risk score:** {} - {}\n",
-        report.risk_score, report.risk_status
+        "**Risk score:** {}/100 - {}\n",
+        report.risk.score, report.risk.status
     ));
     md.push_str(&format!("**Git status:** {}\n", report.git_status));
-    md.push_str(&format!("**Commit:** {}\n", report.commit));
+    let commit_display = if report.commit.hash == "Not created" {
+        format!("{} - {}", report.commit.hash, report.commit.message)
+    } else if report.commit.hash.len() >= 7 {
+        format!("{} - {}", &report.commit.hash[..7], report.commit.message)
+    } else {
+        format!("{} - {}", report.commit.hash, report.commit.message)
+    };
+    md.push_str(&format!("**Commit:** {}\n", commit_display));
     md.push('\n');
     if !report.risks.is_empty() {
         md.push_str("## Risks\n\n");
@@ -341,23 +364,13 @@ fn print_report(report: &CloseReport) {
     );
     println!();
 
-    let score_val: u32 = report
-        .risk_score
-        .split('/')
-        .next()
-        .and_then(|s| s.parse().ok())
-        .unwrap_or(0);
-    let colored_score = match score_val {
-        s if s >= 80 => report.risk_score.clone().red(),
-        s if s >= 50 => report.risk_score.clone().yellow(),
-        _ => report.risk_score.clone().green(),
+    let colored_score = match report.risk.score {
+        s if s >= 80 => report.risk.score.to_string().red(),
+        s if s >= 50 => report.risk.score.to_string().yellow(),
+        _ => report.risk.score.to_string().green(),
     };
-    println!(
-        "{} {} - {}",
-        "Risk score:".bold(),
-        colored_score,
-        report.risk_status
-    );
+    let risk_line = format!("{}/100 - {}", colored_score, report.risk.status);
+    println!("{} {}", "Risk score:".bold(), risk_line);
     println!();
 
     let git_icon = if report.git_status == "clean" {
@@ -371,7 +384,15 @@ fn print_report(report: &CloseReport) {
         git_icon,
         report.git_status
     );
-    println!("{} {}", "Commit:".bold(), report.commit);
+
+    let commit_display = if report.commit.hash == "Not created" {
+        format!("{} - {}", report.commit.hash, report.commit.message)
+    } else if report.commit.hash.len() >= 7 {
+        format!("{} - {}", &report.commit.hash[..7], report.commit.message)
+    } else {
+        format!("{} - {}", report.commit.hash, report.commit.message)
+    };
+    println!("{} {}", "Commit:".bold(), commit_display);
     println!();
 
     if !report.risks.is_empty() {
