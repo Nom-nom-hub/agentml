@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-06-30
+
+### Added
+- Added active skill discovery with `agentml skill list`.
+- Added skill inspection with `agentml skill inspect`.
+- Added skill matching with `agentml skill match`.
+- Added default maintainer skill library for repository, Rust CLI, contracts, skills, docs, release, security, MCP, diff, task closure, Next.js, Node, and Python workflows.
+- Added matched skills to `agentml brief` output.
+- Added matched skills to `agentml close` reports.
+- Added MCP skill tools for listing, inspecting, matching, and retrieving skill guidance.
+- Added `docs/skills.md` documentation.
+
+### Changed
+- Improved `AGENTS.md` and generated `AGENTS.md` with skill usage guidance.
+- Improved agent operating briefs with relevant skill guidance.
+- Improved task closure reports with skills used.
+
+### Security
+- Skill inspection blocks path traversal and secret-looking files.
+- Skills remain advisory and do not execute commands.
+- Skills do not override `AGENT.agent`.
+
 ## [0.2.2] - 2026-06-30
 
 ### Fixed
