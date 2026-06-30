@@ -5,7 +5,7 @@ use anyhow::Result;
 use colored::Colorize;
 use serde::Serialize;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Default, Serialize)]
 pub struct BriefOutput {
@@ -18,6 +18,15 @@ pub struct BriefOutput {
     pub risk: RiskInfo,
     pub rules: Vec<String>,
     pub final_report_required_fields: Vec<String>,
+    pub skills: Vec<BriefSkill>,
+}
+
+#[derive(Debug, Default, Serialize)]
+pub struct BriefSkill {
+    pub name: String,
+    pub reason: String,
+    pub rules: Vec<String>,
+    pub validation: Vec<String>,
 }
 
 #[derive(Debug, Default, Serialize)]
@@ -36,10 +45,12 @@ pub fn run(format: &str, write: bool, _max_lines: usize, include_diff: bool) -> 
         (0, vec![])
     };
 
+    let matched_skills = match_skills(&agent, &info);
+
     let output = if format == "json" {
-        generate_json_output(&agent, &info, diff_risk)
+        generate_json_output(&agent, &info, diff_risk, &matched_skills)
     } else {
-        generate_md_output(&agent, &info, diff_risk)
+        generate_md_output(&agent, &info, diff_risk, &matched_skills)
     };
 
     if write {
@@ -58,6 +69,7 @@ fn generate_md_output(
     agent: &AgentFile,
     info: &crate::detect::ProjectInfo,
     diff_risk: (u32, Vec<String>),
+    matched_skills: &[BriefSkill],
 ) -> String {
     let project = agent
         .meta
@@ -109,41 +121,76 @@ fn generate_md_output(
     output.push_str("# AgentML Operating Brief\n\n");
     output.push_str(&format!("Project:\n{}\n\n", project));
     output.push_str(&format!("Stack:\n{}\n\n", stack.join(", ")));
+
+    output.push_str("Allowed write paths:\n");
+    if allowed.is_empty() {
+        output.push_str("- None configured\n\n");
+    } else {
+        for p in &allowed {
+            output.push_str(&format!("- `{}`\n", p));
+        }
+        output.push('\n');
+    }
+
+    output.push_str("Forbidden paths:\n");
+    if forbidden.is_empty() {
+        output.push_str(
+            "Warning: No forbidden paths are configured. Add forbidden paths to AGENT.agent.\n\n",
+        );
+    } else {
+        for p in &forbidden {
+            output.push_str(&format!("- `{}`\n", p));
+        }
+        output.push('\n');
+    }
+
     output.push_str(&format!(
-        "Allowed write paths:\n{}\n\n",
-        allowed
-            .iter()
-            .map(|p| format!("- {}", p))
-            .collect::<Vec<_>>()
-            .join("\n")
+        "Risk score: {}/100 - {}\n\n",
+        risk_score,
+        risk_status(risk_score)
     ));
-    output.push_str(&format!(
-        "Forbidden:\n{}\n\n",
-        forbidden
-            .iter()
-            .map(|p| format!("- {}", p))
-            .collect::<Vec<_>>()
-            .join("\n")
-    ));
-    output.push_str(&format!(
-        "Current risk:\n{} — {}\n\n",
-        risk_status(risk_score),
-        risk_description(risk_score)
-    ));
-    output.push_str(&format!(
-        "Required validation:\n{}\n\n",
-        validation
-            .iter()
-            .map(|c| format!("- {}", c))
-            .collect::<Vec<_>>()
-            .join("\n")
-    ));
-    output.push_str(
-        "Rules:\n1. Do not modify forbidden files.\n2. Add tests for parser, validator, or schema changes.\n3. Do not use unwrap in user-facing parsing paths.\n4. Do not report completion without running validation.\n5. Final report must include changed files, commands run, risks, and next steps.\n\n",
-    );
-    output.push_str(
-        "Final report format:\nSummary:\nFiles changed:\nCommands run:\nValidation result:\nRisk score:\nNext steps:\n",
-    );
+
+    output.push_str("Required validation:\n");
+    for c in &validation {
+        output.push_str(&format!("- `{}`\n", c));
+    }
+    output.push('\n');
+
+    output.push_str("Relevant Skills:\n");
+    if matched_skills.is_empty() {
+        output.push_str("- None matched\n\n");
+    } else {
+        for skill in matched_skills {
+            output.push_str(&format!("- `{}`\n", skill.name));
+            output.push_str(&format!("  Reason: {}\n", skill.reason));
+            if !skill.rules.is_empty() {
+                output.push_str("  Key rules:\n");
+                for r in skill.rules.iter().take(3) {
+                    output.push_str(&format!("  - {}\n", r));
+                }
+            }
+        }
+        output.push('\n');
+    }
+
+    output.push_str("Source of truth:\n");
+    output.push_str("1. AGENT.agent\n");
+    output.push_str("2. .agentml/brief.md\n");
+    output.push_str("3. .agentml/context.md\n");
+    output.push_str("4. AGENTS.md\n");
+    output.push_str("5. README.md\n\n");
+
+    output.push_str("Final report format:\n");
+    output.push_str("Summary:\n");
+    output.push_str("Files changed:\n");
+    output.push_str("Commands run:\n");
+    output.push_str("Skills used:\n");
+    output.push_str("Validation result:\n");
+    output.push_str("Risk score:\n");
+    output.push_str("Commit:\n");
+    output.push_str("Git status:\n");
+    output.push_str("Risks:\n");
+    output.push_str("Next steps:\n\n");
 
     output
 }
@@ -152,6 +199,7 @@ fn generate_json_output(
     agent: &AgentFile,
     info: &crate::detect::ProjectInfo,
     diff_risk: (u32, Vec<String>),
+    matched_skills: &[BriefSkill],
 ) -> String {
     let project = agent
         .meta
@@ -208,7 +256,7 @@ fn generate_json_output(
         validation_commands: validation,
         risk: RiskInfo {
             score: risk_score,
-            status: risk_status(risk_score).to_string(),
+            status: format!("{}/100 - {}", risk_score, risk_status(risk_score)),
             reasons: risk_reasons,
         },
         rules: vec![
@@ -227,6 +275,15 @@ fn generate_json_output(
             "risk_score".to_string(),
             "next_steps".to_string(),
         ],
+        skills: matched_skills
+            .iter()
+            .map(|s| BriefSkill {
+                name: s.name.clone(),
+                reason: s.reason.clone(),
+                rules: s.rules.clone(),
+                validation: s.validation.clone(),
+            })
+            .collect(),
     };
 
     serde_json::to_string_pretty(&output).unwrap_or_else(|_| "{}".to_string())
@@ -262,6 +319,100 @@ fn run_diff_check() -> (u32, Vec<String>) {
     (0, vec![])
 }
 
+fn match_skills(agent: &AgentFile, info: &crate::detect::ProjectInfo) -> Vec<BriefSkill> {
+    use crate::parser::parse_skill_file;
+    use std::fs;
+
+    let mut matched = Vec::new();
+    let mut skills = Vec::new();
+    let search_paths = [PathBuf::from("skills"), PathBuf::from(".agentml/skills")];
+
+    for base in &search_paths {
+        if let Ok(entries) = fs::read_dir(base) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.extension().is_some_and(|e| e == "skill")
+                    && let Ok(skill) = parse_skill_file(&path)
+                {
+                    skills.push((path, skill));
+                }
+            }
+        }
+    }
+
+    let project_stack: Option<String> = match info.project_type.as_str() {
+        "Rust" => Some("Rust".to_string()),
+        "Next.js" => Some("TypeScript".to_string()),
+        "Node" => Some("Node".to_string()),
+        "Vite" => Some("TypeScript".to_string()),
+        "Python" => Some("Python".to_string()),
+        _ => None,
+    };
+
+    for (_path, skill) in &skills {
+        let mut is_match = false;
+        let mut reason = String::new();
+
+        if let Some(applies) = &skill.applies_to {
+            if let Some(stacks) = &applies.stacks
+                && let Some(ref stack) = project_stack
+                && stacks
+                    .iter()
+                    .any(|s| s.to_lowercase().contains(&stack.to_lowercase()))
+            {
+                is_match = true;
+                reason = format!("Project stack: {}", stack);
+            }
+
+            if let Some(paths) = &applies.paths {
+                for pattern in paths {
+                    for allowed in &agent
+                        .permissions
+                        .as_ref()
+                        .and_then(|p| p.write.clone())
+                        .unwrap_or_default()
+                    {
+                        if allowed.contains(pattern.trim_end_matches("/*"))
+                            || pattern.contains("**")
+                        {
+                            is_match = true;
+                            reason = format!("Path pattern: {}", pattern);
+                            break;
+                        }
+                    }
+                    if is_match {
+                        break;
+                    }
+                }
+            }
+
+            if let Some(keywords) = &applies.keywords
+                && keywords
+                    .iter()
+                    .any(|k| k == "rust" || k == "cli" || k == "skill")
+            {
+                is_match = true;
+                reason = "Keyword match".to_string();
+            }
+        }
+
+        if is_match {
+            matched.push(BriefSkill {
+                name: skill.skill.clone(),
+                reason: if reason.is_empty() {
+                    skill.description.clone()
+                } else {
+                    reason
+                },
+                rules: skill.rules.clone().unwrap_or_default(),
+                validation: skill.requires_validation.clone().unwrap_or_default(),
+            });
+        }
+    }
+
+    matched
+}
+
 fn risk_status(score: u32) -> &'static str {
     if score >= 100 {
         "blocked"
@@ -274,8 +425,4 @@ fn risk_status(score: u32) -> &'static str {
     } else {
         "low"
     }
-}
-
-fn risk_description(_score: u32) -> &'static str {
-    "Review the risk factors before proceeding."
 }

@@ -58,19 +58,31 @@ permissions:
     - "tests/**/*.rs"
   forbidden:
     - ".env"
+    - ".env.*"
     - ".git/**"
     - "target/**"
+    - "node_modules/**"
+    - "dist/**"
+    - "build/**"
     - "**/*secret*"
     - "**/*credential*"
+    - "**/*.pem"
+    - "**/*.key"
     - "~/.ssh/**"
 
 safety:
   forbidden_paths:
     - ".env"
+    - ".env.*"
     - ".git/**"
     - "target/**"
+    - "node_modules/**"
+    - "dist/**"
+    - "build/**"
     - "**/*secret*"
     - "**/*credential*"
+    - "**/*.pem"
+    - "**/*.key"
     - "~/.ssh/**"
   forbidden_actions:
     - "rm -rf"
