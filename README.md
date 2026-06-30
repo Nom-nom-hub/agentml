@@ -466,6 +466,47 @@ agentml diff
 
 ---
 
+## Use AgentML with coding agents
+
+### Workflow
+
+1. Initialize AgentML in your project:
+```bash
+agentml init --detect
+```
+
+2. Generate the agent operating brief:
+```bash
+agentml brief --write
+```
+
+3. Read `.agentml/brief.md` before asking your agent to work.
+
+### Agent instruction template
+
+Before making changes, read `.agentml/brief.md` and obey it. After changes, run:
+
+```bash
+agentml diff
+```
+
+Report the risk score and any required validation.
+
+### Supported agents
+
+- Cursor (with `.agentml/brief.md` in context)
+- Claude Code
+- ChatGPT
+- OpenCode
+- Aider
+- Windsurf
+
+### Example agent prompt
+
+> You are a coding assistant. Before making any changes, read `.agentml/brief.md` and follow its rules. After changes, run `agentml diff` and report the risk score. Never modify forbidden files.
+
+---
+
 ## Feedback Wanted
 
 AgentML is young and your experience matters. Help us improve by answering:
