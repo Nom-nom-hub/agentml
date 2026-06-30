@@ -92,7 +92,7 @@ pub struct OutputConfig {
     pub required_sections: Option<Vec<String>>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct SkillFile {
     pub skill: String,
     pub version: String,

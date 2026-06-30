@@ -1,0 +1,76 @@
+agent "agentml" {
+  version "0.4.0"
+  contract_version 1
+  description "AI-native project contract system for coding agents"
+}
+
+purpose {
+  human_goal "Build an AI-native project contract, skill, diff, brief, close, and MCP system."
+  agent_goal "Modify this repository safely, validate changes, use relevant skills, and report proof."
+  non_goals [
+    "Do not execute untrusted skills"
+    "Do not expose secrets"
+    "Do not publish without explicit approval"
+  ]
+}
+
+context {
+  stack ["Rust", "CLI", "MCP"]
+  important_files [
+    "src/**"
+    "tests/**"
+    "skills/**"
+    "docs/**"
+    "AGENT.agent"
+    "AGENTS.md"
+    "README.md"
+  ]
+}
+
+permissions {
+  read [
+    "**/*.rs"
+    "**/*.md"
+    "**/*.agent"
+    "**/*.skill"
+    "**/*.json"
+    "**/*.toml"
+  ]
+
+  write [
+    "src/**"
+    "tests/**"
+    "docs/**"
+    "skills/**"
+    "examples/**"
+    "AGENT.agent"
+    "AGENTS.md"
+    "README.md"
+    "Cargo.toml"
+    "Cargo.lock"
+  ]
+
+  forbidden [
+    ".env"
+    ".env.*"
+    ".git/**"
+    "target/**"
+    "node_modules/**"
+    "dist/**"
+    "build/**"
+    "**/*secret*"
+    "**/*credential*"
+    "**/*.pem"
+    "**/*.key"
+    "~/.ssh/**"
+  ]
+}
+
+validation {
+  command "cargo fmt --check"
+  command "cargo clippy --all-targets -- -D warnings"
+  command "cargo test"
+  command "cargo run -- validate AGENT.agent"
+  command "cargo run -- doctor"
+  command "cargo run -- self-check"
+}
