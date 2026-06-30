@@ -11,6 +11,6 @@ Forbidden:
 - []
 
 Required validation:
-["cargo fmt -- --check", "cargo clippy --all-targets -- -D warnings", "cargo test", "cargo run -- validate AGENT.agent"]
+["cargo fmt -- --check", "cargo clippy --all-targets -- -D warnings", "cargo test", "cargo run -- validate AGENT.agent", "cargo run -- doctor", "cargo run -- self-check"]
 
 Risk: 0 (low)

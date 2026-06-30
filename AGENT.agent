@@ -1,6 +1,6 @@
 meta:
   name: agentml
-  version: 0.1.2
+  version: 0.2.0
   contract_version: 1
 
 purpose:
@@ -24,7 +24,7 @@ context:
     parser: Parses AGENT.agent and .skill files.
     validator: Enforces AgentML semantic rules.
     reporter: Generates validation and risk reports.
-    cli: Exposes init, validate, inspect, context, and skill commands.
+    cli: Exposes init, validate, inspect, context, run, brief, agents-md, skill, self-check, close, diff, doctor, completions, version, and mcp commands.
   important_files:
     - src/main.rs
     - src/parser.rs
@@ -111,6 +111,8 @@ workflows:
       - name: plan_minimal_change
       - name: edit_files
       - name: run_validation
+      - name: audit_changes
+        commands: ["agentml diff", "agentml close"]
       - name: report_result
   - name: release_check
     description: >
@@ -126,6 +128,14 @@ workflows:
         commands: ["cargo run -- validate AGENT.agent"]
       - name: validate_skills
         commands: ["cargo run -- skill validate skills/*.skill"]
+      - name: doctor
+        commands: ["cargo run -- doctor"]
+      - name: self_check
+        commands: ["cargo run -- self-check"]
+      - name: diff
+        commands: ["cargo run -- diff || echo 'No changes'"]
+      - name: close
+        commands: ["cargo run -- close"]
 
 validation:
   - name: fmt
@@ -136,6 +146,10 @@ validation:
     command: "cargo test"
   - name: self_validate
     command: "cargo run -- validate AGENT.agent"
+  - name: doctor
+    command: "cargo run -- doctor"
+  - name: self_check
+    command: "cargo run -- self-check"
 
 success_criteria:
   - Rust tests pass.

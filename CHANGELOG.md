@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - Unreleased
+
+### Fixed
+- AGENT.agent meta.version now matches Cargo.toml (0.2.0)
+- AGENT.agent CLI description lists all v0.2.0 commands
+- AGENT.agent workflows include audit_changes (diff + close), doctor, self-check
+- AGENT.agent validation section includes doctor and self-check
+- docs/release.md steps updated for current v0.2.x line
+
 ## [0.2.0] - 2025-06-29
 
 ### Added

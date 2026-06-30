@@ -26,6 +26,7 @@ This document describes the maintenance release process for AgentML.
    cargo run -- validate AGENT.agent
    cargo run -- brief --format json
    cargo run -- diff
+   cargo run -- close
    ```
 
 2. Dry-run publish:
@@ -40,13 +41,15 @@ This document describes the maintenance release process for AgentML.
 
 4. Tag the release:
    ```bash
-   git tag -a v0.1.3 -m "Release v0.1.3"
-   git push origin v0.1.3
+   VERSION=$(cargo metadata --format-version=1 --no-deps | cargo install cargo-json >/dev/null 2>&1 && echo "v$(cargo metadata --format-version=1 --no-deps | python3 -c 'import sys,json;print(json.load(sys.stdin)["packages"][0]["version"])')" || echo "v0.2.1")
+   git tag -a "$VERSION" -m "Release $VERSION"
+   git push origin "$VERSION"
    ```
 
 5. Create GitHub release:
    ```bash
-   gh release create v0.1.3 --title "v0.1.3" --notes "$(cat CHANGELOG.md)" --target main
+   VERSION=$(cargo metadata --format-version=1 --no-deps | python3 -c 'import sys,json;print("v"+json.load(sys.stdin)["packages"][0]["version"])')
+   gh release create "$VERSION" --title "$VERSION" --notes "$(cat CHANGELOG.md)" --target main
    ```
 
 ## GitHub Pages (optional)
