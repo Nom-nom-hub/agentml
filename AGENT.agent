@@ -1,6 +1,6 @@
 meta:
   name: agentml
-  version: 0.1.1
+  version: 0.1.2
   contract_version: 1
 
 purpose:
@@ -51,6 +51,11 @@ permissions:
     - "AGENT.agent"
     - "agentml.schema.json"
     - "README.md"
+    - ".github/workflows/*.yml"
+    - "Gemfile"
+    - "Cargo.toml"
+    - "Cargo.lock"
+    - "tests/**/*.rs"
   forbidden:
     - ".env"
     - ".git/**"
@@ -72,19 +77,30 @@ safety:
     - "git reset --hard"
     - "git clean -fd"
     - "cargo publish"
-  destructive_actions:
-    require_explicit_user_approval: true
-    commands:
-      - "rm -rf"
-      - "git reset --hard"
-      - "git clean -fd"
-      - "cargo publish"
-  secrets_policy:
-    never_read:
-      - ".env"
-      - "*.pem"
-      - "*.key"
-    never_output_secret_values: true
+
+diff_policy:
+  strict_ci: true
+  fail_at_risk_score: 80
+  require_tests_for_src_changes: true
+  watched_paths:
+    parser:
+      paths:
+        - src/parser.rs
+      risk: 25
+      requires:
+        - tests/contract_validation.rs
+    validator:
+      paths:
+        - src/validator.rs
+      risk: 25
+      requires:
+        - tests/contract_validation.rs
+    schema:
+      paths:
+        - agentml.schema.json
+      risk: 30
+      requires:
+        - docs/spec.md
 
 workflows:
   - name: default_change
