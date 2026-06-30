@@ -40,6 +40,22 @@ This document describes the maintenance release process for AgentML.
    git push origin v0.1.3
    ```
 
+5. Create GitHub release:
+   ```bash
+   gh release create v0.1.3 --title "v0.1.3" --notes "$(cat CHANGELOG.md)" --target main
+   ```
+
+## GitHub Pages (optional)
+
+If using GitHub Pages for docs:
+
+1. Enable Pages in repo settings:
+   - Go to Settings → Pages
+   - Source: `Deploy from a GitHub Actions workflow`
+   - Workflow: `GitHub Pages`
+
+2. The workflow will deploy automatically on push to main.
+
 ## Post-release
 
 1. Update GitHub release notes from CHANGELOG.md
