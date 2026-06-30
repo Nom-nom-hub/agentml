@@ -190,7 +190,7 @@ fn generate_detected_template(info: &crate::detect::ProjectInfo) -> String {
     let read_patterns: Vec<String> = info
         .important_files
         .iter()
-        .map(|f| format!("- {}", f))
+        .map(|f| format!("    - {}", f))
         .collect();
     let validation: String = info
         .validation_commands

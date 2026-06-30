@@ -224,6 +224,21 @@ See [docs/mcp.md](docs/mcp.md) for client configuration.
 
 ---
 
+## Adoption Proof
+
+AgentML has been tested on real projects to prove it works in practice.
+
+| Project Type | Example | Status |
+|--------------|---------|--------|
+| Rust CLI | [examples/rust-cli/](examples/rust-cli/) | ✅ Validated |
+| Next.js App | [examples/nextjs-app/](examples/nextjs-app/) | ✅ Validated |
+| Node Package | [examples/node-package/](examples/node-package/) | ✅ Validated |
+| Python Package | [examples/python-package/](examples/python-package/) | ✅ Validated |
+
+See [docs/adoption-proof.md](docs/adoption-proof.md) for details.
+
+---
+
 ## Examples
 
 See AgentML applied to real projects:
