@@ -3,7 +3,7 @@
 [![CI](https://github.com/Nom-nom-hub/agentml/actions/workflows/agentml-self-check.yml/badge.svg)](https://github.com/Nom-nom-hub/agentml/actions/workflows/agentml-self-check.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-blue)](https://www.rust-lang.org)
-[![Version](https://img.shields.io/badge/version-v0.1.3-blue)](https://github.com/Nom-nom-hub/agentml/releases/tag/v0.1.3)
+[![Version](https://img.shields.io/badge/version-v0.2.0-blue)](https://github.com/Nom-nom-hub/agentml/releases/tag/v0.2.0)
 
 **AgentML is a contract language for AI coding agents.**
 
