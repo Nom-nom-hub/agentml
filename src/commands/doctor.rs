@@ -1,7 +1,6 @@
 use anyhow::Result;
 use colored::Colorize;
 use std::path::Path;
-use std::path::PathBuf;
 use std::process::Command;
 
 #[derive(Debug, Clone, PartialEq)]

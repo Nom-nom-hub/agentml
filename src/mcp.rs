@@ -532,26 +532,27 @@ pub fn run_diff_check() -> (u32, Vec<String>) {
     let output = Command::new("git")
         .args(["diff", "--name-only", "HEAD"])
         .output();
-    if let Ok(out) = output {
-        if out.status.success() {
-            let stdout = String::from_utf8_lossy(&out.stdout);
-            let mut score = 0u32;
-            let mut reasons = Vec::new();
-            for line in stdout.lines() {
-                let path = line.trim();
-                if path == "AGENT.agent" {
-                    score += 30;
-                    reasons.push(path.to_string());
-                } else if path.starts_with("skills/") && path.ends_with(".skill") {
-                    score += 20;
-                    reasons.push(path.to_string());
-                } else if path.starts_with("src/") && path.ends_with(".rs") {
-                    score += 20;
-                    reasons.push(path.to_string());
-                }
+    if let Ok(out) = output
+        && out.status.success()
+    {
+        let stdout = String::from_utf8_lossy(&out.stdout);
+        let mut score = 0u32;
+        let mut reasons = Vec::new();
+        for line in stdout.lines() {
+            let path = line.trim();
+            let is_agent = path == "AGENT.agent";
+            let is_skill = path.starts_with("skills/") && path.ends_with(".skill");
+            let is_src = path.starts_with("src/") && path.ends_with(".rs");
+
+            if is_agent {
+                score += 30;
+                reasons.push(path.to_string());
+            } else if is_skill || is_src {
+                score += 20;
+                reasons.push(path.to_string());
             }
-            return (score.min(100), reasons);
         }
+        return (score.min(100), reasons);
     }
     (0, vec![])
 }

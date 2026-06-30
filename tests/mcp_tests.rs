@@ -46,7 +46,7 @@ fn mcp_validate_contract_returns_valid_true() {
     let result = handle_validate_contract();
     assert!(result.is_object());
     let obj = result.as_object().unwrap();
-    assert_eq!(obj.get("valid").unwrap().as_bool().unwrap(), true);
+    assert!(obj.get("valid").unwrap().as_bool().unwrap());
     assert!(obj.get("errors").unwrap().as_array().unwrap().is_empty());
 }
 
@@ -58,7 +58,7 @@ fn mcp_validate_skill_blocks_path_traversal() {
         ..Default::default()
     };
     let result = handle_validate_skill(&params);
-    assert_eq!(result["valid"].as_bool().unwrap(), false);
+    assert!(!result["valid"].as_bool().unwrap());
     assert!(
         result["errors"].as_array().unwrap()[0]
             .as_str()

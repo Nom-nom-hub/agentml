@@ -82,25 +82,7 @@ fn generate_md_output(
 
     let forbidden: Vec<String> = if let Some(safety) = &agent.safety {
         if let Some(obj) = safety.as_mapping() {
-            obj.get(&serde_yaml::Value::String("forbidden_paths".to_string()))
-                .and_then(|v| v.as_sequence())
-                .map(|arr| {
-                    arr.iter()
-                        .filter_map(|v| v.as_str())
-                        .map(|s| s.to_string())
-                        .collect()
-                })
-                .unwrap_or_default()
-        } else {
-            vec![]
-        }
-    } else {
-        vec![]
-    };
-
-    let forbidden_actions: Vec<String> = if let Some(safety) = &agent.safety {
-        if let Some(obj) = safety.as_mapping() {
-            obj.get(&serde_yaml::Value::String("forbidden_actions".to_string()))
+            obj.get(serde_yaml::Value::String("forbidden_paths".to_string()))
                 .and_then(|v| v.as_sequence())
                 .map(|arr| {
                     arr.iter()
@@ -121,10 +103,10 @@ fn generate_md_output(
         .as_ref()
         .map(|v| v.iter().map(|vc| vc.command.clone()).collect())
         .unwrap_or_default();
-    let (risk_score, risk_reasons) = diff_risk;
+    let (risk_score, _risk_reasons) = diff_risk;
 
     let mut output = String::new();
-    output.push_str(&format!("# AgentML Operating Brief\n\n"));
+    output.push_str("# AgentML Operating Brief\n\n");
     output.push_str(&format!("Project:\n{}\n\n", project));
     output.push_str(&format!("Stack:\n{}\n\n", stack.join(", ")));
     output.push_str(&format!(
@@ -156,8 +138,12 @@ fn generate_md_output(
             .collect::<Vec<_>>()
             .join("\n")
     ));
-    output.push_str(&format!("Rules:\n1. Do not modify forbidden files.\n2. Add tests for parser, validator, or schema changes.\n3. Do not use unwrap in user-facing parsing paths.\n4. Do not report completion without running validation.\n5. Final report must include changed files, commands run, risks, and next steps.\n\n"));
-    output.push_str(&format!("Final report format:\nSummary:\nFiles changed:\nCommands run:\nValidation result:\nRisk score:\nNext steps:\n"));
+    output.push_str(
+        "Rules:\n1. Do not modify forbidden files.\n2. Add tests for parser, validator, or schema changes.\n3. Do not use unwrap in user-facing parsing paths.\n4. Do not report completion without running validation.\n5. Final report must include changed files, commands run, risks, and next steps.\n\n",
+    );
+    output.push_str(
+        "Final report format:\nSummary:\nFiles changed:\nCommands run:\nValidation result:\nRisk score:\nNext steps:\n",
+    );
 
     output
 }
@@ -190,25 +176,7 @@ fn generate_json_output(
 
     let forbidden: Vec<String> = if let Some(safety) = &agent.safety {
         if let Some(obj) = safety.as_mapping() {
-            obj.get(&serde_yaml::Value::String("forbidden_paths".to_string()))
-                .and_then(|v| v.as_sequence())
-                .map(|arr| {
-                    arr.iter()
-                        .filter_map(|v| v.as_str())
-                        .map(|s| s.to_string())
-                        .collect()
-                })
-                .unwrap_or_default()
-        } else {
-            vec![]
-        }
-    } else {
-        vec![]
-    };
-
-    let forbidden_actions: Vec<String> = if let Some(safety) = &agent.safety {
-        if let Some(obj) = safety.as_mapping() {
-            obj.get(&serde_yaml::Value::String("forbidden_actions".to_string()))
+            obj.get(serde_yaml::Value::String("forbidden_paths".to_string()))
                 .and_then(|v| v.as_sequence())
                 .map(|arr| {
                     arr.iter()
@@ -236,7 +204,7 @@ fn generate_json_output(
         stack,
         allowed_write_paths: allowed,
         forbidden_paths: forbidden,
-        forbidden_actions,
+        forbidden_actions: vec![],
         validation_commands: validation,
         risk: RiskInfo {
             score: risk_score,
@@ -269,28 +237,27 @@ fn run_diff_check() -> (u32, Vec<String>) {
     let output = Command::new("git")
         .args(["diff", "--name-only", "HEAD"])
         .output();
-    if let Ok(out) = output {
-        if out.status.success() {
-            let stdout = String::from_utf8_lossy(&out.stdout);
-            let mut score = 0u32;
-            let mut reasons = Vec::new();
-            for line in stdout.lines() {
-                let path = line.trim();
-                if path.eq_ignore_ascii_case("AGENT.agent") {
-                    score += 30;
-                    reasons.push("AGENT.agent changed".to_string());
-                }
-                if path.starts_with("skills/") && path.ends_with(".skill") {
-                    score += 20;
-                    reasons.push("skill changed".to_string());
-                }
-                if path.starts_with("src/") && path.ends_with(".rs") {
-                    score += 20;
-                    reasons.push("source changed without tests".to_string());
-                }
+    if let Ok(out) = output
+        && out.status.success()
+    {
+        let stdout = String::from_utf8_lossy(&out.stdout);
+        let mut score = 0u32;
+        let mut reasons = Vec::new();
+        for line in stdout.lines() {
+            let path = line.trim();
+            let is_agent = path == "AGENT.agent";
+            let is_skill = path.starts_with("skills/") && path.ends_with(".skill");
+            let is_src = path.starts_with("src/") && path.ends_with(".rs");
+
+            if is_agent {
+                score += 30;
+                reasons.push(path.to_string());
+            } else if is_skill || is_src {
+                score += 20;
+                reasons.push(path.to_string());
             }
-            return (score.min(100), reasons);
         }
+        return (score.min(100), reasons);
     }
     (0, vec![])
 }

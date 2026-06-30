@@ -140,7 +140,7 @@ pub fn check_permissions(files: &[ChangedFile], agent: &AgentFile) -> Vec<(Strin
         .unwrap_or_default();
     let forbidden_patterns: Vec<String> = if let Some(safety) = &agent.safety {
         if let Some(obj) = safety.as_mapping() {
-            if let Some(paths) = obj.get(&Value::String("forbidden_paths".to_string())) {
+            if let Some(paths) = obj.get(Value::String("forbidden_paths".to_string())) {
                 if let Some(arr) = paths.as_sequence() {
                     arr.iter()
                         .filter_map(|v| v.as_str())
@@ -164,22 +164,22 @@ pub fn check_permissions(files: &[ChangedFile], agent: &AgentFile) -> Vec<(Strin
         let mut status = "allowed".to_string();
 
         for pattern in &forbidden_patterns {
-            if let Ok(mut paths) = glob(pattern) {
-                if paths.any(|p| p.map(|pp| pp.to_string_lossy() == *path).unwrap_or(false)) {
-                    status = "forbidden".to_string();
-                    break;
-                }
+            if let Ok(mut paths) = glob(pattern)
+                && paths.any(|p| p.map(|pp| pp.to_string_lossy() == *path).unwrap_or(false))
+            {
+                status = "forbidden".to_string();
+                break;
             }
         }
 
         if status != "forbidden" && !write_patterns.is_empty() {
             let mut allowed = false;
             for pattern in &write_patterns {
-                if let Ok(mut paths) = glob(pattern) {
-                    if paths.any(|p| p.map(|pp| pp.to_string_lossy() == *path).unwrap_or(false)) {
-                        allowed = true;
-                        break;
-                    }
+                if let Ok(mut paths) = glob(pattern)
+                    && paths.any(|p| p.map(|pp| pp.to_string_lossy() == *path).unwrap_or(false))
+                {
+                    allowed = true;
+                    break;
                 }
             }
             if !allowed {
