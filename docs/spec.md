@@ -31,7 +31,8 @@ A reusable, installable capability. Examples: `auth.skill`, `testing.skill`, `ru
 ```yaml
 meta:
   name: string
-  version: string
+  version: string          # project/package version (matches Cargo.toml, package.json, etc.)
+  contract_version?: int   # AgentML contract schema version (currently 1)
   description?: string
 
 purpose: string
@@ -91,7 +92,7 @@ output:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `meta` | object | yes | Name, version, optional description |
+| `meta` | object | yes | Name, project version, contract schema version, optional description |
 | `purpose` | string | yes | What the agent is allowed/expected to do |
 | `context` | object | no | Project type, languages, frameworks |
 | `permissions.read` | string[] | yes | Glob patterns the agent may read |
