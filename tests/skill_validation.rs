@@ -1,9 +1,10 @@
 use agentml::parser;
 use agentml::validator;
+use std::path::Path;
 use std::path::PathBuf;
 
 fn skills_dir() -> PathBuf {
-    std::env::current_dir().unwrap().join("skills")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("skills")
 }
 
 #[test]

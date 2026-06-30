@@ -4,13 +4,17 @@ use agentml::validator;
 use std::path::Path;
 use std::path::PathBuf;
 
+fn project_root() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).to_path_buf()
+}
+
 fn skills_dir() -> PathBuf {
-    Path::new("skills").to_path_buf()
+    project_root().join("skills")
 }
 
 #[test]
 fn self_check_contract_is_valid() {
-    let path = PathBuf::from("AGENT.agent");
+    let path = project_root().join("AGENT.agent");
     if !path.exists() {
         panic!("AGENT.agent must exist - run tests from project root");
     }
@@ -44,15 +48,16 @@ fn self_check_skills_are_valid() {
 #[test]
 fn self_check_docs_exist() {
     assert!(
-        Path::new("docs/spec.md").exists(),
+        project_root().join("docs/spec.md").exists(),
         "docs/spec.md must exist"
     );
-    assert!(Path::new("README.md").exists(), "README.md must exist");
+    assert!(project_root().join("README.md").exists(), "README.md must exist");
 }
 
 #[test]
 fn self_check_readme_mentions_dogfooding() {
-    let readme = std::fs::read_to_string("README.md").expect("README.md must exist");
+    let readme =
+        std::fs::read_to_string(project_root().join("README.md")).expect("README.md must exist");
     assert!(
         readme.contains("dogfood"),
         "README.md should mention dogfooding"

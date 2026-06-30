@@ -2,11 +2,16 @@ use agentml::parser;
 use agentml::types::AgentFile;
 use agentml::validator;
 use std::path::Path;
+use std::path::PathBuf;
+
+fn project_root() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).to_path_buf()
+}
 
 #[test]
 fn valid_agent_file_passes() {
-    let path = Path::new("examples/basic/AGENT.agent");
-    let agent: AgentFile = parser::parse_agent_file(path).expect("parse should succeed");
+    let path = project_root().join("examples/basic/AGENT.agent");
+    let agent: AgentFile = parser::parse_agent_file(&path).expect("parse should succeed");
     let report = validator::validate_agent_file(&agent, false);
     assert!(report.valid);
 }
@@ -130,17 +135,17 @@ output:
 
 #[test]
 fn self_check_passes_on_repo() {
-    let path = Path::new("AGENT.agent");
+    let path = project_root().join("AGENT.agent");
     assert!(path.exists(), "AGENT.agent must exist for self-check test");
-    let agent: AgentFile = parser::parse_agent_file(path).expect("parse should succeed");
+    let agent: AgentFile = parser::parse_agent_file(&path).expect("parse should succeed");
     let report = validator::validate_agent_file(&agent, false);
     assert!(report.valid, "Self-check failed: {:?}", report.errors);
 }
 
 #[test]
 fn context_generation_includes_permissions_and_validation() {
-    let path = Path::new("examples/basic/AGENT.agent");
-    let agent: AgentFile = parser::parse_agent_file(path).expect("parse should succeed");
+    let path = project_root().join("examples/basic/AGENT.agent");
+    let agent: AgentFile = parser::parse_agent_file(&path).expect("parse should succeed");
     let yaml = serde_yaml::to_string(&agent).expect("serialize should succeed");
     assert!(yaml.contains("permissions:"));
     assert!(yaml.contains("validation:"));
