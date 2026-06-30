@@ -82,7 +82,7 @@ pub fn run() -> Result<()> {
         "critical".to_string().red()
     } else if report.score >= 50 {
         "high".to_string().yellow()
-    } else if report.score >= 20 {
+    } else if report.score >= 21 {
         "medium".to_string().yellow()
     } else {
         "low".to_string().green()

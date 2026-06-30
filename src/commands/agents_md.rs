@@ -250,6 +250,9 @@ pub fn generate(agent: &AgentFile) -> String {
     output.push_str("3. `agentml diff` has been run.\n");
     output.push_str("4. Changes are committed.\n");
     output.push_str("5. Final report includes commit hash and risk score.\n\n");
+    output.push_str("After committing changes, run:\n\n");
+    output.push_str("```bash\nagentml close\ngit status --short\n```\n\n");
+    output.push_str("Final reports must reflect the post-commit repository state. If `agentml close` was run before committing, run it again after committing.\n\n");
     output.push_str(
         "If changes are intentionally left uncommitted, the final report must clearly say:\n\n",
     );

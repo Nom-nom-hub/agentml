@@ -225,6 +225,15 @@ For normal implementation tasks, that means:
 4. Changes are committed.
 5. Final report includes commit hash and risk score.
 
+After committing changes, run:
+
+```bash
+agentml close
+git status --short
+```
+
+Final reports must reflect the post-commit repository state. If `agentml close` was run before committing, run it again after committing.
+
 If changes are intentionally left uncommitted, the final report must clearly say:
 
 - why they were not committed

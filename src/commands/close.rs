@@ -90,14 +90,14 @@ fn get_latest_commit() -> (String, String) {
     (hash, msg)
 }
 
-fn risk_status_label(score: u32) -> &'static str {
+pub fn risk_status_label(score: u32) -> &'static str {
     if score >= 100 {
         "blocked"
     } else if score >= 80 {
         "critical"
     } else if score >= 50 {
         "high"
-    } else if score >= 20 {
+    } else if score >= 21 {
         "medium"
     } else {
         "low"
@@ -197,24 +197,32 @@ pub fn run(
         )
     };
 
-    let mut risks = risk_report.issues.clone();
+    let mut risks: Vec<String> = Vec::new();
 
     if let Some(threshold) = fail_at_risk
         && score >= threshold
     {
+        let issues = risk_report.issues.clone();
         return Err(anyhow!(
             "Risk score {} meets or exceeds fail-at-risk threshold {}. Reason: {}",
             score,
             threshold,
-            risks.join("; ")
+            issues.join("; ")
         ));
     }
 
-    if score >= 50 && !risks.iter().any(|r| r.contains("Mitigated")) {
-        risks.push(format!(
-            "Risk score {}/100 - {}. Mitigated by validation, tests, and clean working tree.",
-            score, status
-        ));
+    if score <= 20 && validation_ok {
+        risks.push(
+            "No material remaining risks. Validation passed, tests passed, diff completed, and working tree is clean.".to_string(),
+        );
+    } else {
+        risks.extend(risk_report.issues.clone());
+        if validation_ok {
+            risks.push(format!(
+                "Mitigation: validation passed, tests pass, diff completed, working tree is {}.",
+                if tree_clean { "clean" } else { "not clean" }
+            ));
+        }
     }
 
     let next_steps = if tree_clean || !in_git_repo {

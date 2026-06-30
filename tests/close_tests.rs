@@ -4,6 +4,51 @@ use std::fs;
 use std::path::Path;
 use std::sync::Mutex;
 
+#[test]
+fn risk_score_0_is_low() {
+    assert_eq!(close::risk_status_label(0), "low");
+}
+
+#[test]
+fn risk_score_20_is_low() {
+    assert_eq!(close::risk_status_label(20), "low");
+}
+
+#[test]
+fn risk_score_21_is_medium() {
+    assert_eq!(close::risk_status_label(21), "medium");
+}
+
+#[test]
+fn risk_score_49_is_medium() {
+    assert_eq!(close::risk_status_label(49), "medium");
+}
+
+#[test]
+fn risk_score_50_is_high() {
+    assert_eq!(close::risk_status_label(50), "high");
+}
+
+#[test]
+fn risk_score_79_is_high() {
+    assert_eq!(close::risk_status_label(79), "high");
+}
+
+#[test]
+fn risk_score_80_is_critical() {
+    assert_eq!(close::risk_status_label(80), "critical");
+}
+
+#[test]
+fn risk_score_99_is_critical() {
+    assert_eq!(close::risk_status_label(99), "critical");
+}
+
+#[test]
+fn risk_score_100_is_blocked() {
+    assert_eq!(close::risk_status_label(100), "blocked");
+}
+
 static CWD_LOCK: Mutex<()> = Mutex::new(());
 
 fn run_in_temp(test: fn(&Path)) {
