@@ -1,0 +1,45 @@
+skill: diff-risk-auditor
+version: 0.3.0
+description: Audit git diff for risk scoring and boundary detection.
+
+applies_to:
+  paths:
+    - src/commands/diff.rs
+    - tests/diff_audit.rs
+    - src/commands/doctor.rs
+  keywords:
+    - diff
+    - risk
+    - audit
+    - change
+
+risk:
+  base_score: 20
+  high_risk_paths:
+    - src/commands/close.rs
+    - src/commands/diff.rs
+    - src/commands/doctor.rs
+    - AGENT.agent
+
+requires_validation:
+  - cargo fmt --check
+  - cargo clippy --all-targets -- -D warnings
+  - cargo test
+
+rules:
+  - "Risk score must be numeric 0-100."
+  - "Thresholds must remain consistent: 0-20 low, 21-49 medium, 50-79 high, 80-99 critical, 100 blocked."
+  - "Forbidden file changes must be blocked."
+  - "High risk must include reasons."
+  - "Boundary tests are required."
+
+success:
+  "Risk score is calculated accurately. High-risk changes are flagged. Boundary tests pass."
+
+actions:
+  - follow_rules
+  - update_docs
+  - validate_work
+
+output:
+  "Required fields: summary, files_changed, commands_run, validation_result, risk_score, commit, next_steps."

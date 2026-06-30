@@ -1,5 +1,5 @@
 skill: spec-writer
-version: 0.2.2
+version: 0.3.0
 description: Keep the AgentML language spec aligned with the implementation.
 
 applies_to:
@@ -20,6 +20,15 @@ requires_validation:
   - cargo clippy --all-targets -- -D warnings
   - cargo test
 
+rules:
+  - Every required schema field must be documented.
+  - Every validation rule must have an example.
+  - Docs must not promise unsupported CLI behavior.
+  - Examples must validate.
+
+success:
+  "docs/spec.md matches implementation. examples validate. README quickstart works."
+
 actions:
   - compare_schema_to_docs
   - document_required_fields
@@ -27,16 +36,5 @@ actions:
   - update_examples
   - record_compatibility_notes
 
-rules:
-  - Every required schema field must be documented.
-  - Every validation rule must have an example.
-  - Docs must not promise unsupported CLI behavior.
-  - Examples must validate.
-
-success: >
-  docs/spec.md matches implementation.
-  examples validate.
-  README quickstart works.
-
-output: >
-  Required fields: docs_changed, examples_changed, validation_notes.
+output:
+  "Required fields: docs_changed, examples_changed, validation_notes."

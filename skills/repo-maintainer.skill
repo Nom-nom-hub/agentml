@@ -1,0 +1,40 @@
+skill: repo-maintainer
+version: 0.3.0
+description: Default senior maintainer behavior for general repository changes.
+
+applies_to:
+  paths:
+    - src/**
+    - tests/**
+    - docs/**
+    - README.md
+    - CHANGELOG.md
+    - AGENTS.md
+    - AGENT.agent
+
+risk:
+  base_score: 10
+
+requires_validation:
+  - cargo fmt --check
+  - cargo clippy --all-targets -- -D warnings
+  - cargo test
+
+rules:
+  - Keep changes small and focused.
+  - Update docs when public behavior changes.
+  - Update tests when logic changes.
+  - Run validation before reporting completion.
+  - Do not leave the working tree dirty unless explicitly requested.
+  - Final report must include commit hash and risk score.
+
+success:
+  "Changes are validated and tested. Documentation is synchronized. Working tree is clean or intentionally dirty. Final report includes all required fields."
+
+actions:
+  - follow_rules
+  - update_docs
+  - validate_work
+
+output:
+  "Required fields: summary, files_changed, commands_run, validation_result, risk_score, commit, next_steps."

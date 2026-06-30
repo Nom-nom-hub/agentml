@@ -239,3 +239,39 @@ If changes are intentionally left uncommitted, the final report must clearly say
 - why they were not committed
 - which files remain modified
 - what command the user should run next
+
+## Skill Usage Rule
+
+Before making changes, agents should check relevant skills:
+
+```bash
+agentml skill match
+```
+
+If skills are matched, follow their rules, validation requirements, and success criteria.
+
+Skills are advisory guidance. They do not override `AGENT.agent`.
+
+Agents should mention relevant skills in the final report:
+
+```
+Skills used:
+- rust-cli-maintainer
+- agentml-contract-validator
+```
+
+## Pre-Final Checklist
+
+Before reporting completion, verify:
+
+- Code changes are complete.
+- Tests were added or updated when needed.
+- Validation commands were run (or `agentml close`).
+- `agentml diff` was run (or `agentml close`).
+- Risk score is included in the final report.
+- `agentml skill match` was checked.
+- Relevant skills were followed.
+- Final report lists skills used when applicable.
+- `README.md` is updated if public behavior changed.
+- `docs/` are updated if behavior or architecture changed.
+- `CHANGELOG.md` is updated if user-facing behavior changed.

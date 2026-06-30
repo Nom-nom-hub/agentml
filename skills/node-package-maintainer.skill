@@ -1,0 +1,49 @@
+skill: node-package-maintainer
+version: 0.3.0
+description: Maintain Node.js packages with safety for npm publishing and token protection.
+
+applies_to:
+  paths:
+    - package.json
+    - src/**
+    - tests/**
+    - package exports
+  stacks:
+    - Node.js
+    - TypeScript
+  keywords:
+    - npm
+    - package
+    - token
+    - publish
+
+risk:
+  base_score: 20
+  high_risk_paths:
+    - package.json
+    - src/index.ts
+    - src/index.js
+
+requires_validation:
+  - npm run lint
+  - npx tsc --noEmit
+  - npm test
+  - npm run build
+
+rules:
+  - Do not publish without explicit approval.
+  - Protect npm tokens.
+  - Update changelog on public API changes.
+  - Validate package exports when changed.
+  - Run test, lint, and build scripts when available.
+
+success:
+  "Lint passes. Typecheck passes. Tests pass. Build succeeds. Package exports are valid."
+
+actions:
+  - follow_rules
+  - update_docs
+  - validate_work
+
+output:
+  "Required fields: summary, files_changed, commands_run, validation_result, risk_score, commit, next_steps."

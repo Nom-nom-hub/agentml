@@ -10,10 +10,7 @@ use std::path::PathBuf;
 
 fn discover_skills() -> Vec<(PathBuf, SkillFile)> {
     let mut skills = Vec::new();
-    let search_paths = [
-        PathBuf::from("skills"),
-        PathBuf::from(".agentml/skills"),
-    ];
+    let search_paths = [PathBuf::from("skills"), PathBuf::from(".agentml/skills")];
 
     for base in &search_paths {
         if !base.exists() {
@@ -22,10 +19,10 @@ fn discover_skills() -> Vec<(PathBuf, SkillFile)> {
         if let Ok(entries) = fs::read_dir(base) {
             for entry in entries.flatten() {
                 let path = entry.path();
-                if path.extension().map_or(false, |e| e == "skill") {
-                    if let Ok(skill) = parse_skill_file(&path) {
-                        skills.push((path, skill));
-                    }
+                if path.extension().is_some_and(|e| e == "skill")
+                    && let Ok(skill) = parse_skill_file(&path)
+                {
+                    skills.push((path, skill));
                 }
             }
         }
@@ -145,10 +142,7 @@ pub fn run_inspect(path_arg: &str) -> Result<()> {
 }
 
 fn find_skill_by_name(name: &str) -> PathBuf {
-    let search_paths = [
-        PathBuf::from("skills"),
-        PathBuf::from(".agentml/skills"),
-    ];
+    let search_paths = [PathBuf::from("skills"), PathBuf::from(".agentml/skills")];
 
     for base in &search_paths {
         let candidate = base.join(name);
@@ -166,10 +160,10 @@ pub fn run_match() -> Result<()> {
     let mut matched_skills: Vec<(&PathBuf, &SkillFile)> = Vec::new();
 
     let mut changed_files: Vec<String> = Vec::new();
-    if let Ok(output) = Command::new("git").args(["diff", "--name-only"]).output() {
-        if let Ok(stdout) = String::from_utf8(output.stdout) {
-            changed_files = stdout.lines().map(|s| s.to_string()).collect();
-        }
+    if let Ok(output) = Command::new("git").args(["diff", "--name-only"]).output()
+        && let Ok(stdout) = String::from_utf8(output.stdout)
+    {
+        changed_files = stdout.lines().map(|s| s.to_string()).collect();
     }
 
     let mut project_stack: Option<String> = None;
@@ -185,12 +179,13 @@ pub fn run_match() -> Result<()> {
         let mut is_match = false;
 
         if let Some(applies) = &skill.applies_to {
-            if let Some(stacks) = &applies.stacks {
-                if let Some(ref stack) = project_stack {
-                    if stacks.iter().any(|s| s.to_lowercase().contains(&stack.to_lowercase())) {
-                        is_match = true;
-                    }
-                }
+            if let Some(stacks) = &applies.stacks
+                && let Some(ref stack) = project_stack
+                && stacks
+                    .iter()
+                    .any(|s| s.to_lowercase().contains(&stack.to_lowercase()))
+            {
+                is_match = true;
             }
 
             if let Some(paths) = &applies.paths {
@@ -257,7 +252,10 @@ pub fn run_match() -> Result<()> {
     }
 
     println!();
-    println!("{}", "Run `agentml skill inspect <name>` for full details.".dimmed());
+    println!(
+        "{}",
+        "Run `agentml skill inspect <name>` for full details.".dimmed()
+    );
 
     Ok(())
 }

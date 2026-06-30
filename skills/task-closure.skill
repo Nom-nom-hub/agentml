@@ -1,0 +1,41 @@
+skill: task-closure
+version: 0.3.0
+description: Ensure proper task closure with risk scoring and final reporting.
+
+applies_to:
+  paths:
+    - src/commands/close.rs
+    - tests/close_tests.rs
+    - AGENTS.md
+    - docs/Release.md
+  keywords:
+    - close
+    - report
+    - risk
+    - commit
+
+risk:
+  base_score: 10
+
+requires_validation:
+  - cargo fmt --check
+  - cargo clippy --all-targets -- -D warnings
+  - cargo test
+
+rules:
+  - "Risk score must be numeric and included in output."
+  - "Git status must be separate from risk score."
+  - "Final report must include commit hash."
+  - "Run agentml close after committing."
+  - "Never report Risks None when risk score is medium or higher."
+
+success:
+  "Risk score is calculated and reported. Git status is accurate. Final report includes commit hash. All validation passed."
+
+actions:
+  - follow_rules
+  - update_docs
+  - validate_work
+
+output:
+  "Required fields: summary, files_changed, commands_run, validation_result, risk_score, commit, next_steps."

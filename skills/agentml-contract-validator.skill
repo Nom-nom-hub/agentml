@@ -1,12 +1,15 @@
-skill: agentml-validator
+skill: agentml-contract-validator
 version: 0.3.0
 description: Validate AGENT.agent and .skill files using AgentML semantic rules.
 
 applies_to:
   paths:
     - AGENT.agent
-    - "**/*.skill"
+    - "*.skill"
     - src/validator.rs
+    - src/commands/validate.rs
+    - src/commands/doctor.rs
+    - docs/spec.md
   stacks:
     - Rust
   keywords:
@@ -15,7 +18,7 @@ applies_to:
     - skill
 
 risk:
-  base_score: 10
+  base_score: 15
 
 requires_validation:
   - cargo fmt --check
@@ -23,24 +26,19 @@ requires_validation:
   - cargo test
 
 rules:
-  - Missing purpose is an error.
-  - Missing permissions is an error.
-  - Missing validation commands is an error.
-  - Missing success criteria is an error.
-  - Forbidden paths must never be writable.
-  - Destructive commands require explicit approval.
+  - Invalid contracts must fail clearly.
+  - Errors must explain what failed, why it matters, and the suggested fix.
+  - Forbidden paths must never become writable.
+  - docs/spec.md must match validator behavior.
+  - Examples must validate.
 
 success:
   "Invalid contracts fail with clear errors. Valid contracts pass with zero errors. Risk score is included in the output. Suggested fixes are generated for warnings."
 
 actions:
-  - parse_contract
-  - validate_required_sections
-  - validate_permissions
-  - validate_safety_policy
-  - validate_tasks
-  - calculate_risk_score
-  - emit_report
+  - follow_rules
+  - update_docs
+  - validate_work
 
 output:
   "Required fields: valid, errors, warnings, risk_score, suggested_fixes."

@@ -1,0 +1,50 @@
+skill: nextjs-maintainer
+version: 0.3.0
+description: Maintain Next.js projects with safety for App Router, SSR, and API routes.
+
+applies_to:
+  paths:
+    - app/**
+    - src/app/**
+    - pages/**
+    - components/**
+    - src/lib/**
+    - next.config.*
+    - package.json
+  stacks:
+    - Next.js
+    - React
+    - TypeScript
+  keywords:
+    - nextjs
+    - react
+    - app-router
+    - ssr
+    - api
+
+risk:
+  base_score: 15
+
+requires_validation:
+  - npm run lint
+  - npm run typecheck
+  - npm test
+  - npm run build
+
+rules:
+  - Preserve server/client component boundaries.
+  - Protect .env.local.
+  - Run lint, typecheck, tests, and build when available.
+  - Update README when setup or routes change.
+  - Do not commit .next/ or build artifacts.
+
+success:
+  "Lint passes. Typecheck passes. Tests pass. Build succeeds."
+
+actions:
+  - follow_rules
+  - update_docs
+  - validate_work
+
+output:
+  "Required fields: summary, files_changed, commands_run, validation_result, risk_score, commit, next_steps."

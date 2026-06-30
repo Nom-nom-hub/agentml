@@ -56,15 +56,11 @@ fn main() -> Result<()> {
             agentml::cli::SkillCommands::Pack { folder } => {
                 agentml::commands::skill::pack::run(folder)
             }
-            agentml::cli::SkillCommands::List => {
-                agentml::commands::skill::run_list()
-            }
+            agentml::cli::SkillCommands::List => agentml::commands::skill::run_list(),
             agentml::cli::SkillCommands::Inspect { path } => {
                 agentml::commands::skill::run_inspect(&path)
             }
-            agentml::cli::SkillCommands::Match => {
-                agentml::commands::skill::run_match()
-            }
+            agentml::cli::SkillCommands::Match => agentml::commands::skill::run_match(),
         },
         Some(agentml::cli::Commands::SelfCheck {}) => agentml::commands::self_check::run(),
         Some(agentml::cli::Commands::Close {

@@ -1,0 +1,39 @@
+skill: skill-author
+version: 0.3.0
+description: Create and maintain .skill files for reusable maintainer-intelligence.
+
+applies_to:
+  paths:
+    - skills/**
+    - .agentml/skills/**
+    - src/commands/skill/*.rs
+    - docs/skills.md
+  keywords:
+    - skill
+    - maintainer
+    - guidance
+
+risk:
+  base_score: 20
+
+requires_validation:
+  - cargo fmt --check
+  - cargo clippy --all-targets -- -D warnings
+  - cargo test
+
+rules:
+  - Skills are advisory guidance, not executable scripts.
+  - Skills must not override AGENT.agent.
+  - Every skill should include applies_to, rules, validation, success, and output.
+  - Existing skills must still validate.
+
+success:
+  "Skill file is valid YAML. Skill includes all required sections. Skill metadata is accurate. Existing skills validate."
+
+actions:
+  - follow_rules
+  - update_docs
+  - validate_work
+
+output:
+  "Required fields: summary, files_changed, commands_run, validation_result."

@@ -1,0 +1,42 @@
+skill: docs-sync
+version: 0.3.0
+description: Synchronize documentation, website, examples, and changelog with code changes.
+
+applies_to:
+  paths:
+    - README.md
+    - CHANGELOG.md
+    - docs/**
+    - examples/**
+    - website/**
+  keywords:
+    - docs
+    - readme
+    - changelog
+    - website
+
+risk:
+  base_score: 15
+
+requires_validation:
+  - cargo fmt --check
+  - cargo clippy --all-targets -- -D warnings
+  - cargo test
+
+rules:
+  - User-facing behavior changes require docs updates.
+  - README must match current CLI behavior.
+  - Website must not overclaim.
+  - Examples must remain valid.
+  - Changelog must be updated for public behavior changes.
+
+success:
+  "All docs are synchronized. README matches current behavior. Website is accurate. Examples validate. Changelog is updated."
+
+actions:
+  - follow_rules
+  - update_docs
+  - validate_work
+
+output:
+  "Required fields: summary, files_changed, commands_run, validation_result, risk_score, commit, next_steps."

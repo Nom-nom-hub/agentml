@@ -1,0 +1,48 @@
+skill: python-package-maintainer
+version: 0.3.0
+description: Maintain Python packages with safety for PyPI publishing.
+
+applies_to:
+  paths:
+    - pyproject.toml
+    - requirements.txt
+    - setup.py
+    - src/**
+    - tests/**
+  stacks:
+    - Python
+  keywords:
+    - python
+    - pypi
+    - pytest
+    - ruff
+    - mypy
+
+risk:
+  base_score: 15
+  high_risk_paths:
+    - pyproject.toml
+    - src/**/*.py
+
+requires_validation:
+  - ruff check .
+  - mypy .
+  - pytest
+  - python -m build --sdist
+
+rules:
+  - Run pytest, ruff, and mypy when available.
+  - Do not commit .venv, dist/, build/, or .env.
+  - Update docs for public API changes.
+  - Keep packaging metadata accurate.
+
+success:
+  "Lint passes. Typecheck passes. Tests pass. Build succeeds."
+
+actions:
+  - follow_rules
+  - update_docs
+  - validate_work
+
+output:
+  "Required fields: summary, files_changed, commands_run, validation_result, risk_score, commit, next_steps."

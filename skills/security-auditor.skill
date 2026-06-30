@@ -1,0 +1,45 @@
+skill: security-auditor
+version: 0.3.0
+description: Audit security-sensitive behavior including secrets, paths, and destructive actions.
+
+applies_to:
+  paths:
+    - src/mcp.rs
+    - src/commands/doctor.rs
+    - src/commands/close.rs
+    - SECURITY.md
+    - docs/security.md
+  keywords:
+    - security
+    - secret
+    - path
+    - forbidden
+
+risk:
+  base_score: 25
+  high_risk_paths:
+    - src/mcp.rs
+    - src/commands/doctor.rs
+
+requires_validation:
+  - cargo fmt --check
+  - cargo clippy --all-targets -- -D warnings
+  - cargo test
+
+rules:
+  - Never read or expose .env, keys, tokens, or credentials.
+  - Block path traversal.
+  - Do not execute arbitrary shell commands from skill or MCP input.
+  - Destructive actions require explicit approval.
+  - Update security docs when behavior changes.
+
+success:
+  "No secrets are exposed. Path traversal is blocked. Destructive actions are controlled. Security docs are updated."
+
+actions:
+  - follow_rules
+  - update_docs
+  - validate_work
+
+output:
+  "Required fields: summary, files_changed, commands_run, validation_result, risk_score, commit, next_steps."
