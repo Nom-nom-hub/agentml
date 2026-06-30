@@ -435,20 +435,20 @@ impl Parser {
                 self.expect(Token::LBrace)?;
                 while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
                     let t = self.advance()?;
-                    if let Token::Identifier(ref kw) = t.token {
-                        if kw == "required" {
-                            self.expect(Token::LBracket)?;
-                            while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
-                                let str_token = self.advance()?;
-                                if let Token::String(s) = str_token.token {
-                                    ast.output.final_report.push(s);
-                                }
-                                if self.current().map(|t| &t.token) == Some(&Token::Comma) {
-                                    let _ = self.advance();
-                                }
+                    if let Token::Identifier(kw) = &t.token
+                        && kw == "required"
+                    {
+                        self.expect(Token::LBracket)?;
+                        while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
+                            let str_token = self.advance()?;
+                            if let Token::String(s) = str_token.token {
+                                ast.output.final_report.push(s);
                             }
-                            let _ = self.advance();
+                            if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                                let _ = self.advance();
+                            }
                         }
+                        let _ = self.advance();
                     }
                     if self.current().map(|t| &t.token) == Some(&Token::Comma) {
                         let _ = self.advance();
