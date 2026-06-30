@@ -1,4 +1,5 @@
 #![allow(clippy::all)]
+#![allow(unused_must_use)]
 
 use crate::syntax::lexer::{Lexer, Token, TokenWithPos};
 use anyhow::{Result, anyhow};
