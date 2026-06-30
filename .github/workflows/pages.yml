@@ -19,13 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/starter-tools/setup-ruby@v1
+      - uses: actions/setup-ruby@v1
         with:
           ruby-version: '3.1'
+          bundler-cache: true
       - name: Setup Pages
         uses: actions/configure-pages@v3
-      - name: Install dependencies
-        run: bundle install
       - name: Build site
         run: bundle exec jekyll build
       - name: Upload artifact
