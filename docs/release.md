@@ -1,77 +1,53 @@
-# Release Checklist
+# v0.4.0 Release Criteria
 
-This document describes the maintenance release process for AgentML.
+## Native Syntax Stability Requirements
 
-## Pre-release
+Native syntax can ship in v0.4.0 only when:
 
-1. Update version in `Cargo.toml`
-2. Update `CHANGELOG.md` with changes
-3. Ensure working tree is clean:
-   ```bash
-   git status --short
-   ```
-4. Ensure all tests pass:
-   ```bash
-   cargo fmt --check
-   cargo clippy --all-targets -- -D warnings
-   cargo test
-   ```
+1. **Native examples validate**
+   - `cargo run -- validate examples/native/AGENT.agent --format native` passes
+   - `cargo run -- skill validate examples/native/*.skill --format native` passes
 
-## Release
+2. **Native init output validates**
+   - `agentml init --template generic --syntax native` produces valid contract
+   - `agentml init --template rust-cli --syntax native` produces valid contract
+   - `agentml init --template nextjs --syntax native` produces valid contract
+   - `agentml init --template node-package --syntax native` produces valid contract
+   - `agentml init --template python-package --syntax native` produces valid contract
+   - `agentml init --detect --syntax native` produces valid contract
 
-1. Run verification commands:
-   ```bash
-   cargo run -- doctor
-   cargo run -- self-check
-   cargo run -- validate AGENT.agent
-   cargo run -- brief --format json
-   cargo run -- diff
-   cargo run -- close
-   ```
+3. **Conversion output validates**
+   - `agentml convert --to native AGENT.agent` produces valid native contract
+   - `agentml convert --to native AGENT.agent --write` works correctly
+   - `agentml convert --to native AGENT.agent --write --backup` preserves original
 
-2. Dry-run publish:
-   ```bash
-   cargo publish --dry-run
-   ```
+4. **Command compatibility works with native AGENT.agent**
+   - `agentml doctor` works with native contracts
+   - `agentml brief --format json` works with native contracts
+   - `agentml diff` works with native contracts
+   - `agentml close` works with native contracts
+   - `agentml skill match` works with native contracts
 
-3. Publish:
-   ```bash
-   cargo publish
-   ```
+5. **YAML remains default and supported**
+   - v0.3.0 YAML syntax still works
+   - Existing YAML contracts parse correctly
+   - Backward compatibility maintained
 
-4. Tag the release:
-   ```bash
-   VERSION=$(cargo metadata --format-version=1 --no-deps | cargo install cargo-json >/dev/null 2>&1 && echo "v$(cargo metadata --format-version=1 --no-deps | python3 -c 'import sys,json;print(json.load(sys.stdin)["packages"][0]["version"])')" || echo "v0.2.1")
-   git tag -a "$VERSION" -m "Release $VERSION"
-   git push origin "$VERSION"
-   ```
+6. **Documentation explains migration clearly**
+   - docs/syntax.md updated with current syntax
+   - docs/spec.md updated with native syntax spec
+   - Migration guide provided
 
-5. Create GitHub release:
-   ```bash
-   VERSION=$(cargo metadata --format-version=1 --no-deps | python3 -c 'import sys,json;print("v"+json.load(sys.stdin)["packages"][0]["version"])')
-   gh release create "$VERSION" --title "$VERSION" --notes "$(cat CHANGELOG.md)" --target main
-   ```
+7. **CI passes**
+   - `cargo fmt --check` passes
+   - `cargo clippy --all-targets -- -D warnings` passes
+   - `cargo test` passes
+   - `cargo run -- self-check` passes
 
-## GitHub Pages (optional)
+## Post-Release Tasks
 
-If using GitHub Pages for docs:
+After v0.4.0:
 
-1. Enable Pages in repo settings:
-   - Go to Settings → Pages
-   - Source: `Deploy from a GitHub Actions workflow`
-   - Workflow: `GitHub Pages`
-
-2. The workflow will deploy automatically on push to main.
-
-## Post-release
-
-1. Update GitHub release notes from CHANGELOG.md
-2. Verify crates.io has the new version
-3. Update version in docs if needed
-
-## Release checklist
-
-- Working tree is clean.
-- Version bump committed.
-- CHANGELOG.md committed.
-- Release tag created.
+1. Update default `--syntax` to `native`
+2. Deprecate `--syntax yaml` flag
+3. Remove YAML parsing in v0.5.0

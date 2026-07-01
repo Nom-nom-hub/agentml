@@ -1,7 +1,6 @@
 use crate::syntax;
 use crate::types::{AgentFile, SkillFile};
 use anyhow::{Context, Result};
-use serde_yaml;
 use std::fs;
 use std::path::Path;
 
@@ -16,6 +15,12 @@ pub fn parse_agent_file(path: &Path) -> Result<AgentFile> {
             serde_yaml::from_str(&content).with_context(|| "Failed to parse AGENT.agent YAML")?;
         Ok(file)
     }
+}
+
+pub fn parse_agent_yaml(content: &str) -> Result<AgentFile> {
+    let file: AgentFile =
+        serde_yaml::from_str(content).with_context(|| "Failed to parse AGENT.agent YAML")?;
+    Ok(file)
 }
 
 pub fn parse_skill_file(path: &Path) -> Result<SkillFile> {

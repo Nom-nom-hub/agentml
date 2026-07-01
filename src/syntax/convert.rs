@@ -18,58 +18,31 @@ pub fn convert_ast_to_agent(ast: &AgentAst) -> anyhow::Result<AgentFile> {
         })
         .unwrap_or_default();
 
-    let purpose_value = if let Some(ref p) = ast.purpose {
-        let mut map: serde_yaml::Mapping = Default::default();
-        map.insert(
-            serde_yaml::Value::String("human_goal".to_string()),
-            serde_yaml::Value::String(p.human_goal.clone()),
-        );
-        map.insert(
-            serde_yaml::Value::String("agent_goal".to_string()),
-            serde_yaml::Value::String(p.agent_goal.clone()),
-        );
-        map.insert(
-            serde_yaml::Value::String("non_goals".to_string()),
-            serde_yaml::Value::Sequence(
-                p.non_goals
-                    .iter()
-                    .map(|s| serde_yaml::Value::String(s.clone()))
-                    .collect(),
-            ),
-        );
-        Some(serde_yaml::Value::Mapping(map))
-    } else {
-        None
-    };
+    let purpose = ast.purpose.as_ref().map(|p| crate::types::Purpose {
+        human_goal: Some(p.human_goal.clone()),
+        agent_goal: Some(p.agent_goal.clone()),
+        non_goals: Some(p.non_goals.clone()),
+    });
 
-    let safety_value = if let Some(ref s) = ast.safety {
-        let mut map: serde_yaml::Mapping = Default::default();
-        if !s.rules.is_empty() {
-            map.insert(
-                serde_yaml::Value::String("forbidden_actions".to_string()),
-                serde_yaml::Value::Sequence(
-                    s.rules
-                        .iter()
-                        .map(|r| serde_yaml::Value::String(r.clone()))
-                        .collect(),
-                ),
-            );
-        }
-        if !s.secrets_never_read.is_empty() {
-            map.insert(
-                serde_yaml::Value::String("secrets_never_read".to_string()),
-                serde_yaml::Value::Sequence(
-                    s.secrets_never_read
-                        .iter()
-                        .map(|r| serde_yaml::Value::String(r.clone()))
-                        .collect(),
-                ),
-            );
-        }
-        Some(serde_yaml::Value::Mapping(map))
-    } else {
-        None
-    };
+    let safety = ast.safety.as_ref().map(|s| crate::types::Safety {
+        policy: s.rules.first().cloned(),
+        forbidden_paths: if s.forbidden_paths.is_empty() {
+            None
+        } else {
+            Some(s.forbidden_paths.clone())
+        },
+        forbidden_actions: if s.forbidden_actions.is_empty() {
+            None
+        } else {
+            Some(s.forbidden_actions.clone())
+        },
+        require_confirmation: if s.require_approval.is_empty() {
+            None
+        } else {
+            Some(s.require_approval.clone())
+        },
+        secrets_policy: None,
+    });
 
     let permissions = ast.permissions.as_ref().map(|p| crate::types::Permissions {
         read: Some(p.read.clone()),
@@ -83,14 +56,14 @@ pub fn convert_ast_to_agent(ast: &AgentAst) -> anyhow::Result<AgentFile> {
             version: ast.version.clone(),
             description: ast.description.clone(),
         }),
-        purpose: purpose_value,
+        purpose,
         context: ast.context.as_ref().map(|c| crate::types::AgentContext {
             project_type: c.stack.first().cloned(),
             languages: None,
             frameworks: None,
         }),
         permissions,
-        safety: safety_value,
+        safety,
         validation: Some(validation_commands),
         ..Default::default()
     };

@@ -1,116 +1,49 @@
 use crate::types::{AgentFile, SkillFile};
 use colored::Colorize;
-use serde_yaml::Value;
 
-fn get_purpose_string(purpose: &Option<Value>) -> Option<String> {
-    purpose.as_ref().and_then(|v| {
-        if let Some(s) = v.as_str() {
-            Some(s.to_string())
-        } else if let Some(map) = v.as_mapping() {
-            let mut parts = Vec::new();
-            if let Some(hg) = map.get(Value::String("human_goal".to_string()))
-                && let Some(s) = hg.as_str()
-            {
-                parts.push(s.to_string());
+fn get_purpose_string(purpose: &Option<crate::types::Purpose>) -> Option<String> {
+    purpose.as_ref().and_then(|p| {
+        let mut parts = Vec::new();
+        if let Some(h) = &p.human_goal {
+            parts.push(h.clone());
+        }
+        if let Some(a) = &p.agent_goal {
+            parts.push(a.clone());
+        }
+        if let Some(ng) = &p.non_goals {
+            for s in ng {
+                parts.push(format!("not: {}", s));
             }
-            if let Some(ag) = map.get(Value::String("agent_goal".to_string()))
-                && let Some(s) = ag.as_str()
-            {
-                parts.push(s.to_string());
-            }
-            if let Some(ng) = map.get(Value::String("non_goals".to_string()))
-                && let Some(arr) = ng.as_sequence()
-            {
-                for item in arr {
-                    if let Some(s) = item.as_str() {
-                        parts.push(s.to_string());
-                    }
-                }
-            }
-            if parts.is_empty() {
-                None
-            } else {
-                Some(parts.join(" "))
-            }
-        } else {
+        }
+        if parts.is_empty() {
             None
+        } else {
+            Some(parts.join(" "))
         }
     })
 }
 
-pub fn get_forbidden_paths(safety: &Option<Value>) -> Option<Vec<String>> {
-    safety.as_ref().and_then(|v| {
-        if let Some(map) = v.as_mapping()
-            && let Some(paths) = map.get(Value::String("forbidden_paths".to_string()))
-            && let Some(arr) = paths.as_sequence()
-        {
-            return Some(
-                arr.iter()
-                    .filter_map(|v| v.as_str().map(|s| s.to_string()))
-                    .collect(),
-            );
-        }
-        None
-    })
+pub fn get_forbidden_paths(safety: &Option<crate::types::Safety>) -> Option<Vec<String>> {
+    safety.as_ref().and_then(|s| s.forbidden_paths.clone())
 }
 
-pub fn get_forbidden_actions(safety: &Option<Value>) -> Option<Vec<String>> {
-    safety.as_ref().and_then(|v| {
-        if let Some(map) = v.as_mapping() {
-            if let Some(actions) = map.get(Value::String("forbidden_actions".to_string()))
-                && let Some(arr) = actions.as_sequence()
-            {
-                return Some(
-                    arr.iter()
-                        .filter_map(|v| v.as_str().map(|s| s.to_string()))
-                        .collect(),
-                );
-            }
-            if let Some(da) = map.get(Value::String("destructive_actions".to_string()))
-                && let Some(da_map) = da.as_mapping()
-                && let Some(commands) = da_map.get(Value::String("commands".to_string()))
-                && let Some(arr) = commands.as_sequence()
-            {
-                return Some(
-                    arr.iter()
-                        .filter_map(|v| v.as_str().map(|s| s.to_string()))
-                        .collect(),
-                );
-            }
-        }
-        None
-    })
+pub fn get_forbidden_actions(safety: &Option<crate::types::Safety>) -> Option<Vec<String>> {
+    safety.as_ref().and_then(|s| s.forbidden_actions.clone())
 }
 
-pub fn get_require_confirmation(safety: &Option<Value>) -> Option<Vec<String>> {
-    safety.as_ref().and_then(|v| {
-        if let Some(map) = v.as_mapping()
-            && let Some(rc) = map.get(Value::String("require_confirmation".to_string()))
-            && let Some(arr) = rc.as_sequence()
-        {
-            return Some(
-                arr.iter()
-                    .filter_map(|v| v.as_str().map(|s| s.to_string()))
-                    .collect(),
-            );
-        }
-        None
-    })
+pub fn get_require_confirmation(safety: &Option<crate::types::Safety>) -> Option<Vec<String>> {
+    safety.as_ref().and_then(|s| s.require_confirmation.clone())
 }
 
-pub fn has_secrets_policy(safety: &Option<Value>) -> bool {
+pub fn has_secrets_policy(safety: &Option<crate::types::Safety>) -> bool {
     safety
         .as_ref()
-        .map(|v| {
-            if let Some(map) = v.as_mapping() {
-                if map.contains_key(Value::String("secrets_policy".to_string())) {
-                    return true;
-                }
-                if let Some(policy) = map.get(Value::String("policy".to_string()))
-                    && let Some(s) = policy.as_str()
-                {
-                    return s.to_lowercase().contains("secret");
-                }
+        .map(|s| {
+            if s.secrets_policy.is_some() {
+                return true;
+            }
+            if let Some(policy) = &s.policy {
+                return policy.to_lowercase().contains("secret");
             }
             false
         })

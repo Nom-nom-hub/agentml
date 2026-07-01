@@ -593,6 +593,8 @@ fn generic_native_template() -> String {
   }
 
   safety {
+    policy: "Never commit secrets. Use environment variables."
+    forbidden_paths: [".env*", ".env.*", ".git/**", "node_modules/**", "target/**", "dist/**", "build/**", "**/*secret*", "**/*credential*", "**/*.pem", "**/*.key", "~/.ssh/**"]
     forbidden_actions: ["rm -rf", "git push --force", "npm publish", "cargo publish"]
     require_approval: ["git push", "npm run db:migrate"]
   }
@@ -630,6 +632,8 @@ fn rust_cli_native_template() -> String {
   }
 
   safety {
+    policy: "Never commit secrets. Use environment variables."
+    forbidden_paths: ["target/**", "*.rs.bk", ".git/**", ".env*"]
     forbidden_actions: ["cargo publish", "rm -rf src"]
     require_approval: ["cargo publish", "cargo install"]
   }
@@ -669,6 +673,8 @@ fn nextjs_app_native_template() -> String {
   }
 
   safety {
+    policy: "Never commit secrets. Use environment variables and .env.local."
+    forbidden_paths: [".env*", ".env.*", ".git/**", "node_modules/**", ".next/**", "out/**"]
     forbidden_actions: ["git push --force", "rm -rf src"]
     require_approval: ["git push", "npm run db:migrate"]
   }
@@ -708,6 +714,8 @@ fn python_package_native_template() -> String {
   }
 
   safety {
+    policy: "Never commit secrets. Use environment variables."
+    forbidden_paths: [".venv/**", "dist/**", "*.egg-info", ".git/**", ".env*"]
     forbidden_actions: ["rm -rf src", "git push --force"]
     require_approval: ["git push", "twine upload"]
   }
@@ -746,6 +754,8 @@ fn node_package_native_template() -> String {
   }
 
   safety {
+    policy: "Never commit secrets. Use environment variables."
+    forbidden_paths: [".git/**", "node_modules/**", ".npm/**", "dist/**", ".env*"]
     forbidden_actions: ["git push --force", "rm -rf src"]
     require_approval: ["git push", "npm publish"]
   }
@@ -800,6 +810,7 @@ fn generate_detected_native_template(info: &crate::detect::ProjectInfo) -> Strin
   }}
 
   safety {{
+    forbidden_paths: [".env*", ".git/**", "node_modules/**", "target/**", "dist/**"]
     forbidden_actions: ["rm -rf src", "git push --force"]
     require_approval: ["git push"]
   }}

@@ -99,30 +99,18 @@ pub fn generate(agent: &AgentFile) -> String {
 
     output.push_str("## Forbidden areas\n\n");
     output.push_str("Agents must not modify or expose:\n\n");
-    if let Some(safety) = &agent.safety
-        && let Some(obj) = safety.as_mapping()
-    {
-        if let Some(paths) = obj
-            .get(serde_yaml::Value::String("forbidden_paths".to_string()))
-            .and_then(|v| v.as_sequence())
-        {
+    if let Some(safety) = &agent.safety {
+        if let Some(paths) = &safety.forbidden_paths {
             for p in paths {
-                if let Some(s) = p.as_str() {
-                    output.push_str(&format!("- {}\n", s));
-                }
+                output.push_str(&format!("- {}\n", p));
             }
         }
-        if let Some(sp) = obj.get(serde_yaml::Value::String("secrets_policy".to_string()))
-            && let Some(sp_map) = sp.as_mapping()
-            && let Some(nr) = sp_map
-                .get(serde_yaml::Value::String("never_read".to_string()))
-                .and_then(|v| v.as_sequence())
+        if let Some(secrets) = &safety.secrets_policy
+            && let Some(never_read) = &secrets.never_read
         {
             output.push_str("\nNever read:\n");
-            for p in nr {
-                if let Some(s) = p.as_str() {
-                    output.push_str(&format!("- {}\n", s));
-                }
+            for p in never_read {
+                output.push_str(&format!("- {}\n", p));
             }
         }
     }

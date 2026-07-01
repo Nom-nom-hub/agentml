@@ -41,6 +41,9 @@ pub struct SafetyAst {
     pub secrets_never_read: Vec<String>,
     pub destructive_actions: Vec<DestructiveAction>,
     pub rules: Vec<String>,
+    pub forbidden_paths: Vec<String>,
+    pub forbidden_actions: Vec<String>,
+    pub require_approval: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -3,7 +3,6 @@ use crate::types::AgentFile;
 use anyhow::{Context, Result, anyhow};
 use colored::Colorize;
 use glob::glob;
-use serde_yaml::Value;
 use std::process::Command;
 
 #[derive(Debug, Clone)]
@@ -138,26 +137,16 @@ pub fn check_permissions(files: &[ChangedFile], agent: &AgentFile) -> Vec<(Strin
         .as_ref()
         .and_then(|p| p.write.clone())
         .unwrap_or_default();
-    let forbidden_patterns: Vec<String> = if let Some(safety) = &agent.safety {
-        if let Some(obj) = safety.as_mapping() {
-            if let Some(paths) = obj.get(Value::String("forbidden_paths".to_string())) {
-                if let Some(arr) = paths.as_sequence() {
-                    arr.iter()
-                        .filter_map(|v| v.as_str())
-                        .map(|s| s.to_string())
-                        .collect()
-                } else {
-                    Vec::new()
-                }
-            } else {
-                Vec::new()
-            }
-        } else {
-            Vec::new()
-        }
-    } else {
-        Vec::new()
-    };
+    let forbidden_patterns: Vec<String> = agent
+        .safety
+        .as_ref()
+        .and_then(|s| s.forbidden_paths.clone())
+        .unwrap_or_default();
+    let _require_approval: Vec<String> = agent
+        .safety
+        .as_ref()
+        .and_then(|s| s.require_confirmation.clone())
+        .unwrap_or_default();
 
     for file in files {
         let path = &file.path;

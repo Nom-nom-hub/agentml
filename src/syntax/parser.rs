@@ -363,7 +363,7 @@ impl Parser {
                 self.expect(Token::LBracket)?;
                 while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
                     let t = self.advance()?;
-                    safety.rules.push(match t.token {
+                    safety.forbidden_actions.push(match t.token {
                         Token::String(s) => s,
                         _ => return Err(anyhow!("Expected string")),
                     });
@@ -381,7 +381,7 @@ impl Parser {
                 self.expect(Token::LBracket)?;
                 while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
                     let t = self.advance()?;
-                    safety.rules.push(match t.token {
+                    safety.forbidden_paths.push(match t.token {
                         Token::String(s) => s,
                         _ => return Err(anyhow!("Expected string")),
                     });
@@ -390,13 +390,6 @@ impl Parser {
                     }
                 }
                 let _ = self.advance();
-            }
-            Token::Identifier(ref ident) if ident == "rule" => {
-                let t = self.advance()?;
-                safety.rules.push(match t.token {
-                    Token::String(s) => s,
-                    _ => return Err(anyhow!("Expected string")),
-                });
             }
             Token::Identifier(ref ident) if ident == "require_approval" => {
                 let has_colon = self.current().map(|t| &t.token) == Some(&Token::Colon);
@@ -406,7 +399,7 @@ impl Parser {
                 self.expect(Token::LBracket)?;
                 while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
                     let t = self.advance()?;
-                    safety.rules.push(match t.token {
+                    safety.require_approval.push(match t.token {
                         Token::String(s) => s,
                         _ => return Err(anyhow!("Expected string")),
                     });
@@ -415,6 +408,24 @@ impl Parser {
                     }
                 }
                 let _ = self.advance();
+            }
+            Token::Identifier(ref ident) if ident == "policy" => {
+                let has_colon = self.current().map(|t| &t.token) == Some(&Token::Colon);
+                if has_colon {
+                    let _ = self.advance();
+                }
+                let t = self.advance()?;
+                safety.rules.push(match t.token {
+                    Token::String(s) => s,
+                    _ => return Err(anyhow!("Expected string for policy")),
+                });
+            }
+            Token::Identifier(ref ident) if ident == "rule" => {
+                let t = self.advance()?;
+                safety.rules.push(match t.token {
+                    Token::String(s) => s,
+                    _ => return Err(anyhow!("Expected string")),
+                });
             }
             _ => {}
         }

@@ -30,7 +30,7 @@ validation:
 output:
   format: markdown
 "#;
-    let agent: AgentFile = serde_yaml::from_str(yaml).unwrap();
+    let agent: AgentFile = parser::parse_agent_yaml(yaml).unwrap();
     let report = validator::validate_agent_file(&agent, false);
     assert!(!report.valid);
     assert!(report.errors.iter().any(|e| e.code == "MISSING_PURPOSE"));
@@ -49,7 +49,7 @@ validation:
 output:
   format: markdown
 "#;
-    let agent: AgentFile = serde_yaml::from_str(yaml).unwrap();
+    let agent: AgentFile = parser::parse_agent_yaml(yaml).unwrap();
     let report = validator::validate_agent_file(&agent, false);
     assert!(!report.valid);
     assert!(
@@ -76,7 +76,7 @@ validation:
 output:
   format: markdown
 "#;
-    let agent: AgentFile = serde_yaml::from_str(yaml).unwrap();
+    let agent: AgentFile = parser::parse_agent_yaml(yaml).unwrap();
     let report = validator::validate_agent_file(&agent, false);
     assert!(!report.valid);
     assert!(
@@ -99,7 +99,7 @@ safety:
 output:
   format: markdown
 "#;
-    let agent: AgentFile = serde_yaml::from_str(yaml).unwrap();
+    let agent: AgentFile = parser::parse_agent_yaml(yaml).unwrap();
     let report = validator::validate_agent_file(&agent, false);
     assert!(!report.valid);
     assert!(report.errors.iter().any(|e| e.code == "MISSING_VALIDATION"));
@@ -122,7 +122,7 @@ validation:
 output:
   format: markdown
 "#;
-    let agent: AgentFile = serde_yaml::from_str(yaml).unwrap();
+    let agent: AgentFile = parser::parse_agent_yaml(yaml).unwrap();
     let report = validator::validate_agent_file(&agent, false);
     assert!(report.valid);
     assert!(

@@ -13,13 +13,17 @@ use std::path::Path;
 
 pub fn parse_native_agent(path: &Path) -> Result<AgentFile> {
     let content = std::fs::read_to_string(path)?;
-    let ast = crate::syntax::parser::parse_agent(&content)?;
+    let ast = parser::parse_agent(&content)?;
     convert_ast_to_agent(&ast)
+}
+
+pub fn parse_agent(content: &str) -> Result<crate::syntax::ast::AgentAst> {
+    parser::parse_agent(content)
 }
 
 pub fn parse_native_skill(path: &Path) -> Result<SkillFile> {
     let content = std::fs::read_to_string(path)?;
-    let ast = crate::syntax::parser::parse_skill(&content)?;
+    let ast = parser::parse_skill(&content)?;
     convert_ast_to_skill(&ast)
 }
 

@@ -92,23 +92,11 @@ fn generate_md_output(
         .and_then(|p| p.write.clone())
         .unwrap_or_default();
 
-    let forbidden: Vec<String> = if let Some(safety) = &agent.safety {
-        if let Some(obj) = safety.as_mapping() {
-            obj.get(serde_yaml::Value::String("forbidden_paths".to_string()))
-                .and_then(|v| v.as_sequence())
-                .map(|arr| {
-                    arr.iter()
-                        .filter_map(|v| v.as_str())
-                        .map(|s| s.to_string())
-                        .collect()
-                })
-                .unwrap_or_default()
-        } else {
-            vec![]
-        }
-    } else {
-        vec![]
-    };
+    let forbidden: Vec<String> = agent
+        .safety
+        .as_ref()
+        .and_then(|s| s.forbidden_paths.clone())
+        .unwrap_or_default();
 
     let validation: Vec<String> = agent
         .validation
@@ -222,23 +210,11 @@ fn generate_json_output(
         .and_then(|p| p.write.clone())
         .unwrap_or_default();
 
-    let forbidden: Vec<String> = if let Some(safety) = &agent.safety {
-        if let Some(obj) = safety.as_mapping() {
-            obj.get(serde_yaml::Value::String("forbidden_paths".to_string()))
-                .and_then(|v| v.as_sequence())
-                .map(|arr| {
-                    arr.iter()
-                        .filter_map(|v| v.as_str())
-                        .map(|s| s.to_string())
-                        .collect()
-                })
-                .unwrap_or_default()
-        } else {
-            vec![]
-        }
-    } else {
-        vec![]
-    };
+    let forbidden: Vec<String> = agent
+        .safety
+        .as_ref()
+        .and_then(|s| s.forbidden_paths.clone())
+        .unwrap_or_default();
 
     let validation: Vec<String> = agent
         .validation

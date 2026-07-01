@@ -46,17 +46,23 @@ agent "rust-cli-maintainer" {
   }
 
   safety {
+    policy: "Never commit secrets. Use environment variables and .env files are forbidden."
+    forbidden_paths [
+      ".env"
+      ".env.*"
+      "*.pem"
+      "*.key"
+      ".git/**"
+      "target/**"
+    ]
     forbidden_actions [
       "rm -rf"
       "git reset --hard"
       "git clean -fd"
       "cargo publish"
     ]
-    forbidden_paths [
-      ".env"
-      ".env.*"
-      "*.pem"
-      "*.key"
+    require_approval [
+      "cargo publish"
     ]
   }
 
@@ -64,5 +70,9 @@ agent "rust-cli-maintainer" {
     command "cargo fmt --check"
     command "cargo clippy --all-targets -- -D warnings"
     command "cargo test"
+  }
+
+  output {
+    required ["summary", "changes", "tests", "risks"]
   }
 }
