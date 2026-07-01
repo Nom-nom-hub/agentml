@@ -42,7 +42,9 @@ fn convert_yaml_to_native(content: &str) -> anyhow::Result<String> {
         .unwrap_or_default();
     output.push_str(&format!("agent \"{}\" {{\n", name));
 
-    if let Some(ref meta) = agent.meta && !meta.version.is_empty() {
+    if let Some(ref meta) = agent.meta
+        && !meta.version.is_empty()
+    {
         output.push_str(&format!("  version \"{}\"\n", meta.version));
     }
 
@@ -108,10 +110,14 @@ fn convert_yaml_to_native(content: &str) -> anyhow::Result<String> {
         output.push_str("  }\n");
     }
 
-    if let Some(ref safety) = agent.safety && let Some(obj) = safety.as_mapping() {
+    if let Some(ref safety) = agent.safety
+        && let Some(obj) = safety.as_mapping()
+    {
         output.push_str("  safety {\n");
         let key = serde_yaml::Value::String("forbidden_actions".to_string());
-        if let Some(rules) = obj.get(&key) && let Some(r) = rules.as_sequence() {
+        if let Some(rules) = obj.get(&key)
+            && let Some(r) = rules.as_sequence()
+        {
             output.push_str(&format!(
                 "    forbidden_actions: [{}]\n",
                 r.iter()
