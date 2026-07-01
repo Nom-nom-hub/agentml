@@ -21,14 +21,28 @@ fn main() -> Result<()> {
             no_agents_md,
             no_context,
             no_brief,
+            syntax,
         }) => {
             if force {
                 unsafe { std::env::set_var("AGENTML_FORCE_INIT", "1") };
             }
-            agentml::commands::init::run(path, template, detect, no_agents_md, no_context, no_brief)
+            agentml::commands::init::run(
+                path,
+                template,
+                detect,
+                no_agents_md,
+                no_context,
+                no_brief,
+                syntax.as_deref(),
+            )
         }
-        Some(agentml::cli::Commands::Validate { file, strict }) => {
-            agentml::commands::validate::run(file, strict)
+        Some(agentml::cli::Commands::Validate {
+            file,
+            strict,
+            format,
+        }) => {
+            let fmt = format.unwrap_or_else(|| "auto".to_string());
+            agentml::commands::validate::run(file, strict, &fmt)
         }
         Some(agentml::cli::Commands::Inspect {}) => agentml::commands::inspect::run(),
         Some(agentml::cli::Commands::Run { task, file }) => agentml::commands::run::run(file, task),
@@ -50,8 +64,9 @@ fn main() -> Result<()> {
             agentml::commands::agents_md::run(write, force)
         }
         Some(agentml::cli::Commands::Skill { skill }) => match skill {
-            agentml::cli::SkillCommands::Validate { file } => {
-                agentml::commands::skill::validate::run(file)
+            agentml::cli::SkillCommands::Validate { file, format } => {
+                let fmt = format.unwrap_or_else(|| "auto".to_string());
+                agentml::commands::skill::validate::run(file, &fmt)
             }
             agentml::cli::SkillCommands::Pack { folder } => {
                 agentml::commands::skill::pack::run(folder)
@@ -71,6 +86,12 @@ fn main() -> Result<()> {
         }) => agentml::commands::close::run(json, require_clean, fail_at_risk, write_report),
         Some(agentml::cli::Commands::Diff {}) => agentml::commands::diff::run(),
         Some(agentml::cli::Commands::Doctor {}) => agentml::commands::doctor::run(),
+        Some(agentml::cli::Commands::Convert {
+            to,
+            write,
+            backup,
+            file,
+        }) => agentml::commands::convert::run(&to, write, backup, file),
         None => {
             eprintln!("No command provided. Use --help for usage.");
             std::process::exit(1);

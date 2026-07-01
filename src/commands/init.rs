@@ -13,6 +13,7 @@ pub fn run(
     no_agents_md: bool,
     no_context: bool,
     no_brief: bool,
+    syntax: Option<&str>,
 ) -> Result<()> {
     let target = path;
     fs::create_dir_all(&target)?;
@@ -30,12 +31,35 @@ pub fn run(
     let (template_content, _template_name) = if detect {
         let info = detect_project()?;
         print_inspect(&info);
-        (generate_detected_template(&info), "detected".to_string())
+        if syntax == Some("native") {
+            (
+                generate_detected_native_template(&info),
+                "detected".to_string(),
+            )
+        } else {
+            (generate_detected_template(&info), "detected".to_string())
+        }
     } else {
-        match template.as_deref() {
-            Some("rust-cli") => (rust_cli_template(), "rust-cli".to_string()),
-            Some("nextjs-app") => (nextjs_app_template(), "nextjs-app".to_string()),
-            Some("python-package") => (python_package_template(), "python-package".to_string()),
+        match (template.as_deref(), syntax) {
+            (Some("rust-cli"), Some("native")) => {
+                (rust_cli_native_template(), "rust-cli".to_string())
+            }
+            (Some("nextjs-app"), Some("native")) => {
+                (nextjs_app_native_template(), "nextjs-app".to_string())
+            }
+            (Some("python-package"), Some("native")) => (
+                python_package_native_template(),
+                "python-package".to_string(),
+            ),
+            (Some("node-package"), Some("native")) => {
+                (node_package_native_template(), "node-package".to_string())
+            }
+            (None, Some("native")) => (generic_native_template(), "generic".to_string()),
+            (Some("rust-cli"), None) => (rust_cli_template(), "rust-cli".to_string()),
+            (Some("nextjs-app"), None) => (nextjs_app_template(), "nextjs-app".to_string()),
+            (Some("python-package"), None) => {
+                (python_package_template(), "python-package".to_string())
+            }
             _ => (generic_template(), "generic".to_string()),
         }
     };
@@ -545,4 +569,253 @@ jobs:
       - run: cargo run -- skill validate skills/*.skill
       - run: cargo run -- self-check
 "#
+}
+
+fn generic_native_template() -> String {
+    r#"agent "my-project" {
+  version "1.0.0"
+  description "Short description of what this agent should do"
+
+  purpose {
+    human_goal "Describe the agent's purpose and what it is allowed to do."
+    agent_goal "Be specific about goals and constraints."
+    non_goals ["Delete production data", "Expose secrets"]
+  }
+
+  context {
+    stack: ["Generic"]
+  }
+
+  permissions {
+    read: ["**/*.md", "**/*.json", "**/*.toml", "**/*.yaml", "**/*.yml", "src/**", "app/**", "pages/**", "components/**", "tests/**"]
+    write: ["src/**", "app/**", "pages/**", "components/**", "tests/**", "docs/**", "README.md"]
+    execute: ["npm run", "cargo", "python"]
+  }
+
+  safety {
+    forbidden_actions: ["rm -rf", "git push --force", "npm publish", "cargo publish"]
+    require_approval: ["git push", "npm run db:migrate"]
+  }
+
+  validation {
+    command: "npm run lint"
+  }
+
+  output {
+    required: ["changes", "tests", "risks"]
+  }
+}
+"#
+    .to_string()
+}
+
+fn rust_cli_native_template() -> String {
+    r#"agent "my-rust-cli" {
+  version "1.0.0"
+
+  purpose {
+    human_goal "AI agent for developing and maintaining a Rust CLI application."
+    agent_goal "Help with feature development, bug fixes, and code quality."
+    non_goals ["Delete production code", "Publish to crates.io without review"]
+  }
+
+  context {
+    stack: ["Rust"]
+  }
+
+  permissions {
+    read: ["**/*.rs", "**/Cargo.toml", "**/*.md"]
+    write: ["src/**/*.rs", "Cargo.toml"]
+    execute: ["cargo", "rustfmt", "clippy"]
+  }
+
+  safety {
+    forbidden_actions: ["cargo publish", "rm -rf src"]
+    require_approval: ["cargo publish", "cargo install"]
+  }
+
+  validation {
+    command: "cargo fmt -- --check"
+    command: "cargo clippy -- -D warnings"
+    command: "cargo test"
+  }
+
+  output {
+    required: ["changes", "tests", "risks"]
+  }
+}
+"#
+    .to_string()
+}
+
+fn nextjs_app_native_template() -> String {
+    r#"agent "my-nextjs-app" {
+  version "1.0.0"
+
+  purpose {
+    human_goal "AI agent for building and maintaining a Next.js application."
+    agent_goal "Help with feature development, bug fixes, and code quality."
+    non_goals ["Delete production data", "Push to production without review"]
+  }
+
+  context {
+    stack: ["TypeScript", "Next.js"]
+  }
+
+  permissions {
+    read: ["**/*.ts", "**/*.tsx", "**/*.json", "**/*.md"]
+    write: ["src/**/*.ts", "src/**/*.tsx", "app/**/*.tsx"]
+    execute: ["npm run", "npx"]
+  }
+
+  safety {
+    forbidden_actions: ["git push --force", "rm -rf src"]
+    require_approval: ["git push", "npm run db:migrate"]
+  }
+
+  validation {
+    command: "npm run lint"
+    command: "npm run typecheck"
+    command: "npm test"
+  }
+
+  output {
+    required: ["changes", "tests", "risks"]
+  }
+}
+"#
+    .to_string()
+}
+
+fn python_package_native_template() -> String {
+    r#"agent "my-python-package" {
+  version "1.0.0"
+
+  purpose {
+    human_goal "AI agent for developing and maintaining a Python package."
+    agent_goal "Help with feature development, bug fixes, and code quality."
+    non_goals ["Delete production code", "Publish to PyPI without review"]
+  }
+
+  context {
+    stack: ["Python"]
+  }
+
+  permissions {
+    read: ["**/*.py", "**/pyproject.toml", "**/*.md"]
+    write: ["src/**/*.py", "tests/**/*.py", "pyproject.toml"]
+    execute: ["python", "pytest", "ruff"]
+  }
+
+  safety {
+    forbidden_actions: ["rm -rf src", "git push --force"]
+    require_approval: ["git push", "twine upload"]
+  }
+
+  validation {
+    command: "ruff check ."
+    command: "pytest"
+  }
+
+  output {
+    required: ["changes", "tests", "risks"]
+  }
+}
+"#
+    .to_string()
+}
+
+fn node_package_native_template() -> String {
+    r#"agent "my-node-package" {
+  version "1.0.0"
+
+  purpose {
+    human_goal "AI agent for developing and maintaining a Node.js/NPM package."
+    agent_goal "Help with feature development, bug fixes, and code quality."
+    non_goals ["Delete production code", "Publish to NPM without review"]
+  }
+
+  context {
+    stack: ["Node", "JavaScript"]
+  }
+
+  permissions {
+    read: ["**/*.js", "**/*.ts", "**/*.json", "**/*.md"]
+    write: ["src/**/*.js", "src/**/*.ts", "package.json", "README.md"]
+    execute: ["npm run", "npx"]
+  }
+
+  safety {
+    forbidden_actions: ["git push --force", "rm -rf src"]
+    require_approval: ["git push", "npm publish"]
+  }
+
+  validation {
+    command: "npm run lint"
+    command: "npm test"
+  }
+
+  output {
+    required: ["changes", "tests", "risks"]
+  }
+}
+"#
+    .to_string()
+}
+
+fn generate_detected_native_template(info: &crate::detect::ProjectInfo) -> String {
+    let read_patterns: Vec<String> = info
+        .important_files
+        .iter()
+        .map(|f| format!("      \"{}\"", f))
+        .collect();
+    let validation: String = info
+        .validation_commands
+        .iter()
+        .map(|c| format!("    command: \"{}\"", c))
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    format!(
+        r#"agent "detected-project" {{
+  version "1.0.0"
+  description "Auto-detected project contract"
+
+  purpose {{
+    human_goal "AI agent for working with this detected project."
+    agent_goal "Project type: {}"
+    non_goals ["Delete production data", "Expose secrets"]
+  }}
+
+  context {{
+    stack: ["{}"]
+  }}
+
+  permissions {{
+    read: [
+{}
+    ]
+    write: ["src/**/*", "docs/**/*"]
+    execute: ["npm run", "cargo", "python"]
+  }}
+
+  safety {{
+    forbidden_actions: ["rm -rf src", "git push --force"]
+    require_approval: ["git push"]
+  }}
+
+  validation {{
+{}
+  }}
+
+  output {{
+    required: ["summary", "changes", "tests"]
+  }}
+}}
+"#,
+        info.project_type,
+        info.project_type.to_lowercase().replace(" ", "-"),
+        read_patterns.join("\n"),
+        validation
+    )
 }

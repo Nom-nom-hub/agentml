@@ -28,12 +28,16 @@ pub enum Commands {
         no_context: bool,
         #[arg(long)]
         no_brief: bool,
+        #[arg(long)]
+        syntax: Option<String>,
     },
     #[command(alias = "check")]
     Validate {
         file: PathBuf,
         #[arg(short, long)]
         strict: bool,
+        #[arg(long)]
+        format: Option<String>,
     },
     Run {
         task: String,
@@ -86,13 +90,30 @@ pub enum Commands {
         shell: String,
     },
     Version {},
+    Convert {
+        #[arg(long)]
+        to: String,
+        #[arg(long)]
+        write: bool,
+        #[arg(long)]
+        backup: bool,
+        file: PathBuf,
+    },
 }
 
 #[derive(Subcommand, Debug)]
 pub enum SkillCommands {
-    Validate { file: PathBuf },
-    Pack { folder: PathBuf },
+    Validate {
+        file: PathBuf,
+        #[arg(long)]
+        format: Option<String>,
+    },
+    Pack {
+        folder: PathBuf,
+    },
     List,
-    Inspect { path: String },
+    Inspect {
+        path: String,
+    },
     Match,
 }

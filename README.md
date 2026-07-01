@@ -58,8 +58,9 @@ agentml mcp
 ## Basic Commands
 
 ```
-agentml init [path] [--template <generic|rust-cli|nextjs-app|python-package>] [--detect] [--force] [--no-agents-md] [--no-context] [--no-brief]
-agentml validate <file> [--strict]
+agentml init [path] [--template <generic|rust-cli|nextjs-app|python-package>] [--detect] [--syntax <yaml|native>] [--force] [--no-agents-md] [--no-context] [--no-brief]
+agentml validate <file> [--strict] [--format <auto|native|yaml>]
+agentml convert --to native <file> [--write] [--backup]
 agentml inspect
 agentml run <task> [file]
 agentml context [file] [--output <path>]
@@ -77,6 +78,8 @@ agentml mcp
 ---
 
 ## Example: AGENT.agent
+
+### YAML Syntax (Default)
 
 ```yaml
 meta:
@@ -128,6 +131,48 @@ output:
     - "tests"
     - "risks"
 ```
+
+### Native Syntax (Experimental)
+
+```agentml
+agent "my-project" {
+  version "1.0.0"
+  description "Rust CLI application"
+
+  purpose {
+    human_goal "Maintain Rust CLI projects safely"
+    agent_goal "Help with feature development and bug fixes"
+    non_goals ["Delete production code"]
+  }
+
+  context {
+    stack: ["Rust"]
+  }
+
+  permissions {
+    read: ["**/*.rs", "**/Cargo.toml"]
+    write: ["src/**/*.rs"]
+    execute: ["cargo", "rustfmt", "clippy"]
+  }
+
+  safety {
+    forbidden_actions: ["cargo publish", "rm -rf src"]
+    require_approval: ["cargo publish"]
+  }
+
+  validation {
+    command: "cargo fmt -- --check"
+    command: "cargo clippy -- -D warnings"
+    command: "cargo test"
+  }
+
+  output {
+    required: ["changes", "tests", "risks"]
+  }
+}
+```
+
+Native syntax is experimental. Use `--format native` or `--syntax native` to enable.
 
 ---
 
