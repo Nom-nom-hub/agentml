@@ -4,7 +4,7 @@ Native AgentML syntax is an experimental feature under development on the `feat/
 
 ## Status
 
-**Experimental**: Native syntax is not yet stable. YAML-compatible syntax remains the default for v0.3.0.
+**Experimental**: Native syntax is on `main` and planned for v0.4.0 after stabilization. YAML-compatible syntax remains the default for v0.3.0.
 
 ## Purpose
 

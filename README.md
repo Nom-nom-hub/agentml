@@ -172,7 +172,7 @@ agent "my-project" {
 }
 ```
 
-Native syntax is experimental. Use `--format native` or `--syntax native` to enable.
+Native syntax is experimental on main and planned for the v0.4.0 release after stabilization. YAML-compatible syntax remains the current public default in v0.3.0. Use `--format native` or `--syntax native` to enable.
 
 ---
 

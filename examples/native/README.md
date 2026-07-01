@@ -9,15 +9,7 @@ This directory contains examples of AgentML's native syntax, which is currently 
 
 ## Status
 
-Native syntax features:
-- [x] Lexer tokenizing identifiers, strings, numbers, booleans, tokens
-- [x] Parser for agent and skill blocks with nested fields
-- [x] AST types for AgentAst and SkillAst
-- [x] Auto-detection for native vs YAML syntax
-- [x] Native examples validate
-- [ ] Format flags (`--format native/yaml/auto`)
-- [ ] Native init support
-- [ ] Conversion command
+Native syntax is experimental on main and planned for the v0.4.0 release after stabilization. YAML-compatible syntax remains the current public default in v0.3.0.
 
 ## Usage
 
