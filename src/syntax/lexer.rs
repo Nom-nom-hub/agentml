@@ -13,6 +13,7 @@ pub enum Token {
     RBrace,
     LBracket,
     RBracket,
+    Colon,
     Comma,
     Newline,
     Eof,
@@ -63,6 +64,9 @@ impl Lexer {
         let token = if ch == '#' {
             self.skip_comment();
             return self.next_token();
+        } else if ch == ':' {
+            self.advance();
+            Token::Colon
         } else if ch == '{' {
             self.advance();
             Token::LBrace

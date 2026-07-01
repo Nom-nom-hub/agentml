@@ -21,16 +21,13 @@ Native syntax provides:
 ```agentml
 agent "project-name" {
   version "0.4.0"
-  contract_version 1
   description "Project description"
-}
 
-purpose {
-  human_goal "For humans"
-  agent_goal "For agents"
-  non_goals [
-    "Do not do X"
-  ]
+  purpose {
+    human_goal "For humans"
+    agent_goal "For agents"
+    non_goals ["Do not do X"]
+  }
 }
 ```
 
@@ -50,20 +47,28 @@ Optional. Contains stack and important files.
 
 ### `permissions` block
 
-Optional. Contains read, write, and forbidden paths.
+Optional. Contains read, write, and execute paths.
+
+### `safety` block
+
+Optional. Contains forbidden_actions, require_approval, and other safety rules.
 
 ### `validation` block
 
 Optional. Contains validation commands.
+
+### `output` block
+
+Optional. Contains required output sections.
 
 ## Lists
 
 Use brackets for lists:
 
 ```agentml
-stack ["Rust", "CLI"]
+stack: ["Rust", "CLI"]
 
-read [
+read: [
   "**/*.rs"
   "**/*.md"
 ]
@@ -87,6 +92,37 @@ Start with `#`:
 version "0.4.0"
 ```
 
+## Using Native Syntax
+
+### Validate a native file
+
+```bash
+agentml validate AGENT.agent --format native
+```
+
+### Initialize with native syntax
+
+```bash
+agentml init --template rust-cli --syntax native
+```
+
+Available templates:
+- `generic` - Generic project
+- `rust-cli` - Rust CLI application
+- `nextjs-app` - Next.js application
+- `python-package` - Python package
+- `node-package` - Node.js/NPM package
+
+### Convert from YAML to native
+
+```bash
+agentml convert --to native AGENT.agent
+```
+
+Options:
+- `--write` - Write to file instead of stdout
+- `--backup` - Create `.bak` file before overwriting
+
 ## Error Messages
 
 Parser errors include line and column:
@@ -97,14 +133,6 @@ AgentML parse error at line 12, column 5:
 
 Suggestion:
 Add `]` after the final write path.
-```
-
-## Conversion
-
-Convert YAML to native:
-
-```bash
-agentml convert --to native AGENT.agent
 ```
 
 ## Future

@@ -185,32 +185,56 @@ impl Parser {
         let token = self.advance()?;
         match token.token {
             Token::Identifier(ref ident) if ident == "stack" => {
-                self.expect(Token::LBracket)?;
-                while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
+                if self.current().map(|t| &t.token) == Some(&Token::Colon) {
+                    let _ = self.advance();
+                }
+                let is_bracket = self.current().map(|t| &t.token) == Some(&Token::LBracket);
+                if is_bracket {
+                    self.expect(Token::LBracket)?;
+                    while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
+                        let t = self.advance()?;
+                        context.stack.push(match t.token {
+                            Token::String(s) => s,
+                            _ => return Err(anyhow!("Expected string in stack")),
+                        });
+                        if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                            let _ = self.advance();
+                        }
+                    }
+                    let _ = self.advance();
+                } else {
                     let t = self.advance()?;
                     context.stack.push(match t.token {
                         Token::String(s) => s,
                         _ => return Err(anyhow!("Expected string in stack")),
                     });
-                    if self.current().map(|t| &t.token) == Some(&Token::Comma) {
-                        let _ = self.advance();
-                    }
                 }
-                let _ = self.advance();
             }
             Token::Identifier(ref ident) if ident == "important_files" => {
-                self.expect(Token::LBracket)?;
-                while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
+                if self.current().map(|t| &t.token) == Some(&Token::Colon) {
+                    let _ = self.advance();
+                }
+                let is_bracket = self.current().map(|t| &t.token) == Some(&Token::LBracket);
+                if is_bracket {
+                    self.expect(Token::LBracket)?;
+                    while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
+                        let t = self.advance()?;
+                        context.important_files.push(match t.token {
+                            Token::String(s) => s,
+                            _ => return Err(anyhow!("Expected string in important_files")),
+                        });
+                        if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                            let _ = self.advance();
+                        }
+                    }
+                    let _ = self.advance();
+                } else {
                     let t = self.advance()?;
                     context.important_files.push(match t.token {
                         Token::String(s) => s,
                         _ => return Err(anyhow!("Expected string in important_files")),
                     });
-                    if self.current().map(|t| &t.token) == Some(&Token::Comma) {
-                        let _ = self.advance();
-                    }
                 }
-                let _ = self.advance();
             }
             _ => {}
         }
@@ -224,6 +248,10 @@ impl Parser {
         let token = self.advance()?;
         match token.token {
             Token::Identifier(ref ident) if ident == "read" => {
+                let has_colon = self.current().map(|t| &t.token) == Some(&Token::Colon);
+                if has_colon {
+                    let _ = self.advance();
+                }
                 self.expect(Token::LBracket)?;
                 while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
                     let t = self.advance()?;
@@ -238,6 +266,10 @@ impl Parser {
                 let _ = self.advance();
             }
             Token::Identifier(ref ident) if ident == "write" => {
+                let has_colon = self.current().map(|t| &t.token) == Some(&Token::Colon);
+                if has_colon {
+                    let _ = self.advance();
+                }
                 self.expect(Token::LBracket)?;
                 while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
                     let t = self.advance()?;
@@ -251,7 +283,29 @@ impl Parser {
                 }
                 let _ = self.advance();
             }
+            Token::Identifier(ref ident) if ident == "execute" => {
+                let has_colon = self.current().map(|t| &t.token) == Some(&Token::Colon);
+                if has_colon {
+                    let _ = self.advance();
+                }
+                self.expect(Token::LBracket)?;
+                while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
+                    let t = self.advance()?;
+                    permissions.execute.push(match t.token {
+                        Token::String(s) => s,
+                        _ => return Err(anyhow!("Expected string")),
+                    });
+                    if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                        let _ = self.advance();
+                    }
+                }
+                let _ = self.advance();
+            }
             Token::Identifier(ref ident) if ident == "forbidden" => {
+                let has_colon = self.current().map(|t| &t.token) == Some(&Token::Colon);
+                if has_colon {
+                    let _ = self.advance();
+                }
                 self.expect(Token::LBracket)?;
                 while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
                     let t = self.advance()?;
@@ -277,6 +331,10 @@ impl Parser {
         let token = self.advance()?;
         match token.token {
             Token::Identifier(ref ident) if ident == "command" => {
+                let has_colon = self.current().map(|t| &t.token) == Some(&Token::Colon);
+                if has_colon {
+                    let _ = self.advance();
+                }
                 let t = self.advance()?;
                 validation.commands.push(match t.token {
                     Token::String(s) => s,
@@ -292,6 +350,28 @@ impl Parser {
         let token = self.advance()?;
         match token.token {
             Token::Identifier(ref ident) if ident == "forbidden_actions" => {
+                let has_colon = self.current().map(|t| &t.token) == Some(&Token::Colon);
+                if has_colon {
+                    let _ = self.advance();
+                }
+                self.expect(Token::LBracket)?;
+                while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
+                    let t = self.advance()?;
+                    safety.rules.push(match t.token {
+                        Token::String(s) => s,
+                        _ => return Err(anyhow!("Expected string")),
+                    });
+                    if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                        let _ = self.advance();
+                    }
+                }
+                let _ = self.advance();
+            }
+            Token::Identifier(ref ident) if ident == "forbidden_paths" => {
+                let has_colon = self.current().map(|t| &t.token) == Some(&Token::Colon);
+                if has_colon {
+                    let _ = self.advance();
+                }
                 self.expect(Token::LBracket)?;
                 while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
                     let t = self.advance()?;
@@ -311,6 +391,24 @@ impl Parser {
                     Token::String(s) => s,
                     _ => return Err(anyhow!("Expected string")),
                 });
+            }
+            Token::Identifier(ref ident) if ident == "require_approval" => {
+                let has_colon = self.current().map(|t| &t.token) == Some(&Token::Colon);
+                if has_colon {
+                    let _ = self.advance();
+                }
+                self.expect(Token::LBracket)?;
+                while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
+                    let t = self.advance()?;
+                    safety.rules.push(match t.token {
+                        Token::String(s) => s,
+                        _ => return Err(anyhow!("Expected string")),
+                    });
+                    if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                        let _ = self.advance();
+                    }
+                }
+                let _ = self.advance();
             }
             _ => {}
         }
@@ -438,6 +536,10 @@ impl Parser {
                     if let Token::Identifier(kw) = &t.token
                         && kw == "required"
                     {
+                        let has_colon = self.current().map(|t| &t.token) == Some(&Token::Colon);
+                        if has_colon {
+                            let _ = self.advance();
+                        }
                         self.expect(Token::LBracket)?;
                         while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
                             let str_token = self.advance()?;

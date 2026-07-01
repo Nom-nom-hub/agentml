@@ -3,6 +3,7 @@ pub mod brief;
 pub mod close;
 pub mod completions;
 pub mod context;
+pub mod convert;
 pub mod diff;
 pub mod doctor;
 pub mod init;

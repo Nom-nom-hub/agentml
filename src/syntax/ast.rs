@@ -32,6 +32,7 @@ pub struct ContextAst {
 pub struct PermissionsAst {
     pub read: Vec<String>,
     pub write: Vec<String>,
+    pub execute: Vec<String>,
     pub forbidden: Vec<String>,
 }
 
