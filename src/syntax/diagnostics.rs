@@ -34,3 +34,27 @@ pub fn format_diagnostic(d: &Diagnostic) -> String {
     }
     msg
 }
+
+#[allow(dead_code)]
+pub fn unexpected_eof(line: usize, column: usize, expected: &str) -> String {
+    format!(
+        "AgentML parse error at line {}, column {}:\n  Unexpected end of input. Expected {}.\n",
+        line, column, expected
+    )
+}
+
+#[allow(dead_code)]
+pub fn unterminated_string(line: usize, column: usize) -> String {
+    format!(
+        "AgentML parse error at line {}, column {}:\n  Unterminated string literal.\nSuggestion: Add closing `\"` at the end of the string.\n",
+        line, column
+    )
+}
+
+#[allow(dead_code)]
+pub fn unknown_field(line: usize, column: usize, field: &str) -> String {
+    format!(
+        "AgentML parse warning at line {}, column {}:\n  Unknown field `{}`. This section will be ignored.\n",
+        line, column, field
+    )
+}

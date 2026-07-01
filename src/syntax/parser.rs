@@ -1,3 +1,4 @@
+use crate::syntax::diagnostics::Diagnostic;
 use crate::syntax::lexer::{Lexer, Token, TokenWithPos};
 use anyhow::{Result, anyhow};
 
@@ -42,12 +43,17 @@ impl Parser {
     fn expect(&mut self, expected: Token) -> Result<TokenWithPos> {
         let token = self.advance()?;
         if token.token != expected {
-            return Err(anyhow!(
-                "Expected {:?}, got {:?} at line {}, column {}",
-                expected,
-                token.token,
+            let diag = Diagnostic::new(
+                format!("Expected {:?}, got {:?}", expected, token.token),
                 token.line,
-                token.column
+                token.column,
+            )
+            .with_suggestion(
+                "Check the syntax for this section and ensure all blocks are properly closed.",
+            );
+            return Err(anyhow!(
+                "{}",
+                crate::syntax::diagnostics::format_diagnostic(&diag)
             ));
         }
         Ok(token)
