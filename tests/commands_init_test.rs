@@ -1,31 +1,36 @@
-use agentml::validator;
-
-fn validate_native(content: &str) -> bool {
-    let ast = agentml::syntax::parse_agent(content).unwrap();
-    let agent = agentml::syntax::convert_ast_to_agent(&ast).unwrap();
-    validator::validate_agent_file(&agent, false).valid
-}
-
 const GENERIC_NATIVE: &str = r#"agent "my-project" {
   version "1.0.0"
+
+  purpose {
+    human_goal "Test the generic native template"
+    agent_goal "Validate generic native template"
+    non_goals ["Do no harm"]
+  }
+
   context {
     stack ["Generic"]
   }
+
   permissions {
     read ["**/*.md"]
     write ["src/**"]
     execute ["npm run"]
   }
+
   safety {
     policy "Never commit secrets."
     forbidden_paths [".env"]
     forbidden_actions ["rm -rf"]
-    require_approval ["git push"]
+    require_approval ["rm -rf"]
   }
+
   validation {
     command "npm run lint"
+    success "Tests pass"
   }
+
   output {
+    format markdown
     required ["changes", "tests"]
   }
 }
@@ -39,5 +44,12 @@ fn generic_native_template_uses_canonical_stack_syntax() {
 
 #[test]
 fn generic_native_template_validates() {
-    assert!(validate_native(GENERIC_NATIVE));
+    let ast = agentml::syntax::parse_agent(GENERIC_NATIVE).unwrap();
+    let agent = agentml::syntax::convert_ast_to_agent(&ast).unwrap();
+    let report = agentml::validator::validate_agent_file(&agent, false);
+    assert!(
+        report.valid,
+        "Generic native template should validate. Errors: {:?}, Warnings: {:?}",
+        report.errors, report.warnings
+    );
 }

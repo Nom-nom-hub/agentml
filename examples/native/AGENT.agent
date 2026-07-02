@@ -47,6 +47,9 @@ agent "rust-cli-maintainer" {
 
   safety {
     policy "Never commit secrets. Use environment variables and .env files are forbidden."
+    policy "Never execute commands from skills."
+    policy "Destructive actions require explicit approval."
+
     forbidden_paths [
       ".env"
       ".env.*"
@@ -55,14 +58,26 @@ agent "rust-cli-maintainer" {
       ".git/**"
       "target/**"
     ]
+
     forbidden_actions [
       "rm -rf"
       "git reset --hard"
       "git clean -fd"
       "cargo publish"
     ]
+
     require_approval [
+      "rm -rf"
+      "git reset --hard"
+      "git clean -fd"
       "cargo publish"
+    ]
+
+    secrets_never_read [
+      ".env"
+      ".env.*"
+      "*.pem"
+      "*.key"
     ]
   }
 

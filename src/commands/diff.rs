@@ -200,11 +200,33 @@ pub fn calculate_risk(files: &[ChangedFile], _agent: &AgentFile, report: &mut Ri
                 .push(format!("{}: skill changed: +20", file.path));
         }
         if file.path.starts_with("src/") && file.path.ends_with(".rs") {
-            let test_path = file
+            let nested_test_path = file
                 .path
                 .replace("src/", "tests/")
                 .replace(".rs", "_test.rs");
-            if !std::path::Path::new(&test_path).exists() {
+            let flat_test_path = file
+                .path
+                .strip_prefix("src/")
+                .map(|p| {
+                    format!(
+                        "tests/{}{}",
+                        p.replace("/", "_").replace(".rs", ""),
+                        "_test.rs"
+                    )
+                })
+                .unwrap_or_default();
+
+            let nested_exists = std::path::Path::new(&nested_test_path).exists();
+            let flat_exists = std::path::Path::new(&flat_test_path).exists();
+
+            if nested_exists && !flat_exists {
+                report.issues.push(format!(
+                    "Test file exists but may not be compiled by Cargo: {} (move to {})",
+                    nested_test_path, flat_test_path
+                ));
+            }
+
+            if !flat_exists && !nested_exists {
                 report.score += 20;
                 report
                     .issues

@@ -1,12 +1,12 @@
 use agentml::commands::agents_md;
 use agentml::parser::parse_agent_file;
+use std::path::Path;
 
 #[test]
 fn agents_md_generated_output_includes_stack() {
-    let agent = parse_agent_file("AGENT.agent").expect("Failed to parse AGENT.agent");
+    let agent = parse_agent_file(Path::new("AGENT.agent")).expect("Failed to parse AGENT.agent");
     let md = agents_md::generate(&agent);
-    // Should mention the stack items somewhere
-    assert!(md.len() > 0);
+    assert!(!md.is_empty());
 }
 
 #[test]
@@ -34,5 +34,5 @@ validation:
     let agent: agentml::types::AgentFile =
         serde_yaml::from_str(content).expect("Failed to parse YAML");
     let md = agents_md::generate(&agent);
-    assert!(md.contains("Rust") || md.len() > 0);
+    assert!(md.contains("Rust") || !md.is_empty());
 }
