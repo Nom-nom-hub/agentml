@@ -152,7 +152,7 @@ pub fn convert_yaml_to_native(content: &str) -> anyhow::Result<String> {
             lines.push(format!("    require_approval [{}]", items.join(", ")));
         }
         if let Some(ref policy) = safety.policy {
-            lines.push(format!("    policy: \"{}\"", policy));
+            lines.push(format!("    policy \"{}\"", policy));
         }
         lines.push("  }".to_string());
     }
@@ -275,6 +275,24 @@ context:
 "#;
         let output = convert_yaml_to_native(yaml).unwrap();
         assert!(output.contains(r#"stack ["rust-cli", "rust", "shell", "clap"]"#));
+    }
+
+    #[test]
+    fn convert_outputs_canonical_policy_syntax() {
+        let yaml = r#"
+meta:
+  name: test
+  version: "1.0.0"
+safety:
+  policy: "Never commit secrets"
+  forbidden_paths:
+    - ".env"
+  forbidden_actions:
+    - "rm -rf"
+"#;
+        let output = convert_yaml_to_native(yaml).unwrap();
+        assert!(output.contains(r#"policy "Never commit secrets""#));
+        assert!(!output.contains("policy:"));
     }
 
     #[test]

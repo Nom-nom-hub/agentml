@@ -56,7 +56,7 @@ Contains safety rules. Supports:
 - `forbidden_paths` - List of paths agent cannot access
 - `forbidden_actions` - List of commands agent cannot execute
 - `require_approval` - List of patterns requiring human approval
-- `policy` - Text description of safety policy
+- `policy` - Text description of safety policy (colon-less, e.g. `policy "Never read secrets."`)
 
 ### `validation` block
 
@@ -71,9 +71,9 @@ Optional. Contains required output sections.
 Use brackets for lists:
 
 ```agentml
-stack: ["Rust", "CLI"]
+stack ["Rust", "CLI"]
 
-read: [
+read [
   "**/*.rs"
   "**/*.md"
 ]

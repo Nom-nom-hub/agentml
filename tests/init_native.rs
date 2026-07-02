@@ -119,6 +119,61 @@ fn native_safety_policy_parses() {
 }
 
 #[test]
+fn native_policy_uses_canonical_syntax() {
+    let native = r#"agent "test" {
+  safety {
+    policy "Never commit secrets."
+  }
+}
+"#;
+    let agent = parse_native_agent_path(native).unwrap();
+    let safety = agent.safety.unwrap();
+    assert_eq!(safety.policy.unwrap(), "Never commit secrets.");
+}
+
+#[test]
+fn native_template_policy_validates() {
+    let native = r#"agent "validate-policy" {
+  version "1.0.0"
+
+  purpose {
+    human_goal "Test"
+    agent_goal "Test"
+    non_goals ["Do no harm"]
+  }
+
+  permissions {
+    read ["**/*.md"]
+    write ["src/**"]
+    execute ["npm run"]
+  }
+
+  safety {
+    policy "Never read or print secrets."
+    forbidden_paths [".env", ".git/**"]
+    forbidden_actions ["rm -rf"]
+    require_approval ["git push"]
+  }
+
+  validation {
+    command "npm test"
+  }
+
+  output {
+    required ["changes"]
+  }
+}
+"#;
+    let agent = parse_native_agent_path(native).unwrap();
+    let report = validator::validate_agent_file(&agent, false);
+    assert!(
+        report.valid,
+        "Native template policy should validate: {:?}",
+        report.errors
+    );
+}
+
+#[test]
 fn native_context_stack_roundtrips_to_agent_context() {
     let native = r#"agent "test" {
   context {

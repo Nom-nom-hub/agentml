@@ -71,6 +71,7 @@ permissions:
     - "~/.ssh/**"
 
 safety:
+  policy: "Never commit secrets. Use environment variables. Never read .env files."
   forbidden_paths:
     - ".env"
     - ".env.*"
@@ -89,6 +90,18 @@ safety:
     - "git reset --hard"
     - "git clean -fd"
     - "cargo publish"
+  require_confirmation:
+    - "rm -rf"
+    - "git push --force"
+  secrets_policy:
+    never_read:
+      - ".env"
+      - ".env.*"
+      - "**/*secret*"
+      - "**/*credential*"
+      - "**/*.pem"
+      - "**/*.key"
+    never_output_secret_values: true
 
 diff_policy:
   strict_ci: true

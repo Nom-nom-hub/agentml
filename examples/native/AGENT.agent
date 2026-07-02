@@ -46,7 +46,7 @@ agent "rust-cli-maintainer" {
   }
 
   safety {
-    policy: "Never commit secrets. Use environment variables and .env files are forbidden."
+    policy "Never commit secrets. Use environment variables and .env files are forbidden."
     forbidden_paths [
       ".env"
       ".env.*"
