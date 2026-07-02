@@ -154,6 +154,38 @@ impl Parser {
                 }
                 let _ = self.advance();
             }
+            Token::Identifier(ref ident) if ident == "output" => {
+                self.expect(Token::LBrace)?;
+                ast.output = Some(crate::syntax::ast::OutputAst::default());
+                while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
+                    let t = self.advance()?;
+                    if let Token::Identifier(kw) = &t.token
+                        && (kw == "required" || kw == "final_report")
+                    {
+                        let has_colon = self.current().map(|t| &t.token) == Some(&Token::Colon);
+                        if has_colon {
+                            let _ = self.advance();
+                        }
+                        self.expect(Token::LBracket)?;
+                        while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
+                            let str_token = self.advance()?;
+                            if let Token::String(s) = str_token.token
+                                && let Some(ref mut o) = ast.output
+                            {
+                                o.final_report.push(s);
+                            }
+                            if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                                let _ = self.advance();
+                            }
+                        }
+                        let _ = self.advance();
+                    }
+                    if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                        let _ = self.advance();
+                    }
+                }
+                let _ = self.advance();
+            }
             Token::Identifier(_) => {
                 let _ = self.advance();
             }
@@ -651,7 +683,7 @@ impl Parser {
                 while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
                     let t = self.advance()?;
                     if let Token::Identifier(kw) = &t.token
-                        && kw == "required"
+                        && (kw == "required" || kw == "final_report")
                     {
                         let has_colon = self.current().map(|t| &t.token) == Some(&Token::Colon);
                         if has_colon {

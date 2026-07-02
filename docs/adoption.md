@@ -56,7 +56,7 @@ agentml self-check
 
 The `rust-cli` template pre-fills:
 - Permissions for `src/**/*.rs`, `Cargo.toml`, and Markdown
-- Validation: `cargo fmt -- --check`, `cargo clippy -- -D warnings`, `cargo test`
+- Validation: `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test`
 - Safety rules for `target/**` and build artifacts
 
 ### C. Next.js project

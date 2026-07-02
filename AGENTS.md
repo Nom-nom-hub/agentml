@@ -71,7 +71,7 @@ Agents must not modify or expose:
 
 Before reporting completion, run:
 
-- `cargo fmt -- --check` — fmt
+- `cargo fmt --check` — fmt
 - `cargo clippy --all-targets -- -D warnings` — clippy
 - `cargo test` — test
 - `cargo run -- validate AGENT.agent` — self_validate

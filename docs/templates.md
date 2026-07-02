@@ -58,7 +58,7 @@ Minimal contract for any project type. Default permissions for `src/**` and `doc
 Optimized for Rust CLI projects. Includes:
 
 - Permissions for `src/**/*.rs`, `Cargo.toml`, `**/*.md`
-- Validation: `cargo fmt -- --check`, `cargo clippy -- -D warnings`, `cargo test`
+- Validation: `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test`
 - Safety rules for `target/**` and build artifacts
 
 ### nextjs-app

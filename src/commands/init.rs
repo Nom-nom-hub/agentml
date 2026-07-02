@@ -410,7 +410,7 @@ safety:
 
 validation:
   - name: Format
-    command: "cargo fmt -- --check"
+    command: "cargo fmt --check"
   - name: Clippy
     command: "cargo clippy -- -D warnings"
   - name: Test
@@ -648,7 +648,7 @@ fn rust_cli_native_template() -> String {
   }
 
   validation {
-    command "cargo fmt -- --check"
+    command "cargo fmt --check"
     command "cargo clippy -- -D warnings"
     command "cargo test"
     success "All tests pass"

@@ -1,8 +1,22 @@
 use agentml::commands::diff::{ChangedFile, RiskReport, calculate_risk, check_permissions};
-use agentml::types::AgentFile;
+use agentml::types::{AgentFile, DiffPolicy, WatchedPath};
 
 fn make_agent_file() -> AgentFile {
     AgentFile::default()
+}
+
+fn agent_with_watched_path(path: &str, requires: Vec<&str>) -> AgentFile {
+    AgentFile {
+        diff_policy: Some(DiffPolicy {
+            watched_paths: vec![WatchedPath {
+                path: Some(path.to_string()),
+                requires: requires.into_iter().map(String::from).collect(),
+                ..Default::default()
+            }],
+            ..Default::default()
+        }),
+        ..Default::default()
+    }
 }
 
 #[test]
@@ -120,5 +134,104 @@ fn diff_does_not_count_uncompiled_nested_test_file() {
         has_test_risk,
         "Uncompiled nested test files must not count as coverage. Issues: {:?}",
         report.issues
+    );
+}
+
+#[test]
+fn diff_uses_watched_path_required_tests() {
+    let agent = agent_with_watched_path("src/commands/diff.rs", vec!["tests/diff_audit.rs"]);
+    let files = vec![ChangedFile {
+        path: "src/commands/diff.rs".to_string(),
+    }];
+    let mut report = RiskReport::default();
+    calculate_risk(&files, &agent, &mut report);
+    let cwd = std::env::current_dir().unwrap();
+    let in_repo = cwd.join("Cargo.toml").exists();
+    if !in_repo {
+        return;
+    }
+    // tests/diff_audit.rs exists, so no +20 risk from required test
+    let has_test_risk = report
+        .issues
+        .iter()
+        .any(|i| i.contains("source changed without tests"));
+    assert!(
+        !has_test_risk,
+        "Explicit watched-path requires should satisfy risk check. Issues: {:?}",
+        report.issues
+    );
+}
+
+#[test]
+fn diff_maps_diff_command_to_diff_audit_test() {
+    let agent = agent_with_watched_path("src/commands/diff.rs", vec!["tests/diff_audit.rs"]);
+    let files = vec![ChangedFile {
+        path: "src/commands/diff.rs".to_string(),
+    }];
+    let mut report = RiskReport::default();
+    calculate_risk(&files, &agent, &mut report);
+    let cwd = std::env::current_dir().unwrap();
+    let in_repo = cwd.join("Cargo.toml").exists();
+    if !in_repo {
+        return;
+    }
+    // Should NOT fall back to conventional tests/commands_diff_test.rs
+    let has_conventional_issue = report
+        .issues
+        .iter()
+        .any(|i| i.contains("tests/commands_diff_test.rs"));
+    assert!(
+        !has_conventional_issue,
+        "Should not fall back to conventional name when explicit mapping exists. Issues: {:?}",
+        report.issues
+    );
+}
+
+#[test]
+fn diff_does_not_require_wrong_conventional_name_when_explicit_mapping_exists() {
+    let agent = agent_with_watched_path("src/commands/diff.rs", vec!["tests/diff_audit.rs"]);
+    let files = vec![ChangedFile {
+        path: "src/commands/diff.rs".to_string(),
+    }];
+    let mut report = RiskReport::default();
+    calculate_risk(&files, &agent, &mut report);
+    let cwd = std::env::current_dir().unwrap();
+    let in_repo = cwd.join("Cargo.toml").exists();
+    if !in_repo {
+        return;
+    }
+    // Should NOT mention tests/commands_diff_test.rs at all
+    let mentions_conventional = report
+        .issues
+        .iter()
+        .any(|i| i.contains("commands_diff_test"));
+    assert!(
+        !mentions_conventional,
+        "Explicit mapping should suppress conventional name guess. Issues: {:?}",
+        report.issues
+    );
+}
+
+#[test]
+fn diff_warns_when_required_test_file_missing() {
+    let agent = agent_with_watched_path("src/commands/diff.rs", vec!["tests/nonexistent_test.rs"]);
+    let files = vec![ChangedFile {
+        path: "src/commands/diff.rs".to_string(),
+    }];
+    let mut report = RiskReport::default();
+    calculate_risk(&files, &agent, &mut report);
+    // Required test file doesn't exist, so +20 should be added
+    let has_missing_issue = report
+        .issues
+        .iter()
+        .any(|i| i.contains("required test(s) missing"));
+    assert!(
+        has_missing_issue,
+        "Should warn when required test file is missing. Issues: {:?}",
+        report.issues
+    );
+    assert!(
+        report.score >= 20,
+        "Risk score should be at least 20 when required test is missing"
     );
 }

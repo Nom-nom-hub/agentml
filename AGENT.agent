@@ -126,6 +126,69 @@ diff_policy:
       risk: 30
       requires:
         - docs/spec.md
+    diff:
+      paths:
+        - src/commands/diff.rs
+      risk: 25
+      requires:
+        - tests/diff_audit.rs
+    close:
+      paths:
+        - src/commands/close.rs
+      risk: 25
+      requires:
+        - tests/close_tests.rs
+    doctor:
+      paths:
+        - src/commands/doctor.rs
+      risk: 25
+      requires:
+        - tests/doctor_checks.rs
+    init:
+      paths:
+        - src/commands/init.rs
+      risk: 25
+      requires:
+        - tests/commands_init_test.rs
+        - tests/init_native.rs
+    convert:
+      paths:
+        - src/commands/convert.rs
+      risk: 25
+      requires:
+        - tests/commands_convert_test.rs
+    agents_md:
+      paths:
+        - src/commands/agents_md.rs
+      risk: 25
+      requires:
+        - tests/agents_md.rs
+        - tests/commands_agents_md_test.rs
+    syntax_parser:
+      paths:
+        - src/syntax/parser.rs
+        - src/syntax/lexer.rs
+      risk: 25
+      requires:
+        - tests/syntax_parser_test.rs
+    syntax_convert:
+      paths:
+        - src/syntax/convert.rs
+      risk: 25
+      requires:
+        - tests/syntax_convert_test.rs
+    types:
+      paths:
+        - src/types.rs
+      risk: 25
+      requires:
+        - tests/types_test.rs
+    mcp:
+      paths:
+        - src/mcp.rs
+      risk: 25
+      requires:
+        - tests/mcp_tests.rs
 
 workflows:
   - name: default_change
@@ -144,7 +207,7 @@ workflows:
       Pre-release workflow: run fmt, clippy, tests, validate AGENT.agent, validate all skills.
     steps:
       - name: fmt
-        commands: ["cargo fmt -- --check"]
+        commands: ["cargo fmt --check"]
       - name: clippy
         commands: ["cargo clippy --all-targets -- -D warnings"]
       - name: test
@@ -164,7 +227,7 @@ workflows:
 
 validation:
   - name: fmt
-    command: "cargo fmt -- --check"
+    command: "cargo fmt --check"
   - name: clippy
     command: "cargo clippy --all-targets -- -D warnings"
   - name: test

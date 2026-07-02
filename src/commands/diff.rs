@@ -182,7 +182,46 @@ pub fn check_permissions(files: &[ChangedFile], agent: &AgentFile) -> Vec<(Strin
     results
 }
 
-pub fn calculate_risk(files: &[ChangedFile], _agent: &AgentFile, report: &mut RiskReport) {
+pub fn calculate_risk(files: &[ChangedFile], agent: &AgentFile, report: &mut RiskReport) {
+    // Build a lookup from source path -> required test files from watched_paths
+    let watched_requires: std::collections::HashMap<&str, &[String]> = agent
+        .diff_policy
+        .as_ref()
+        .map(|dp| {
+            dp.watched_paths
+                .iter()
+                .filter_map(|wp| {
+                    let paths: Vec<&str> = wp
+                        .path
+                        .as_deref()
+                        .into_iter()
+                        .chain(
+                            wp.paths
+                                .as_ref()
+                                .map(|v| v.iter())
+                                .into_iter()
+                                .flatten()
+                                .map(|s| s.as_str()),
+                        )
+                        .collect();
+                    if paths.is_empty() {
+                        None
+                    } else {
+                        Some((paths, wp.requires.as_slice()))
+                    }
+                })
+                .fold(
+                    std::collections::HashMap::new(),
+                    |mut acc, (paths, reqs)| {
+                        for p in paths {
+                            acc.entry(p).or_insert(reqs);
+                        }
+                        acc
+                    },
+                )
+        })
+        .unwrap_or_default();
+
     for file in files {
         if file.path.eq_ignore_ascii_case("AGENT.agent") {
             report.score += 30;
@@ -200,40 +239,74 @@ pub fn calculate_risk(files: &[ChangedFile], _agent: &AgentFile, report: &mut Ri
                 .push(format!("{}: skill changed: +20", file.path));
         }
         if file.path.starts_with("src/") && file.path.ends_with(".rs") {
-            let nested_test_path = file
-                .path
-                .replace("src/", "tests/")
-                .replace(".rs", "_test.rs");
-            let flat_test_path = file
-                .path
-                .strip_prefix("src/")
-                .map(|p| {
-                    format!(
-                        "tests/{}{}",
-                        p.replace("/", "_").replace(".rs", ""),
-                        "_test.rs"
-                    )
-                })
-                .unwrap_or_default();
+            // Check explicit watched-path test requirements first
+            let explicit_reqs: Option<&[String]> =
+                watched_requires.get(file.path.as_str()).copied();
 
-            let nested_exists = std::path::Path::new(&nested_test_path).exists();
-            let flat_exists = std::path::Path::new(&flat_test_path).exists();
+            if let Some(reqs) = explicit_reqs {
+                // Use explicit requires list from the policy
+                let missing: Vec<&String> = reqs
+                    .iter()
+                    .filter(|r| !std::path::Path::new(r).exists())
+                    .collect();
+                if !missing.is_empty() {
+                    report.score += 20;
+                    report.issues.push(format!(
+                        "{}: source changed; required test(s) missing: {}: +20",
+                        file.path,
+                        missing
+                            .iter()
+                            .map(|r| r.as_str())
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    ));
+                    report.next_actions.push(format!(
+                        "Add required test files for {}: {}",
+                        file.path,
+                        missing
+                            .iter()
+                            .map(|r| r.as_str())
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    ));
+                }
+            } else {
+                // Fall back to conventional flat/nested test filename guessing
+                let nested_test_path = file
+                    .path
+                    .replace("src/", "tests/")
+                    .replace(".rs", "_test.rs");
+                let flat_test_path = file
+                    .path
+                    .strip_prefix("src/")
+                    .map(|p| {
+                        format!(
+                            "tests/{}{}",
+                            p.replace("/", "_").replace(".rs", ""),
+                            "_test.rs"
+                        )
+                    })
+                    .unwrap_or_default();
 
-            if nested_exists && !flat_exists {
-                report.issues.push(format!(
-                    "Test file exists but may not be compiled by Cargo: {} (move to {})",
-                    nested_test_path, flat_test_path
-                ));
-            }
+                let nested_exists = std::path::Path::new(&nested_test_path).exists();
+                let flat_exists = std::path::Path::new(&flat_test_path).exists();
 
-            if !flat_exists {
-                report.score += 20;
-                report
-                    .issues
-                    .push(format!("{}: source changed without tests: +20", file.path));
-                report
-                    .next_actions
-                    .push(format!("Add or update tests for {}", file.path));
+                if nested_exists && !flat_exists {
+                    report.issues.push(format!(
+                        "Test file exists but may not be compiled by Cargo: {} (move to {})",
+                        nested_test_path, flat_test_path
+                    ));
+                }
+
+                if !flat_exists {
+                    report.score += 20;
+                    report
+                        .issues
+                        .push(format!("{}: source changed without tests: +20", file.path));
+                    report
+                        .next_actions
+                        .push(format!("Add or update tests for {}", file.path));
+                }
             }
         }
         if file.path.eq_ignore_ascii_case("README.md") {

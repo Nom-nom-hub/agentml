@@ -59,7 +59,7 @@ Agents must not modify or expose:
 
 Before reporting completion, run:
 
-- `cargo fmt -- --check` — Format check
+- `cargo fmt --check` — Format check
 - `cargo clippy --all-targets -- -D warnings` — Lint check
 - `cargo test` — Test suite
 - `cargo doc --no-deps` — Documentation check

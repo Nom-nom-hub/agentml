@@ -49,7 +49,7 @@ Result:
 Required actions:
   - Revert .env changes immediately
   - Add tests for validator changes
-  - Run: cargo fmt -- --check
+  - Run: cargo fmt --check
   - Run: cargo clippy --all-targets -- -D warnings
   - Run: cargo test
   - Run: cargo run -- validate AGENT.agent

@@ -85,9 +85,25 @@ agent "rust-cli-maintainer" {
     command "cargo fmt --check"
     command "cargo clippy --all-targets -- -D warnings"
     command "cargo test"
+
+    success "Tests pass"
+    success "Native AGENT.agent validates"
+    success "Forbidden paths are protected"
+    success "Final report includes risk score and commit"
   }
 
   output {
-    required ["summary", "changes", "tests", "risks"]
+    final_report [
+      "Summary"
+      "Files changed"
+      "Commands run"
+      "Skills used"
+      "Validation result"
+      "Risk score"
+      "Commit"
+      "Git status"
+      "Risks"
+      "Next steps"
+    ]
   }
 }

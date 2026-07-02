@@ -111,7 +111,7 @@ Safety:
   ✔ secrets_policy
 
 Validation:
-  fmt: cargo fmt -- --check
+  fmt: cargo fmt --check
   clippy: cargo clippy --all-targets -- -D warnings
   test: cargo test
   self_validate: cargo run -- validate AGENT.agent

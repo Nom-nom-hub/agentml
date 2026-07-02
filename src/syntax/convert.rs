@@ -73,6 +73,17 @@ pub fn convert_ast_to_agent(ast: &AgentAst) -> anyhow::Result<AgentFile> {
             .collect(),
     });
 
+    let output = ast.output.as_ref().and_then(|o| {
+        if o.final_report.is_empty() {
+            None
+        } else {
+            Some(crate::types::OutputConfig {
+                format: None,
+                required_sections: Some(o.final_report.clone()),
+            })
+        }
+    });
+
     let agent = AgentFile {
         meta: Some(crate::types::AgentMeta {
             name: ast.agent.clone(),
@@ -96,6 +107,7 @@ pub fn convert_ast_to_agent(ast: &AgentAst) -> anyhow::Result<AgentFile> {
         validation: Some(validation_commands),
         success_criteria: Some(success_criteria),
         diff_policy,
+        output,
         ..Default::default()
     };
     Ok(agent)

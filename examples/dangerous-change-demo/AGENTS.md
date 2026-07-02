@@ -18,7 +18,7 @@ Before editing files, agents should read:
 These commands are mandatory before reporting completion. Skipping any of them
 is a safety violation and will cause agentml diff to block the report.
 
-- `cargo fmt -- --check`
+- `cargo fmt --check`
 - `cargo clippy --all-targets -- -D warnings`
 - `cargo test`
 - `cargo run -- validate AGENT.agent`
