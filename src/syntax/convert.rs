@@ -18,6 +18,12 @@ pub fn convert_ast_to_agent(ast: &AgentAst) -> anyhow::Result<AgentFile> {
         })
         .unwrap_or_default();
 
+    let success_criteria = ast
+        .validation
+        .as_ref()
+        .map(|v| v.success.clone())
+        .unwrap_or_default();
+
     let purpose = ast.purpose.as_ref().map(|p| crate::types::Purpose {
         human_goal: Some(p.human_goal.clone()),
         agent_goal: Some(p.agent_goal.clone()),
@@ -50,14 +56,37 @@ pub fn convert_ast_to_agent(ast: &AgentAst) -> anyhow::Result<AgentFile> {
         execute: None,
     });
 
+    let diff_policy = ast.diff_policy.as_ref().map(|dp| crate::types::DiffPolicy {
+        strict_ci: dp.strict_ci,
+        fail_at_risk_score: dp.fail_at_risk_score,
+        require_tests_for_src_changes: dp.require_tests_for_src_changes,
+        watched_paths: dp
+            .watched_paths
+            .iter()
+            .map(|wp| crate::types::WatchedPath {
+                name: None,
+                path: Some(wp.path.clone()),
+                paths: None,
+                risk: wp.risk,
+                requires: wp.requires.clone(),
+            })
+            .collect(),
+    });
+
     let agent = AgentFile {
         meta: Some(crate::types::AgentMeta {
             name: ast.agent.clone(),
             version: ast.version.clone(),
+            contract_version: ast.contract_version,
             description: ast.description.clone(),
         }),
         purpose,
         context: ast.context.as_ref().map(|c| crate::types::AgentContext {
+            stack: if c.stack.is_empty() {
+                None
+            } else {
+                Some(c.stack.clone())
+            },
             project_type: c.stack.first().cloned(),
             languages: None,
             frameworks: None,
@@ -65,6 +94,8 @@ pub fn convert_ast_to_agent(ast: &AgentAst) -> anyhow::Result<AgentFile> {
         permissions,
         safety,
         validation: Some(validation_commands),
+        success_criteria: Some(success_criteria),
+        diff_policy,
         ..Default::default()
     };
     Ok(agent)

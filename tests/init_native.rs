@@ -117,3 +117,16 @@ fn native_safety_policy_parses() {
     assert!(safety.forbidden_actions.is_some());
     assert!(safety.require_confirmation.is_some());
 }
+
+#[test]
+fn native_context_stack_roundtrips_to_agent_context() {
+    let native = r#"agent "test" {
+  context {
+    stack ["Rust", "CLI"]
+  }
+}"#;
+    let agent = parse_native_agent_path(native).unwrap();
+    let ctx = agent.context.as_ref().expect("context should be present");
+    assert_eq!(ctx.stack_items(), vec!["Rust", "CLI"]);
+    assert_eq!(ctx.stack, Some(vec!["Rust".to_string(), "CLI".to_string()]));
+}

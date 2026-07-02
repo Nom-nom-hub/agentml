@@ -45,6 +45,112 @@ where
     }
 }
 
+fn deserialize_diff_policy<'de, D>(deserializer: D) -> Result<Option<DiffPolicy>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let value = serde_yaml::Value::deserialize(deserializer)?;
+    match value {
+        serde_yaml::Value::Mapping(map) => {
+            let strict_ci = map
+                .get(serde_yaml::Value::String("strict_ci".to_string()))
+                .and_then(|v| v.as_bool())
+                .unwrap_or(true);
+            let fail_at_risk_score = map
+                .get(serde_yaml::Value::String("fail_at_risk_score".to_string()))
+                .and_then(|v| v.as_u64())
+                .unwrap_or(80) as u32;
+            let require_tests_for_src_changes = map
+                .get(serde_yaml::Value::String(
+                    "require_tests_for_src_changes".to_string(),
+                ))
+                .and_then(|v| v.as_bool())
+                .unwrap_or(true);
+
+            let watched_paths: Vec<WatchedPath> = match map
+                .get(serde_yaml::Value::String("watched_paths".to_string()))
+            {
+                Some(serde_yaml::Value::Sequence(arr)) => arr
+                    .iter()
+                    .filter_map(|v| {
+                        if let serde_yaml::Value::Mapping(m) = v {
+                            Some(WatchedPath {
+                                path: m
+                                    .get(serde_yaml::Value::String("path".to_string()))
+                                    .and_then(|v| v.as_str())
+                                    .map(|s| s.to_string()),
+                                risk: m
+                                    .get(serde_yaml::Value::String("risk".to_string()))
+                                    .and_then(|v| v.as_u64())
+                                    .unwrap_or(0) as u32,
+                                requires: m
+                                    .get(serde_yaml::Value::String("requires".to_string()))
+                                    .and_then(|v| v.as_sequence())
+                                    .map(|arr| {
+                                        arr.iter()
+                                            .filter_map(|v| v.as_str().map(|s| s.to_string()))
+                                            .collect()
+                                    })
+                                    .unwrap_or_default(),
+                                ..Default::default()
+                            })
+                        } else {
+                            None
+                        }
+                    })
+                    .collect(),
+                Some(serde_yaml::Value::Mapping(m)) => m
+                    .iter()
+                    .filter_map(|(k, v)| {
+                        if let serde_yaml::Value::String(name) = k {
+                            let path_val: Option<Vec<String>> = v
+                                .get(serde_yaml::Value::String("paths".to_string()))
+                                .and_then(|pv| pv.as_sequence())
+                                .map(|arr| {
+                                    arr.iter()
+                                        .filter_map(|v| v.as_str().map(|s| s.to_string()))
+                                        .collect()
+                                });
+                            let paths_first: Option<String> = path_val
+                                .as_ref()
+                                .and_then(|p: &Vec<String>| p.first().cloned());
+                            Some(WatchedPath {
+                                name: Some(name.clone()),
+                                path: paths_first,
+                                paths: path_val,
+                                risk: v
+                                    .get(serde_yaml::Value::String("risk".to_string()))
+                                    .and_then(|rv| rv.as_u64())
+                                    .unwrap_or(0) as u32,
+                                requires: v
+                                    .get(serde_yaml::Value::String("requires".to_string()))
+                                    .and_then(|rv| rv.as_sequence())
+                                    .map(|arr| {
+                                        arr.iter()
+                                            .filter_map(|v| v.as_str().map(|s| s.to_string()))
+                                            .collect()
+                                    })
+                                    .unwrap_or_default(),
+                            })
+                        } else {
+                            None
+                        }
+                    })
+                    .collect(),
+                _ => Vec::new(),
+            };
+
+            Ok(Some(DiffPolicy {
+                strict_ci,
+                fail_at_risk_score,
+                require_tests_for_src_changes,
+                watched_paths,
+            }))
+        }
+        _ => Ok(None),
+    }
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct AgentFile {
     pub meta: Option<AgentMeta>,
@@ -59,6 +165,8 @@ pub struct AgentFile {
     pub safety: Option<Safety>,
     pub validation: Option<Vec<ValidationCommand>>,
     pub success_criteria: Option<Vec<String>>,
+    #[serde(default, deserialize_with = "deserialize_diff_policy")]
+    pub diff_policy: Option<DiffPolicy>,
     pub output: Option<OutputConfig>,
 }
 
@@ -66,6 +174,7 @@ pub struct AgentFile {
 pub struct AgentMeta {
     pub name: String,
     pub version: String,
+    pub contract_version: Option<u32>,
     pub description: Option<String>,
 }
 
@@ -74,6 +183,30 @@ pub struct AgentContext {
     pub project_type: Option<String>,
     pub languages: Option<Vec<String>>,
     pub frameworks: Option<Vec<String>>,
+    pub stack: Option<Vec<String>>,
+}
+
+impl AgentContext {
+    pub fn stack_items(&self) -> Vec<String> {
+        if let Some(ref stack) = self.stack {
+            return stack.clone();
+        }
+        let mut result = Vec::new();
+        if let Some(pt) = &self.project_type {
+            result.push(pt.clone());
+        }
+        if let Some(langs) = &self.languages {
+            for lang in langs {
+                result.push(lang.clone());
+            }
+        }
+        if let Some(fw) = &self.frameworks {
+            for f in fw {
+                result.push(f.clone());
+            }
+        }
+        result
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
@@ -148,6 +281,23 @@ pub struct ValidationCommand {
 pub struct OutputConfig {
     pub format: Option<String>,
     pub required_sections: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+pub struct DiffPolicy {
+    pub strict_ci: bool,
+    pub fail_at_risk_score: u32,
+    pub require_tests_for_src_changes: bool,
+    pub watched_paths: Vec<WatchedPath>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+pub struct WatchedPath {
+    pub name: Option<String>,
+    pub path: Option<String>,
+    pub paths: Option<Vec<String>>,
+    pub risk: u32,
+    pub requires: Vec<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]

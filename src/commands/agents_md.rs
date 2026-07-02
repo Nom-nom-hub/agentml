@@ -51,22 +51,11 @@ pub fn generate(agent: &AgentFile) -> String {
     output.push_str("## Project context\n\n");
     output.push_str("### Stack\n\n");
 
-    let mut stack = Vec::new();
-    if let Some(ctx) = &agent.context {
-        if let Some(pt) = &ctx.project_type {
-            stack.push(pt.clone());
-        }
-        if let Some(langs) = &ctx.languages {
-            for lang in langs {
-                stack.push(lang.clone());
-            }
-        }
-        if let Some(fw) = &ctx.frameworks {
-            for f in fw {
-                stack.push(f.clone());
-            }
-        }
-    }
+    let mut stack = agent
+        .context
+        .as_ref()
+        .map(|ctx| ctx.stack_items())
+        .unwrap_or_default();
     if stack.is_empty() {
         stack.push("Generic".to_string());
     }

@@ -9,10 +9,46 @@ pub struct AgentAst {
     pub purpose: Option<PurposeAst>,
     pub context: Option<ContextAst>,
     pub permissions: Option<PermissionsAst>,
+    pub tools: Option<Vec<String>>,
+    pub workflows: Option<Vec<Workflow>>,
+    pub tasks: Option<Vec<Task>>,
+    pub memory: Option<String>,
     pub safety: Option<SafetyAst>,
     pub validation: Option<ValidationAst>,
     pub diff_policy: Option<DiffPolicyAst>,
     pub output: Option<OutputAst>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct Workflow {
+    pub name: String,
+    pub description: Option<String>,
+    pub steps: Vec<WorkflowStep>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct WorkflowStep {
+    pub name: String,
+    pub description: Option<String>,
+    pub commands: Option<Vec<String>>,
+    pub success: Option<String>,
+    pub on_failure: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct Task {
+    pub name: String,
+    pub description: Option<String>,
+    pub workflow: Option<String>,
+    pub inputs: Option<std::collections::HashMap<String, TaskInput>>,
+    pub success: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct TaskInput {
+    pub description: String,
+    pub required: Option<bool>,
+    pub default: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -58,7 +94,7 @@ pub struct ValidationAst {
     pub success: Vec<String>,
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DiffPolicyAst {
     pub strict_ci: bool,
     pub fail_at_risk_score: u32,
@@ -66,7 +102,18 @@ pub struct DiffPolicyAst {
     pub watched_paths: Vec<WatchedPath>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+impl Default for DiffPolicyAst {
+    fn default() -> Self {
+        DiffPolicyAst {
+            strict_ci: true,
+            fail_at_risk_score: 80,
+            require_tests_for_src_changes: true,
+            watched_paths: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct WatchedPath {
     pub path: String,
     pub risk: u32,

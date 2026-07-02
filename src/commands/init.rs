@@ -574,6 +574,7 @@ jobs:
 fn generic_native_template() -> String {
     r#"agent "my-project" {
   version "1.0.0"
+  contract_version 1
   description "Short description of what this agent should do"
 
   purpose {
@@ -583,28 +584,35 @@ fn generic_native_template() -> String {
   }
 
   context {
-    stack: ["Generic"]
+    stack ["Generic"]
   }
 
   permissions {
-    read: ["**/*.md", "**/*.json", "**/*.toml", "**/*.yaml", "**/*.yml", "src/**", "app/**", "pages/**", "components/**", "tests/**"]
-    write: ["src/**", "app/**", "pages/**", "components/**", "tests/**", "docs/**", "README.md"]
-    execute: ["npm run", "cargo", "python"]
+    read ["**/*.md", "**/*.json", "**/*.toml", "**/*.yaml", "**/*.yml", "src/**", "app/**", "pages/**", "components/**", "tests/**"]
+    write ["src/**", "app/**", "pages/**", "components/**", "tests/**", "docs/**", "README.md"]
+    execute ["npm run", "cargo", "python"]
   }
 
   safety {
     policy: "Never commit secrets. Use environment variables."
-    forbidden_paths: [".env*", ".env.*", ".git/**", "node_modules/**", "target/**", "dist/**", "build/**", "**/*secret*", "**/*credential*", "**/*.pem", "**/*.key", "~/.ssh/**"]
-    forbidden_actions: ["rm -rf", "git push --force", "npm publish", "cargo publish"]
-    require_approval: ["git push", "npm run db:migrate"]
+    forbidden_paths [".env*", ".env.*", ".git/**", "node_modules/**", "target/**", "dist/**", "build/**", "**/*secret*", "**/*credential*", "**/*.pem", "**/*.key", "~/.ssh/**"]
+    forbidden_actions ["rm -rf", "git push --force", "npm publish", "cargo publish"]
+    require_approval ["git push", "npm run db:migrate"]
   }
 
   validation {
-    command: "npm run lint"
+    command "npm run lint"
+    success "Lint passes"
+  }
+
+  diff_policy {
+    strict_ci true
+    fail_at_risk_score 80
+    require_tests_for_src_changes true
   }
 
   output {
-    required: ["changes", "tests", "risks"]
+    required ["changes", "tests", "risks"]
   }
 }
 "#
@@ -614,6 +622,7 @@ fn generic_native_template() -> String {
 fn rust_cli_native_template() -> String {
     r#"agent "my-rust-cli" {
   version "1.0.0"
+  contract_version 1
 
   purpose {
     human_goal "AI agent for developing and maintaining a Rust CLI application."
@@ -622,30 +631,38 @@ fn rust_cli_native_template() -> String {
   }
 
   context {
-    stack: ["Rust"]
+    stack ["Rust"]
   }
 
   permissions {
-    read: ["**/*.rs", "**/Cargo.toml", "**/*.md"]
-    write: ["src/**/*.rs", "Cargo.toml"]
-    execute: ["cargo", "rustfmt", "clippy"]
+    read ["**/*.rs", "**/Cargo.toml", "**/*.md"]
+    write ["src/**/*.rs", "Cargo.toml"]
+    execute ["cargo", "rustfmt", "clippy"]
   }
 
   safety {
     policy: "Never commit secrets. Use environment variables."
-    forbidden_paths: ["target/**", "*.rs.bk", ".git/**", ".env*"]
-    forbidden_actions: ["cargo publish", "rm -rf src"]
-    require_approval: ["cargo publish", "cargo install"]
+    forbidden_paths ["target/**", "*.rs.bk", ".git/**", ".env*"]
+    forbidden_actions ["cargo publish", "rm -rf src"]
+    require_approval ["cargo publish", "cargo install"]
   }
 
   validation {
-    command: "cargo fmt -- --check"
-    command: "cargo clippy -- -D warnings"
-    command: "cargo test"
+    command "cargo fmt -- --check"
+    command "cargo clippy -- -D warnings"
+    command "cargo test"
+    success "All tests pass"
+    success "No clippy warnings"
+  }
+
+  diff_policy {
+    strict_ci true
+    fail_at_risk_score 80
+    require_tests_for_src_changes true
   }
 
   output {
-    required: ["changes", "tests", "risks"]
+    required ["changes", "tests", "risks"]
   }
 }
 "#
@@ -655,6 +672,7 @@ fn rust_cli_native_template() -> String {
 fn nextjs_app_native_template() -> String {
     r#"agent "my-nextjs-app" {
   version "1.0.0"
+  contract_version 1
 
   purpose {
     human_goal "AI agent for building and maintaining a Next.js application."
@@ -663,30 +681,42 @@ fn nextjs_app_native_template() -> String {
   }
 
   context {
-    stack: ["TypeScript", "Next.js"]
+    stack ["TypeScript", "Next.js"]
   }
 
   permissions {
-    read: ["**/*.ts", "**/*.tsx", "**/*.json", "**/*.md"]
-    write: ["src/**/*.ts", "src/**/*.tsx", "app/**/*.tsx"]
-    execute: ["npm run", "npx"]
+    read ["**/*.ts", "**/*.tsx", "**/*.json", "**/*.md"]
+    write ["src/**/*.ts", "src/**/*.tsx", "app/**/*.tsx"]
+    execute ["npm run", "npx"]
   }
 
   safety {
     policy: "Never commit secrets. Use environment variables and .env.local."
-    forbidden_paths: [".env*", ".env.*", ".git/**", "node_modules/**", ".next/**", "out/**"]
-    forbidden_actions: ["git push --force", "rm -rf src"]
-    require_approval: ["git push", "npm run db:migrate"]
+    forbidden_paths [".env*", ".env.*", ".git/**", "node_modules/**", ".next/**", "out/**"]
+    forbidden_actions ["git push --force", "rm -rf src"]
+    require_approval ["git push", "npm run db:migrate"]
   }
 
   validation {
-    command: "npm run lint"
-    command: "npm run typecheck"
-    command: "npm test"
+    command "npm run lint"
+    command "npm run typecheck"
+    command "npm test"
+    success "Type checking passes"
+    success "All tests pass"
+  }
+
+  diff_policy {
+    strict_ci true
+    fail_at_risk_score 80
+    require_tests_for_src_changes true
+    watched_path "src/app" {
+      risk 25
+      requires ["tests/app.test.ts"]
+    }
   }
 
   output {
-    required: ["changes", "tests", "risks"]
+    required ["changes", "tests", "risks"]
   }
 }
 "#
@@ -696,6 +726,7 @@ fn nextjs_app_native_template() -> String {
 fn python_package_native_template() -> String {
     r#"agent "my-python-package" {
   version "1.0.0"
+  contract_version 1
 
   purpose {
     human_goal "AI agent for developing and maintaining a Python package."
@@ -704,29 +735,37 @@ fn python_package_native_template() -> String {
   }
 
   context {
-    stack: ["Python"]
+    stack ["Python"]
   }
 
   permissions {
-    read: ["**/*.py", "**/pyproject.toml", "**/*.md"]
-    write: ["src/**/*.py", "tests/**/*.py", "pyproject.toml"]
-    execute: ["python", "pytest", "ruff"]
+    read ["**/*.py", "**/pyproject.toml", "**/*.md"]
+    write ["src/**/*.py", "tests/**/*.py", "pyproject.toml"]
+    execute ["python", "pytest", "ruff"]
   }
 
   safety {
     policy: "Never commit secrets. Use environment variables."
-    forbidden_paths: [".venv/**", "dist/**", "*.egg-info", ".git/**", ".env*"]
-    forbidden_actions: ["rm -rf src", "git push --force"]
-    require_approval: ["git push", "twine upload"]
+    forbidden_paths [".venv/**", "dist/**", "*.egg-info", ".git/**", ".env*"]
+    forbidden_actions ["rm -rf src", "git push --force"]
+    require_approval ["git push", "twine upload"]
   }
 
   validation {
-    command: "ruff check ."
-    command: "pytest"
+    command "ruff check ."
+    command "pytest"
+    success "All tests pass"
+    success "No linting errors"
+  }
+
+  diff_policy {
+    strict_ci true
+    fail_at_risk_score 80
+    require_tests_for_src_changes true
   }
 
   output {
-    required: ["changes", "tests", "risks"]
+    required ["changes", "tests", "risks"]
   }
 }
 "#
@@ -736,6 +775,7 @@ fn python_package_native_template() -> String {
 fn node_package_native_template() -> String {
     r#"agent "my-node-package" {
   version "1.0.0"
+  contract_version 1
 
   purpose {
     human_goal "AI agent for developing and maintaining a Node.js/NPM package."
@@ -744,29 +784,36 @@ fn node_package_native_template() -> String {
   }
 
   context {
-    stack: ["Node", "JavaScript"]
+    stack ["Node", "JavaScript"]
   }
 
   permissions {
-    read: ["**/*.js", "**/*.ts", "**/*.json", "**/*.md"]
-    write: ["src/**/*.js", "src/**/*.ts", "package.json", "README.md"]
-    execute: ["npm run", "npx"]
+    read ["**/*.js", "**/*.ts", "**/*.json", "**/*.md"]
+    write ["src/**/*.js", "src/**/*.ts", "package.json", "README.md"]
+    execute ["npm run", "npx"]
   }
 
   safety {
     policy: "Never commit secrets. Use environment variables."
-    forbidden_paths: [".git/**", "node_modules/**", ".npm/**", "dist/**", ".env*"]
-    forbidden_actions: ["git push --force", "rm -rf src"]
-    require_approval: ["git push", "npm publish"]
+    forbidden_paths [".git/**", "node_modules/**", ".npm/**", "dist/**", ".env*"]
+    forbidden_actions ["git push --force", "rm -rf src"]
+    require_approval ["git push", "npm publish"]
   }
 
   validation {
-    command: "npm run lint"
-    command: "npm test"
+    command "npm run lint"
+    command "npm test"
+    success "All tests pass"
+  }
+
+  diff_policy {
+    strict_ci true
+    fail_at_risk_score 80
+    require_tests_for_src_changes true
   }
 
   output {
-    required: ["changes", "tests", "risks"]
+    required ["changes", "tests", "risks"]
   }
 }
 "#
@@ -782,13 +829,14 @@ fn generate_detected_native_template(info: &crate::detect::ProjectInfo) -> Strin
     let validation: String = info
         .validation_commands
         .iter()
-        .map(|c| format!("    command: \"{}\"", c))
+        .map(|c| format!("    command \"{}\"", c))
         .collect::<Vec<_>>()
         .join("\n");
 
     format!(
         r#"agent "detected-project" {{
   version "1.0.0"
+  contract_version 1
   description "Auto-detected project contract"
 
   purpose {{
@@ -798,32 +846,38 @@ fn generate_detected_native_template(info: &crate::detect::ProjectInfo) -> Strin
   }}
 
   context {{
-    stack: ["{}"]
+    stack ["{}"]
   }}
 
   permissions {{
-    read: [
+    read [
 {}
     ]
-    write: ["src/**/*", "docs/**/*"]
-    execute: ["npm run", "cargo", "python"]
+    write ["src/**/*", "docs/**/*"]
+    execute ["npm run", "cargo", "python"]
   }}
 
   safety {{
-    forbidden_paths: [".env*", ".git/**", "node_modules/**", "target/**", "dist/**"]
-    forbidden_actions: ["rm -rf src", "git push --force"]
-    require_approval: ["git push"]
+    forbidden_paths [".env*", ".git/**", "node_modules/**", "target/**", "dist/**"]
+    forbidden_actions ["rm -rf src", "git push --force"]
+    require_approval ["git push"]
   }}
 
   validation {{
 {}
+    success "Detected project validates"
+  }}
+
+  diff_policy {{
+    strict_ci true
+    fail_at_risk_score 80
+    require_tests_for_src_changes true
   }}
 
   output {{
-    required: ["summary", "changes", "tests"]
+    required ["summary", "changes", "tests"]
   }}
-}}
-"#,
+}}"#,
         info.project_type,
         info.project_type.to_lowercase().replace(" ", "-"),
         read_patterns.join("\n"),

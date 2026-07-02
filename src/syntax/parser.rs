@@ -92,6 +92,13 @@ impl Parser {
                     _ => return Err(anyhow!("Expected version string")),
                 };
             }
+            Token::Identifier(ref ident) if ident == "contract_version" => {
+                let t = self.advance()?;
+                ast.contract_version = match t.token {
+                    Token::Number(n) => Some(n),
+                    _ => return Err(anyhow!("Expected contract_version number")),
+                };
+            }
             Token::Identifier(ref ident) if ident == "description" => {
                 let t = self.advance()?;
                 ast.description = Some(match t.token {
@@ -101,11 +108,7 @@ impl Parser {
             }
             Token::Identifier(ref ident) if ident == "purpose" => {
                 self.expect(Token::LBrace)?;
-                ast.purpose = Some(crate::syntax::ast::PurposeAst {
-                    human_goal: String::new(),
-                    agent_goal: String::new(),
-                    non_goals: Vec::new(),
-                });
+                ast.purpose = Some(crate::syntax::ast::PurposeAst::default());
                 while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
                     self.parse_purpose_field(ast.purpose.as_mut().unwrap())?;
                 }
@@ -140,6 +143,14 @@ impl Parser {
                 ast.safety = Some(crate::syntax::ast::SafetyAst::default());
                 while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
                     self.parse_safety_field(ast.safety.as_mut().unwrap())?;
+                }
+                let _ = self.advance();
+            }
+            Token::Identifier(ref ident) if ident == "diff_policy" => {
+                self.expect(Token::LBrace)?;
+                ast.diff_policy = Some(crate::syntax::ast::DiffPolicyAst::default());
+                while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
+                    self.parse_diff_policy_field(ast.diff_policy.as_mut().unwrap())?;
                 }
                 let _ = self.advance();
             }
@@ -347,6 +358,17 @@ impl Parser {
                     _ => return Err(anyhow!("Expected string")),
                 });
             }
+            Token::Identifier(ref ident) if ident == "success" => {
+                let has_colon = self.current().map(|t| &t.token) == Some(&Token::Colon);
+                if has_colon {
+                    let _ = self.advance();
+                }
+                let t = self.advance()?;
+                validation.success.push(match t.token {
+                    Token::String(s) => s,
+                    _ => return Err(anyhow!("Expected string")),
+                });
+            }
             _ => {}
         }
         Ok(())
@@ -426,6 +448,84 @@ impl Parser {
                     Token::String(s) => s,
                     _ => return Err(anyhow!("Expected string")),
                 });
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+
+    fn parse_diff_policy_field(
+        &mut self,
+        diff_policy: &mut crate::syntax::ast::DiffPolicyAst,
+    ) -> Result<()> {
+        let token = self.advance()?;
+        match token.token {
+            Token::Identifier(ref ident) if ident == "strict_ci" => {
+                let t = self.advance()?;
+                diff_policy.strict_ci = match t.token {
+                    Token::Bool(b) => b,
+                    _ => return Err(anyhow!("Expected boolean for strict_ci")),
+                };
+            }
+            Token::Identifier(ref ident) if ident == "fail_at_risk_score" => {
+                let t = self.advance()?;
+                diff_policy.fail_at_risk_score = match t.token {
+                    Token::Number(n) => n,
+                    _ => return Err(anyhow!("Expected number for fail_at_risk_score")),
+                };
+            }
+            Token::Identifier(ref ident) if ident == "require_tests_for_src_changes" => {
+                let t = self.advance()?;
+                diff_policy.require_tests_for_src_changes = match t.token {
+                    Token::Bool(b) => b,
+                    _ => {
+                        return Err(anyhow!(
+                            "Expected boolean for require_tests_for_src_changes"
+                        ));
+                    }
+                };
+            }
+            Token::Identifier(ref ident) if ident == "watched_path" => {
+                let path_token = self.advance()?;
+                let path = match path_token.token {
+                    Token::String(s) => s,
+                    _ => return Err(anyhow!("Expected path string after watched_path")),
+                };
+                self.expect(Token::LBrace)?;
+                let mut watched = crate::syntax::ast::WatchedPath {
+                    path,
+                    ..Default::default()
+                };
+                while self.current().map(|t| &t.token) != Some(&Token::RBrace) {
+                    let t = self.advance()?;
+                    if let Token::Identifier(id) = &t.token {
+                        if id == "risk" {
+                            let risk_t = self.advance()?;
+                            watched.risk = match risk_t.token {
+                                Token::Number(n) => n,
+                                _ => return Err(anyhow!("Expected number for risk")),
+                            };
+                        } else if id == "requires" {
+                            self.expect(Token::LBracket)?;
+                            while self.current().map(|t| &t.token) != Some(&Token::RBracket) {
+                                let req = self.advance()?;
+                                watched.requires.push(match req.token {
+                                    Token::String(s) => s,
+                                    _ => return Err(anyhow!("Expected string")),
+                                });
+                                if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                                    let _ = self.advance();
+                                }
+                            }
+                            let _ = self.advance();
+                        }
+                    }
+                    if self.current().map(|t| &t.token) == Some(&Token::Comma) {
+                        let _ = self.advance();
+                    }
+                }
+                let _ = self.advance();
+                diff_policy.watched_paths.push(watched);
             }
             _ => {}
         }
