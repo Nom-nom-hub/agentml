@@ -93,3 +93,32 @@ fn diff_warns_for_nested_unwired_test_file() {
         );
     }
 }
+
+#[test]
+fn diff_does_not_count_uncompiled_nested_test_file() {
+    let agent = make_agent_file();
+    let files = vec![ChangedFile {
+        path: "src/commands/diff.rs".to_string(),
+    }];
+    let mut report = RiskReport::default();
+    calculate_risk(&files, &agent, &mut report);
+    // After promotion, nested test files may still exist on disk. Risk system
+    // must NOT accept unwired nested tests as real coverage - only flat top-level
+    // tests (compiled by Cargo) count as coverage.
+    let has_test_risk = report
+        .issues
+        .iter()
+        .any(|i| i.contains("source changed without tests"));
+    let cwd = std::env::current_dir().unwrap();
+    let in_repo = cwd.join("Cargo.toml").exists();
+    if !in_repo {
+        return;
+    }
+    // src/commands/diff.rs has no flat test file (tests/commands_diff_test.rs)
+    // so it must get +20 risk regardless of any nested files
+    assert!(
+        has_test_risk,
+        "Uncompiled nested test files must not count as coverage. Issues: {:?}",
+        report.issues
+    );
+}

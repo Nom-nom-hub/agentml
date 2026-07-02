@@ -226,7 +226,7 @@ pub fn calculate_risk(files: &[ChangedFile], _agent: &AgentFile, report: &mut Ri
                 ));
             }
 
-            if !flat_exists && !nested_exists {
+            if !flat_exists {
                 report.score += 20;
                 report
                     .issues

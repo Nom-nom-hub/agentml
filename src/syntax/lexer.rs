@@ -90,17 +90,22 @@ impl Lexer {
             let n = self.read_number();
             Token::Number(n)
         } else if ch == 't'
-            && self.peek() == Some('r')
-            && self.chars[self.pos + 1..].first() == Some(&'u')
+            && self.peek_at(0) == Some('r')
+            && self.peek_at(1) == Some('u')
+            && self.peek_at(2) == Some('e')
         {
+            self.advance();
             self.advance();
             self.advance();
             self.advance();
             Token::Bool(true)
         } else if ch == 'f'
-            && self.peek() == Some('a')
-            && self.chars[self.pos + 1..].first() == Some(&'l')
+            && self.peek_at(0) == Some('a')
+            && self.peek_at(1) == Some('l')
+            && self.peek_at(2) == Some('s')
+            && self.peek_at(3) == Some('e')
         {
+            self.advance();
             self.advance();
             self.advance();
             self.advance();
@@ -141,8 +146,8 @@ impl Lexer {
         }
     }
 
-    fn peek(&self) -> Option<char> {
-        self.chars.get(self.pos + 1).copied()
+    fn peek_at(&self, offset: usize) -> Option<char> {
+        self.chars.get(self.pos + 1 + offset).copied()
     }
 
     fn skip_whitespace(&mut self) {
