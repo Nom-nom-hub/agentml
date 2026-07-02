@@ -216,7 +216,7 @@ pub fn convert_yaml_to_native(content: &str) -> anyhow::Result<String> {
         lines.push("  output {".to_string());
         if let Some(ref sections) = output_spec.required_sections {
             let items: Vec<String> = sections.iter().map(|s| format!("\"{}\"", s)).collect();
-            lines.push(format!("    required [{}]", items.join(", ")));
+            lines.push(format!("    final_report [{}]", items.join(", ")));
         }
         lines.push("  }".to_string());
     }

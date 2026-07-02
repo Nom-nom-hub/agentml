@@ -248,11 +248,14 @@ success_criteria:
 
 output:
   format: markdown
-  final_report:
-    required_fields:
-      - summary
-      - files_changed
-      - commands_run
-      - validation_result
-      - risks
-      - next_steps
+  required_sections:
+    - Summary
+    - Files changed
+    - Commands run
+    - Skills used
+    - Validation result
+    - Risk score
+    - Commit
+    - Git status
+    - Risks
+    - Next steps
