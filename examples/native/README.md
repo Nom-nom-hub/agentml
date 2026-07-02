@@ -1,6 +1,6 @@
 # Native AgentML Examples
 
-This directory contains examples of AgentML's native syntax, which is currently in development on the `feat/native-agentml-syntax` branch.
+This directory contains examples of AgentML's native syntax, an experimental public feature introduced in v0.4.0.
 
 ## Files
 
@@ -9,7 +9,7 @@ This directory contains examples of AgentML's native syntax, which is currently 
 
 ## Status
 
-Native syntax is experimental on main and planned for the v0.4.0 release after stabilization. YAML-compatible syntax remains the current public default in v0.3.0.
+Native syntax is an experimental public feature in v0.4.0. YAML-compatible syntax remains fully supported as the default format.
 
 ## Usage
 

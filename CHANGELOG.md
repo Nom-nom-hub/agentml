@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-07-02
+
+### Added
+- Added experimental native AgentML syntax for `AGENT.agent` and `.skill` files.
+- Added native syntax parser, lexer, AST, diagnostics, and conversion pipeline.
+- Added `--format auto|native|yaml` support for contract and skill validation.
+- Added `agentml init --syntax native` for generating native syntax contracts.
+- Added `agentml convert --to native` for converting YAML-compatible contracts to native syntax.
+- Added native examples under `examples/native/`.
+- Added native syntax documentation in `docs/syntax.md`.
+
+### Changed
+- Improved native syntax diagnostics with line, column, and suggested fixes.
+- Improved generated native contracts with canonical colon-less syntax.
+- Improved safety, output, and diff policy handling in native conversion.
+- Standardized validation commands to use `cargo fmt --check`.
+- Improved risk-audit test coverage detection for Rust integration tests.
+
+### Fixed
+- Fixed native boolean token parsing.
+- Fixed native output final report conversion.
+- Fixed native safety policy conversion.
+- Fixed native stack conversion.
+- Fixed risk-system handling of nested unwired test files.
+
+### Security
+- Native syntax preserves forbidden paths, forbidden actions, approval requirements, and secrets policy fields.
+- Native skills remain advisory and do not execute commands.
+
 ## [0.3.0] - 2026-06-30
 
 ### Added

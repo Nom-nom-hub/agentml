@@ -3,7 +3,7 @@
 [![CI](https://github.com/Nom-nom-hub/agentml/actions/workflows/agentml-self-check.yml/badge.svg)](https://github.com/Nom-nom-hub/agentml/actions/workflows/agentml-self-check.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-blue)](https://www.rust-lang.org)
-[![Version](https://img.shields.io/badge/version-v0.2.0-blue)](https://github.com/Nom-nom-hub/agentml/releases/tag/v0.2.0)
+[![Version](https://img.shields.io/badge/version-v0.4.0-blue)](https://github.com/Nom-nom-hub/agentml/releases/tag/v0.4.0)
 
 **AgentML is a contract language for AI coding agents.**
 
@@ -172,7 +172,7 @@ agent "my-project" {
 }
 ```
 
-Native syntax is experimental on main and planned for the v0.4.0 release after stabilization. YAML-compatible syntax remains the current public default in v0.3.0. Use `--format native` or `--syntax native` to enable.
+Native syntax is an experimental public feature in v0.4.0. YAML-compatible syntax remains fully supported. Use `--format native` or `--syntax native` to enable native syntax. Use `--format yaml` or `--syntax yaml` to explicitly use YAML. The default `--format auto` detects the format automatically.
 
 ---
 

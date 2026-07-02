@@ -1,10 +1,10 @@
 # AgentML Native Syntax
 
-Native AgentML syntax is an experimental feature under development on the `feat/native-agentml-syntax` branch.
+Native AgentML syntax is an experimental public feature introduced in v0.4.0.
 
 ## Status
 
-**Experimental**: Native syntax is on `main` and planned for v0.4.0 after stabilization. YAML-compatible syntax remains the default for v0.3.0.
+**Experimental**: Native syntax is a public feature in v0.4.0. YAML-compatible syntax remains fully supported as the default format.
 
 ## Purpose
 
