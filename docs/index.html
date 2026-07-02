@@ -12,7 +12,7 @@ description: AgentML gives coding agents structured project contracts with safe 
     <div class="hero-grid-layout">
       <div>
         <div class="hero-badges">
-          <span class="badge">v0.3.0</span>
+          <span class="badge">v0.4.0</span>
           <span class="badge badge-secondary">Published on crates.io</span>
           <span class="badge badge-secondary">Built in Rust</span>
           <span class="badge badge-secondary">Dogfooded</span>
@@ -24,6 +24,7 @@ description: AgentML gives coding agents structured project contracts with safe 
             <code>cargo install agentml</code>
             <button class="copy-btn" onclick="copy('cargo install agentml', this)">Copy</button>
           </div>
+          <p style="margin-top:12px;color:var(--accent-cyan);font-size:14px;font-weight:500;">Now with experimental native AgentML syntax in v0.4.0.</p>
           <a href="https://github.com/Nom-nom-hub/agentml" class="btn btn-secondary" target="_blank">View GitHub</a>
           <a href="#skills" class="btn btn-secondary">View Skills</a>
           <a href="#native-syntax" class="btn btn-secondary">Native Syntax</a>
@@ -251,10 +252,10 @@ description: AgentML gives coding agents structured project contracts with safe 
 <section class="content" id="native-syntax">
   <div class="container">
     <div class="text-center">
-      <span class="section-label" style="color:var(--accent-red);background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);">Native Syntax Preview</span>
+      <span class="section-label" style="color:var(--accent-red);background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);">Native Syntax (v0.4.0)</span>
     </div>
     <h2 class="text-center">Native AgentML syntax (experimental).</h2>
-    <p class="section-subtitle">AgentML is developing its own native block-based syntax on the dev branch. YAML-compatible contracts remain supported and are the default in the current public release (v0.3.0).</p>
+    <p class="section-subtitle">Experimental native syntax is available in v0.4.0. YAML-compatible syntax remains supported. Native syntax is not the default replacement yet.</p>
     <div class="terminal">
       <div class="terminal-header">
         <span class="dot" style="background:#ff5f57;"></span>
@@ -277,11 +278,25 @@ description: AgentML gives coding agents structured project contracts with safe 
       </div>
     </div>
     <p style="margin-top:16px;color:var(--text-muted);">
-      <strong>Dev branch status:</strong> Native parser: implemented | Native validation: implemented | Native examples: validating | Format flags: complete | Native init: complete | Convert command: complete
+      <strong>v0.4.0 release:</strong> Native parser: implemented | Native validation: implemented | Native examples: validating | Format flags: complete | Native init: complete | Convert command: complete
     </p>
     <p style="margin-top:8px;color:var(--text-muted);">
-      Native syntax is experimental on main and planned for the v0.4.0 release after stabilization. YAML-compatible syntax remains the current public default in v0.3.0.
+      Experimental native syntax is available in v0.4.0. YAML-compatible syntax remains supported. Native syntax is not the default replacement yet.
     </p>
+    <div class="terminal" style="margin-top:16px;">
+      <div class="terminal-header">
+        <span class="dot" style="background:#ff5f57;"></span>
+        <span class="dot" style="background:#febc2e;"></span>
+        <span class="dot" style="background:#28c840;"></span>
+        <span class="terminal-title">NATIVE SYNTAX COMMANDS</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="prompt">$</span><span class="cmd">cargo install agentml</span></div>
+        <div><span class="prompt">$</span><span class="cmd">agentml init --template rust-cli --syntax native</span></div>
+        <div><span class="prompt">$</span><span class="cmd">agentml validate AGENT.agent --format native</span></div>
+        <div><span class="prompt">$</span><span class="cmd">agentml convert --to native AGENT.agent</span></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -398,6 +413,68 @@ description: AgentML gives coding agents structured project contracts with safe 
   </div>
 </section>
 
+<section class="content" id="feature-matrix">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-label" style="color:var(--accent-violet);background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);">Feature Status</span>
+    </div>
+    <h2 class="text-center">Feature maturity matrix.</h2>
+    <p class="section-subtitle">Know what is stable, experimental, and planned.</p>
+    <div class="matrix-wrapper">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>AGENT.agent contracts</td>
+            <td class="check">Stable</td>
+          </tr>
+          <tr>
+            <td>AGENTS.md generation</td>
+            <td class="check">Stable</td>
+          </tr>
+          <tr>
+            <td>Brief/context generation</td>
+            <td class="check">Stable</td>
+          </tr>
+          <tr>
+            <td>Diff risk audit</td>
+            <td class="check">Stable</td>
+          </tr>
+          <tr>
+            <td>Doctor checks</td>
+            <td class="check">Stable</td>
+          </tr>
+          <tr>
+            <td>Task close reports</td>
+            <td class="check">Stable</td>
+          </tr>
+          <tr>
+            <td>MCP server</td>
+            <td class="check">Stable</td>
+          </tr>
+          <tr>
+            <td>Active skills</td>
+            <td class="check">Stable</td>
+          </tr>
+          <tr>
+            <td>Native syntax</td>
+            <td class="partial">Experimental in v0.4.0</td>
+          </tr>
+          <tr>
+            <td>YAML-compatible syntax</td>
+            <td class="check">Supported</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 <section class="content" id="quickstart">
   <div class="container">
     <div class="text-center">
@@ -492,11 +569,30 @@ description: AgentML gives coding agents structured project contracts with safe 
         </div>
       </div>
       <div class="faq-item">
-        <button class="faq-question">Why YAML right now?<span class="faq-arrow">▼</span></button>
+        <button class="faq-question">Why YAML and native syntax?<span class="faq-arrow">▼</span></button>
         <div class="faq-answer">
-          <div class="faq-answer-inner">YAML is the MVP format because it is readable, familiar, and easy to validate. A native AgentML syntax is in development on the dev branch.</div>
+          <div class="faq-answer-inner">YAML-compatible syntax was the original format and remains fully supported. Native AgentML syntax is now available as an experimental feature in v0.4.0. Both formats validate equally. You can choose based on preference.</div>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="content" id="docs-links" style="padding-bottom:40px;">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-label">Documentation</span>
+    </div>
+    <h2 class="text-center">Explore the docs.</h2>
+    <p class="section-subtitle">Everything you need to understand AgentML.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:24px;">
+      <a href="docs/syntax.md" class="btn btn-secondary" target="_blank">Native Syntax</a>
+      <a href="examples/native/README.md" class="btn btn-secondary" target="_blank">Native Examples</a>
+      <a href="docs/skills.md" class="btn btn-secondary" target="_blank">Skills Guide</a>
+      <a href="docs/mcp.md" class="btn btn-secondary" target="_blank">MCP Server</a>
+      <a href="docs/adoption-proof.md" class="btn btn-secondary" target="_blank">Adoption Proof</a>
+      <a href="https://github.com/Nom-nom-hub/agentml/releases" class="btn btn-secondary" target="_blank">Releases</a>
+      <a href="https://crates.io/crates/agentml" class="btn btn-secondary" target="_blank">crates.io</a>
     </div>
   </div>
 </section>
