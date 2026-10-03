@@ -1,1 +1,101 @@
-{"activationEvents":["onLanguage:agentml","onFileSystem:AGENT.agent","workspaceContains:AGENT.agent"],"categories":["Linters","Programming Languages","Other"],"contributes":{"commands":[{"command":"agentml.init","title":"AgentML: Initialize Contract"},{"command":"agentml.validate","title":"AgentML: Validate Contract"},{"command":"agentml.brief","title":"AgentML: Generate Brief"},{"command":"agentml.diff","title":"AgentML: Audit Changes"},{"command":"agentml.doctor","title":"AgentML: Check Health"}],"configuration":{"properties":{"agentml.binaryPath":{"default":"agentml","description":"Path to the agentml binary","type":"string"},"agentml.validateOnSave":{"default":true,"description":"Validate AGENT.agent files on save","type":"boolean"}},"title":"AgentML"},"grammars":[{"language":"agentml","path":"./syntaxes/agentml.tmGrammar.json","scopeName":"source.agentml"}],"languages":[{"aliases":["AgentML","agentml"],"extensions":[".agent"],"id":"agentml"}]},"description":"AI agent contracts for safer coding — validate, audit, and enforce AgentML contracts from VS Code.","devDependencies":{"@types/node":"^20.0.0","@types/vscode":"^1.80.0","@vscode/vsce":"^2.22.0","typescript":"^5.0.0"},"displayName":"AgentML","engines":{"vscode":"^1.80.0"},"license":"MIT","main":"./out/extension.js","name":"agentml","publisher":"nom-nom-hub","repository":{"type":"git","url":"https://github.com/Nom-nom-hub/agentml"},"scripts":{"compile":"tsc -p ./","package":"vsce package","vscode:prepublish":"npm run compile","watch":"tsc -watch -p ./"},"version":"0.4.0"}
+{
+  "activationEvents": [
+    "onLanguage:agentml",
+    "workspaceContains:AGENT.agent",
+    "onCommand:agentml.init",
+    "onCommand:agentml.validate",
+    "onCommand:agentml.brief",
+    "onCommand:agentml.diff",
+    "onCommand:agentml.doctor",
+    "onStartupFinished"
+  ],
+  "categories": [
+    "Linters",
+    "Programming Languages",
+    "Other"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "agentml.init",
+        "title": "AgentML: Initialize Contract"
+      },
+      {
+        "command": "agentml.validate",
+        "title": "AgentML: Validate Contract"
+      },
+      {
+        "command": "agentml.brief",
+        "title": "AgentML: Generate Brief"
+      },
+      {
+        "command": "agentml.diff",
+        "title": "AgentML: Audit Changes"
+      },
+      {
+        "command": "agentml.doctor",
+        "title": "AgentML: Check Health"
+      }
+    ],
+    "configuration": {
+      "properties": {
+        "agentml.binaryPath": {
+          "default": "agentml",
+          "description": "Path to the agentml binary",
+          "type": "string"
+        },
+        "agentml.validateOnSave": {
+          "default": true,
+          "description": "Validate AGENT.agent files on save",
+          "type": "boolean"
+        }
+      },
+      "title": "AgentML"
+    },
+    "grammars": [
+      {
+        "language": "agentml",
+        "path": "./syntaxes/agentml.tmGrammar.json",
+        "scopeName": "source.agentml"
+      }
+    ],
+    "languages": [
+      {
+        "aliases": [
+          "AgentML",
+          "agentml"
+        ],
+        "extensions": [
+          ".agent"
+        ],
+        "id": "agentml"
+      }
+    ]
+  },
+  "description": "AI agent contracts for safer coding \u2014 validate, audit, and enforce AgentML contracts from VS Code.",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^2.22.0",
+    "typescript": "^5.0.0"
+  },
+  "displayName": "AgentML",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "license": "MIT",
+  "main": "./out/extension.js",
+  "name": "agentml",
+  "publisher": "nom-nom-hub",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nom-nom-hub/agentml"
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "package": "vsce package",
+    "vscode:prepublish": "npm run compile",
+    "watch": "tsc -watch -p ./"
+  },
+  "version": "0.4.0"
+}
