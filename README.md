@@ -16,10 +16,24 @@ AgentML defines how AI agents understand, modify, validate, and report on softwa
 ## Install
 
 ```bash
+# Via npm (no Rust required)
+npx agentml init
+
+# Via cargo
 cargo install agentml
 ```
 
-Requirements: Rust 1.70+, Cargo
+Requirements: Rust 1.70+, Cargo (for cargo install only)
+
+**VS Code:** Install the [AgentML extension](https://marketplace.visualstudio.com/items?itemName=nom-nom-hub.agentml) for inline validation, status bar, and commands.
+
+**GitHub Actions:** Add contract checking to your CI:
+
+```yaml
+- uses: Nom-nom-hub/agentml@v0.4.0
+  with:
+    fail-at-risk: 80
+```
 
 ---
 
@@ -58,7 +72,7 @@ agentml mcp
 ## Basic Commands
 
 ```
-agentml init [path] [--template <generic|rust-cli|nextjs-app|python-package>] [--detect] [--syntax <yaml|native>] [--force] [--no-agents-md] [--no-context] [--no-brief]
+agentml init [path] [--template <generic|rust-cli|nextjs-app|react-app|python-package|node-package|go-cli|django-app>] [--detect] [--syntax <yaml|native>] [--force] [--no-agents-md] [--no-context] [--no-brief]
 agentml validate <file> [--strict] [--format <auto|native|yaml>]
 agentml convert --to native <file> [--write] [--backup]
 agentml inspect

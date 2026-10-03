@@ -60,6 +60,9 @@ pub fn run(
             (Some("python-package"), None) => {
                 (python_package_template(), "python-package".to_string())
             }
+            (Some("react-app"), None) => (react_app_template(), "react-app".to_string()),
+            (Some("go-cli"), None) => (go_cli_template(), "go-cli".to_string()),
+            (Some("django-app"), None) => (django_app_template(), "django-app".to_string()),
             _ => (generic_template(), "generic".to_string()),
         }
     };
@@ -544,6 +547,206 @@ output:
     - "changes"
     - "tests"
     - "risks"
+"#
+    .to_string()
+}
+
+fn react_app_template() -> String {
+    r#"# AgentML Execution Contract
+meta:
+  name: my-react-app
+  version: "1.0.0"
+
+purpose: >
+  AI agent for building and maintaining a React application (Vite/CRA).
+
+context:
+  project_type: react-app
+  languages: [typescript, javascript]
+  frameworks: [react, vite]
+
+permissions:
+  read:
+    - "**/*.ts"
+    - "**/*.tsx"
+    - "**/*.css"
+    - "**/*.json"
+    - "**/*.md"
+  write:
+    - "src/**/*.ts"
+    - "src/**/*.tsx"
+    - "src/**/*.css"
+  execute:
+    - "npm run"
+    - "npx"
+
+tools: [npm, node, git, bash]
+
+safety:
+  policy: >
+    Never commit secrets. Use environment variables.
+    Require human review for all git push operations.
+  forbidden_paths:
+    - ".env"
+    - ".env.production"
+    - "node_modules/**"
+    - "dist/**"
+    - "build/**"
+  forbidden_actions:
+    - "git push --force"
+    - "rm -rf src"
+  require_confirmation:
+    - "git push"
+    - "npm run build"
+
+validation:
+  - name: Lint
+    command: "npm run lint"
+  - name: Type Check
+    command: "npx tsc --noEmit"
+  - name: Test
+    command: "npm test -- --watchAll=false"
+  - name: Build
+    command: "npm run build"
+
+output:
+  format: markdown
+  required_sections:
+    - "changes"
+    - "tests"
+    - "risks"
+"#
+    .to_string()
+}
+
+fn go_cli_template() -> String {
+    r#"# AgentML Execution Contract
+meta:
+  name: my-go-cli
+  version: "1.0.0"
+
+purpose: >
+  AI agent for building and maintaining a Go CLI application.
+
+context:
+  project_type: go-cli
+  languages: [go]
+  frameworks: [cobra]
+
+permissions:
+  read:
+    - "**/*.go"
+    - "**/go.mod"
+    - "**/go.sum"
+    - "**/*.md"
+  write:
+    - "**/*.go"
+    - "go.mod"
+  execute:
+    - "go"
+
+tools: [go, gofmt, git, bash]
+
+safety:
+  policy: >
+    Never commit secrets. Use environment variables.
+    Require human review before go publish or release actions.
+  forbidden_paths:
+    - ".env"
+    - "vendor/**"
+  forbidden_actions:
+    - "rm -rf"
+    - "go clean -cache"
+  require_confirmation:
+    - "git push"
+
+validation:
+  - name: Format
+    command: "gofmt -l ."
+  - name: Vet
+    command: "go vet ./..."
+  - name: Test
+    command: "go test ./..."
+  - name: Build
+    command: "go build ./..."
+
+output:
+  format: markdown
+  required_sections:
+    - "changes"
+    - "tests"
+    - "risks"
+"#
+    .to_string()
+}
+
+fn django_app_template() -> String {
+    r#"# AgentML Execution Contract
+meta:
+  name: my-django-app
+  version: "1.0.0"
+
+purpose: >
+  AI agent for building and maintaining a Django web application.
+
+context:
+  project_type: django-app
+  languages: [python]
+  frameworks: [django]
+
+permissions:
+  read:
+    - "**/*.py"
+    - "**/*.html"
+    - "**/requirements*.txt"
+    - "**/*.md"
+  write:
+    - "**/*.py"
+    - "**/*.html"
+    - "requirements.txt"
+  execute:
+    - "python"
+    - "pytest"
+
+tools: [python, pip, pytest, git, bash]
+
+safety:
+  policy: >
+    Never commit secrets. Use environment variables and .env files (never committed).
+    Require human review for all migrations and production deploys.
+    Never expose SECRET_KEY or database credentials.
+  forbidden_paths:
+    - ".env"
+    - ".env.*"
+    - "*/settings_production.py"
+    - "db.sqlite3"
+    - "**/migrations/*.py"
+  forbidden_actions:
+    - "python manage.py flush"
+    - "python manage.py sqlflush"
+    - "rm -rf"
+  require_confirmation:
+    - "python manage.py migrate"
+    - "python manage.py collectstatic"
+    - "git push"
+
+validation:
+  - name: Lint
+    command: "ruff check ."
+  - name: Type Check
+    command: "mypy ."
+  - name: Test
+    command: "pytest"
+  - name: Django Check
+    command: "python manage.py check"
+
+output:
+  format: markdown
+  required_sections:
+    - "changes"
+    - "tests"
+    - "risks"
+    - "migrations"
 "#
     .to_string()
 }

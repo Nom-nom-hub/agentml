@@ -1,0 +1,79 @@
+name: 'AgentML Contract Check'
+description: 'Validate AI agent contracts and audit changes with risk scoring'
+author: 'Nom-nom-hub'
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  contract:
+    description: 'Path to the AGENT.agent contract file'
+    required: false
+    default: 'AGENT.agent'
+  fail-at-risk:
+    description: 'Fail if risk score is N or higher (0-100)'
+    required: false
+    default: '80'
+  version:
+    description: 'AgentML version to install (e.g. v0.4.0 or latest)'
+    required: false
+    default: 'latest'
+  working-directory:
+    description: 'Working directory to run AgentML in'
+    required: false
+    default: '.'
+
+outputs:
+  risk-score:
+    description: 'Risk score from the diff audit (0-100)'
+  valid:
+    description: 'Whether the contract validated successfully'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install AgentML
+      shell: bash
+      run: |
+        VERSION="${{ inputs.version }}"
+        if [ "$VERSION" = "latest" ]; then
+          VERSION=$(curl -s https://api.github.com/repos/Nom-nom-hub/agentml/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+        fi
+        echo "Installing AgentML $VERSION..."
+        OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        ARCH=$(uname -m)
+        case "$ARCH" in
+          x86_64) ARCH="x86_64" ;;
+          aarch64|arm64) ARCH="aarch64" ;;
+        esac
+        URL="https://github.com/Nom-nom-hub/agentml/releases/download/${VERSION}/agentml-${ARCH}-${OS}.tar.gz"
+        curl -sL "$URL" -o /tmp/agentml.tar.gz || {
+          echo "Pre-built binary not found, installing via cargo..."
+          cargo install agentml --version "${VERSION#v}"
+          exit 0
+        }
+        tar -xzf /tmp/agentml.tar.gz -C /tmp
+        sudo mv /tmp/agentml /usr/local/bin/agentml
+        agentml version
+
+    - name: Validate contract
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        agentml validate "${{ inputs.contract }}"
+        echo "valid=true" >> "$GITHUB_OUTPUT"
+
+    - name: Audit changes
+      id: audit
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        OUTPUT=$(agentml diff 2>&1 || true)
+        echo "$OUTPUT"
+        SCORE=$(echo "$OUTPUT" | grep -oP 'Risk score: \K[0-9]+' || echo "0")
+        echo "risk-score=$SCORE" >> "$GITHUB_OUTPUT"
+        THRESHOLD="${{ inputs.fail-at-risk }}"
+        if [ "$SCORE" -ge "$THRESHOLD" ]; then
+          echo "::error::Risk score $SCORE meets or exceeds threshold $THRESHOLD"
+          exit 1
+        fi
