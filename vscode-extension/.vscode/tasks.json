@@ -1,0 +1,1 @@
+{"tasks":[{"label":"npm: compile","script":"compile","type":"npm"},{"label":"npm: watch","script":"watch","type":"npm"}],"version":"2.0.0"}
